@@ -1,16 +1,15 @@
-// App.js
-import React from 'react';
-import SideNav from './Components/SideNav';
-import vite from "FrontEnd\RMKEC\src\assets\react.svg"
+import './App.css'
+import LoginPage from './Pages/LoginPage'
+
+
 function App() {
+
+
   return (
-    <div style={{ display: 'flex' }}>
-      <SideNav/>
-      <main style={{ marginLeft: '240px', padding: '20px', flex: 1 }}>
-        <h1>Welcome to the Dashboard</h1>
-      </main>
+    <div className='ter'>
+      <LoginPage/>
     </div>
-  );
+  )
 }
 
 export default App;
