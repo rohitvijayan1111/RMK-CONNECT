@@ -10,7 +10,12 @@
   width: 300px; 
   max-width: 90%; 
 }
-
+.error{
+  color:red;
+  margin-top: 20px;
+  font-size: 18px;
+  text-align: center  ;
+}
 .flower-logo{
   display: flex;
   flex-direction: column;

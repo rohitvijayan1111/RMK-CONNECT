@@ -1,14 +1,32 @@
 import React, { useState } from 'react';
 import './Login.css';
 import logo from '../assets/Logo.png';
+import axios from 'axios';
 
 function Login() {
   const [username, setUsername] = useState('');
   const [password, setPassword] = useState('');
-
+  const [error, setError] = useState('');
+// Register a new user
+const validateUser = async (userData) => {
+  try {
+    const response = await axios.post('http://localhost:3000/auth/login', userData);
+    //console.log(response.data);
+    setError('');
+  } catch (error) {
+    
+    //console.error('Error registering userssss:', error.response);
+    if (error.response) {
+      //console.log('Error message from backend:', error.response);
+      setError(error.response.data);  
+    } else {
+      setError('An unknown error occurred');
+    }
+  }
+};
   const handleSubmit = (event) => {
-    event.preventDefault();
-
+    event.preventDefault(); 
+    validateUser({username:username.toLowerCase(),password:password});
     console.log(`Username: ${username}, Password: ${password}`);
   };
 
@@ -36,6 +54,7 @@ function Login() {
           />
         </div>
         <button type="submit">Sign in</button>
+        {error && <div className="error">{error}</div>} {/* Display error */}
       </form>
       
     </div>
