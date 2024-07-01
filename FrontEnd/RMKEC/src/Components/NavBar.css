@@ -1,0 +1,58 @@
+.header
+{
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    padding: 10px 5% 10px 1%;
+    background-color: #164863;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    color: aliceblue;
+}
+.logo
+{
+    color: aliceblue;
+    font-weight: 700;
+    font-size: 32px;
+}
+
+.navbar a
+{
+    position: relative;
+    font-size: 18px;
+    font-weight: 500;
+    color: aliceblue;
+    margin-left: 40px;
+}
+.left
+{
+    display: flex;
+    gap: 10px;
+}
+.logout-button {
+    background-color: #ff4b5c;
+    color: white;
+    border: none;
+    border-radius: 20px;
+    padding: 10px 20px;
+    font-size: 16px;
+    cursor: pointer;
+    transition: background-color 0.3s ease, transform 0.3s ease;
+  }
+  
+  .logout-button:hover {
+    background-color: #ff1f3a;
+    transform: scale(1.05);
+  }
+  
+  .logout-button:active {
+    background-color: #d90429;
+    transform: scale(0.95);
+  }
+  
+  .logout-button:focus {
+    outline: none;
+    box-shadow: 0 0 0 3px rgba(255, 75, 92, 0.4);
+  }
