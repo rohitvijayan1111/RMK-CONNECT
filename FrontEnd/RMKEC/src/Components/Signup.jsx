@@ -13,7 +13,7 @@ function Signup() {
     try {
       const response = await axios.post('http://localhost:3000/auth/register', userData);
       console.log(response.data);
-      setError('ee');
+      setError('');
     } catch (error) {
       console.error('Error registering user hehehehh:', error);
       if (error.response) {

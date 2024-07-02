@@ -51,14 +51,18 @@ router.post('/login', (req, res) => {
     if (results.length === 0) {
       return res.status(400).send('Invalid credentials' );
     }
-
     const user = results[0];
     const isMatch = await bcrypt.compare(password, user.password);
     if (!isMatch) {
       return res.status(400).send('Invalid credentials' );
     }
-
-    res.send('Login successful' );
+    const responseData = {
+      username: user.username,
+      role: user.role,
+    };
+    
+    // Send the response as JSON
+    res.status(200).json(responseData);
   });
 });
 

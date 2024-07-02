@@ -1,4 +1,5 @@
 import React, { useState } from 'react';
+import { useNavigate } from 'react-router-dom';
 import './Login.css';
 import logo from '../assets/Logo.png';
 import axios from 'axios';
@@ -7,39 +8,46 @@ function Login() {
   const [username, setUsername] = useState('');
   const [password, setPassword] = useState('');
   const [error, setError] = useState('');
-// Register a new user
-const validateUser = async (userData) => {
-  try {
-    const response = await axios.post('http://localhost:3000/auth/login', userData);
-    //console.log(response.data);
-    setError('');
-  } catch (error) {
-    
-    //console.error('Error registering userssss:', error.response);
-    if (error.response) {
-      //console.log('Error message from backend:', error.response);
-      setError(error.response.data);  
-    } else {
-      setError('An unknown error occurred');
+  const navigate = useNavigate();
+
+  // Validate user login
+  const validateUser = async (userData) => {
+    try {
+      const response = await axios.post('http://localhost:3000/auth/login', userData);
+      console.log(response.data.role); 
+      window.localStorage.setItem('userType',response.data.role);
+      window.localStorage.setItem('loggedIn',true);
+      setError(''); 
+      navigate('/dashboard');
+    } catch (error) {
+      console.error('Error logging in:', error.response);
+      window.localStorage.setItem('loggedIn',false);
+      if (error.response) {
+        console.log('Error message from backend:', error.response.data);
+        setError(error.response.data);  
+      } else {
+        setError('An unknown error occurred');
+      }
     }
-  }
-};
+  };
+
   const handleSubmit = (event) => {
-    event.preventDefault(); 
-    validateUser({username:username.toLowerCase(),password:password});
+    event.preventDefault();
+    validateUser({ username: username.toLowerCase(), password: password });
     console.log(`Username: ${username}, Password: ${password}`);
   };
 
   return (
     <div className="login-form">
-      
-        <div className="flower-logo"><img src={logo}/> </div>
+      <div className="flower-logo">
+        <img src={logo} alt="Logo" />
+      </div>
       <form onSubmit={handleSubmit}>
         <div className="form-group">
           <input
             type="text"
             id="username"
-            placeholder='USERNAME'
+            placeholder="USERNAME"
             value={username}
             onChange={(e) => setUsername(e.target.value)}
           />
@@ -48,7 +56,7 @@ const validateUser = async (userData) => {
           <input
             type="password"
             id="password"
-            placeholder='PASSWORD'
+            placeholder="PASSWORD"
             value={password}
             onChange={(e) => setPassword(e.target.value)}
           />
@@ -56,7 +64,6 @@ const validateUser = async (userData) => {
         <button type="submit">Sign in</button>
         {error && <div className="error">{error}</div>} {/* Display error */}
       </form>
-      
     </div>
   );
 }
