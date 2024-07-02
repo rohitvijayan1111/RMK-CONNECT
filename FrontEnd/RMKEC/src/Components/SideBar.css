@@ -7,7 +7,8 @@
     left: 0;
     z-index: 10;
     transition: left 0.3s ease-in-out;
-  }
+    padding-top: 20px;
+    }
   
   .sidebar ul {
     list-style: none;

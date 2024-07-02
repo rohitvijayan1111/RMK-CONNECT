@@ -1,3 +1,4 @@
+
 const express = require('express');
 const bodyParser = require('body-parser');
 const app = express();
@@ -14,9 +15,10 @@ const clubActivitiesRoutes = require('./routes/clubActivities');
 const guestLecturesRoutes = require('./routes/guestlecture');
 const hallBookingsRoutes = require('./routes/hallbooking');
 const notificationsRoutes = require('./routes/notifications');
-
+const EmailRoutes = require('./routes/emailsender');
 // Route handling
 app.use('/auth', authRoutes);
+app.use('/mail', EmailRoutes);
 /*
 app.use('/users', userRoutes);
 app.use('/club-activities', clubActivitiesRoutes);

@@ -1,22 +1,30 @@
-import React from "react";
-import { Outlet, Link } from 'react-router-dom';
+import React, { useEffect } from "react";
+import { Outlet, useNavigate } from 'react-router-dom';
 import NavBar from "./NavBar";
 import SideBar from "./SideBar";
-import Login from "./Login";
 import LoginPage from "../Pages/LoginPage";
+import './Layout.css'; // Import CSS file for layout styling
 
 const Layout = () => {
-    const isLoggedIn = window.localStorage.getItem("loggedIn");
-    const userType = window.localStorage.getItem("userType");
+    const navigate = useNavigate();
+
+    useEffect(() => {
+        const isLoggedIn = window.localStorage.getItem('loggedIn');
+        if (isLoggedIn === 'false') {
+          navigate('/'); // Redirect to signout page or login page
+        }
+    }, []);
 
     return (
-        isLoggedIn ? (
-            <div>
-                <NavBar/>
-                <SideBar/>
-                <Outlet/>
+        <div>
+            <NavBar />
+            <aside>
+            <SideBar />
+            </aside>
+            <div class="main-frame">
+            <Outlet/>
             </div>
-        ) : <LoginPage/>
+        </div>
     );
 }
 

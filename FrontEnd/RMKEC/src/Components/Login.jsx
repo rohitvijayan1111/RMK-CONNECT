@@ -18,7 +18,7 @@ function Login() {
       window.localStorage.setItem('userType',response.data.role);
       window.localStorage.setItem('loggedIn',true);
       setError(''); 
-      navigate('/dashboard');
+      if(response.data.role=='hod')  navigate('/dashboard');
     } catch (error) {
       console.error('Error logging in:', error.response);
       window.localStorage.setItem('loggedIn',false);

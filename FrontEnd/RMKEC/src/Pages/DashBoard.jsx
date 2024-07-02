@@ -6,11 +6,8 @@ import SideBar from '../Components/SideBar'
 function DashBoard() {
   return (
     <div className='dashboard'>
-        <NavBar/>
-        <SideBar/>
-   
+      <h1>Hello</h1>
     </div>
   )
 }
-
 export default DashBoard
