@@ -21,6 +21,7 @@ const Layout = () => {
             <NavBar />
             <Navigation/>
             <aside>
+
             <SideBar />
             </aside>
             <div className="main-frame">
