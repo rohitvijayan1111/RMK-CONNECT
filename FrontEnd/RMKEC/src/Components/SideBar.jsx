@@ -1,6 +1,6 @@
 import React from 'react';
 import './SideBar.css';
-import { Link } from 'react-router-dom'; // Import Link from react-router-dom
+import { Link } from 'react-router-dom'; 
 import club from '../assets/club.png';
 import lecture from '../assets/lecture.png';
 import faculty from '../assets/faculty.png';

@@ -1,0 +1,28 @@
+.custom-tooltip {
+    padding: 8px;
+    background-color: #1e293b;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    width: 100px; 
+    height: 60px; 
+    border-radius: 8px;
+    overflow: hidden;
+  
+    }
+    .tooltip-label {
+      font-size: 1.125rem; 
+      font-weight: 500; 
+    }
+    
+    .tooltip-revenue {
+      font-size: 0.875rem; 
+      color: #3b82f6;
+    }
+    
+    .tooltip-value {
+      margin-left: 8px; 
+      margin: 0;
+    }
+    

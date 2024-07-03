@@ -62,7 +62,7 @@ function Login() {
           />
         </div>
         <button type="submit">Sign in</button>
-        {error && <div className="error">{error}</div>} {/* Display error */}
+        {error && <div className="error">{error}</div>} {}
       </form>
     </div>
   );
