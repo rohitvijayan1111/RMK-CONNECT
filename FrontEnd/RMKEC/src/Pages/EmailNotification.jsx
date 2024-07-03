@@ -24,7 +24,7 @@ const EmailNotification = () => {
       let selectedEmails = senderlist.filter(member => member.checked).map(member => member.text);
 
       if (to.trim() !== '') {
-        // Split multiple email addresses and add to selectedEmails
+        
         const additionalEmails = to.split(',').map(email => email.trim());
         selectedEmails = [...selectedEmails, ...additionalEmails];
       }

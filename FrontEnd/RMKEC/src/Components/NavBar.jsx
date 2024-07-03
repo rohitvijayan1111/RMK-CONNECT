@@ -7,7 +7,7 @@ function NavBar() {
   const handleLogout = () => {
     window.localStorage.setItem('loggedIn', false);
     window.localStorage.removeItem('userType');
-    window.location.href = '/'; // Redirect to home or login page after logout
+    window.location.href = '/';
   }
 
   return (

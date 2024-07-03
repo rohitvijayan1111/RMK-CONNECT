@@ -8,7 +8,7 @@ function Signup() {
   const [password, setPassword] = useState('');
   const [role, setRole] = useState('');
   const [error, setError] = useState('');
-  // Register a new user
+  
   const registerUser = async (userData) => {
     try {
       const response = await axios.post('http://localhost:3000/auth/register', userData);
@@ -24,7 +24,7 @@ function Signup() {
     }
   };
 
-  // Example usage
+  
   
   const handleSubmit = async (event) => {
     event.preventDefault();
@@ -73,7 +73,7 @@ function Signup() {
           />
         </div>
         <button type="submit">Sign Up</button>
-        {error && <h6 className="error">{error}</h6>} {/* Display error */}
+        {error && <h6 className="error">{error}</h6>} {}
       </form>
       
     </div>

@@ -3,7 +3,7 @@ import { Outlet, useNavigate } from 'react-router-dom';
 import NavBar from "./NavBar";
 import SideBar from "./SideBar";
 import LoginPage from "../Pages/LoginPage";
-import './Layout.css'; // Import CSS file for layout styling
+import './Layout.css'; 
 import Navigation from "./Navigation";
 
 const Layout = () => {
@@ -12,7 +12,7 @@ const Layout = () => {
     useEffect(() => {
         const isLoggedIn = window.localStorage.getItem('loggedIn');
         if (isLoggedIn === 'false') {
-          navigate('/'); // Redirect to signout page or login page
+          navigate('/'); 
         }
     }, []);
 
