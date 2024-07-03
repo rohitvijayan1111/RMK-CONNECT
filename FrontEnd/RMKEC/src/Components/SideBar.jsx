@@ -8,8 +8,9 @@ import course from '../assets/course.png';
 import sports from '../assets/sports.png';
 import achievements from '../assets/achievements.png';
 import dashboard from '../assets/dashboard.png';
-
+import { useNavigate } from 'react-router-dom';
 function SideBar() {
+  const navigate = useNavigate();
   return (
     <div className="sidebar">
       <ul>
@@ -44,7 +45,7 @@ function SideBar() {
           </Link>
         </li>
         <li>
-          <Link to="sports">
+          <Link to="mail">
             <img src={sports} width="40px" height="40px" alt="Sports" />
             Sports
           </Link>

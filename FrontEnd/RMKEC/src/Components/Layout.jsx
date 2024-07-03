@@ -23,7 +23,7 @@ const Layout = () => {
             <aside>
             <SideBar />
             </aside>
-            <div class="main-frame">
+            <div className="main-frame">
             <Outlet/>
             </div>
         </div>
