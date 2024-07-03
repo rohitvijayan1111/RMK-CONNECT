@@ -1,0 +1,15 @@
+.navigation{
+    margin-top: 85px;
+    margin-left: 85px;
+    height: 50px;
+    width: 100%;
+    background-color: #EBF4F6;
+    display: flex;
+    justify-content: space-between;
+    padding: 15px 20px;
+    color: #808080;
+}
+.head{
+    font-weight: 500;
+    font-size: 20px;
+}
