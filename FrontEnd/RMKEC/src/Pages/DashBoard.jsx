@@ -7,15 +7,8 @@ import Navigation from '../Components/Navigation'
 function DashBoard() {
   return (
     <div className='dashboard'>
-        <NavBar/>
-        <div className="content">
-          <SideBar/>
-          <Navigation/>
-        </div>
-        
-   
+      <h1>Hello</h1>
     </div>
   )
 }
-
 export default DashBoard
