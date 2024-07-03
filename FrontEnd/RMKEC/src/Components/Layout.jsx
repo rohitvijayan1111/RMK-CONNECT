@@ -4,6 +4,7 @@ import NavBar from "./NavBar";
 import SideBar from "./SideBar";
 import LoginPage from "../Pages/LoginPage";
 import './Layout.css'; // Import CSS file for layout styling
+import Navigation from "./Navigation";
 
 const Layout = () => {
     const navigate = useNavigate();
@@ -18,6 +19,7 @@ const Layout = () => {
     return (
         <div>
             <NavBar />
+            <Navigation/>
             <aside>
             <SideBar />
             </aside>

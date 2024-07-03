@@ -1,8 +1,7 @@
 .main-frame{
-    height: 100%;
-    margin-top: 5%;
-    margin-left:5%;
-    height: 100%;
+    margin-top: 0%;
+    margin-left:5.5%;
     padding: 1rem;
+    min-height: 100vh;
     background-color: #f4f4f4; /* Match the background color of the main content */
 }
