@@ -1,7 +1,7 @@
 import axios from 'axios';
 import React, { useState } from 'react';
 import { useLocation, useNavigate } from 'react-router-dom';
-
+import './EditForm.css'
 const EditForm = () => {
   const navigate = useNavigate();
   const location = useLocation();
@@ -13,14 +13,14 @@ const EditForm = () => {
     try {
       const response = await axios.put("http://localhost:3000/tables/updaterecord", {
         id: data.id,
-        data: { ...data }, // Nesting data object
+        data: { ...data }, 
         table
       });
-      console.log(response.data); // Log the response data on success
+      console.log(response.data);
       navigate("/dashboard/create-form");
     } catch (error) {
       window.alert("Error updating record");
-      console.error('Error updating record:', error); // Log the error if request fails
+      console.error('Error updating record:', error);
     }
   };
 
