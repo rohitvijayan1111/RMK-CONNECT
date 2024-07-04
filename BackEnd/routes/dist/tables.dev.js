@@ -48,9 +48,16 @@ router.post('/gettable', function _callee(req, res) {
 });
 router["delete"]('/deleterecord', function (req, res) {
   var _req$body2 = req.body,
-      table = _req$body2.table,
-      id = _req$body2.id;
-  console.log(table + " " + id);
+      id = _req$body2.id,
+      table = _req$body2.table; // Get table and id from request body
+
+  if (!table || !id) {
+    return res.status(400).json({
+      error: 'Table name and ID are required'
+    });
+  }
+
+  console.log("Deleting from ".concat(table, " where id=").concat(id));
   db.query('DELETE FROM ?? WHERE id = ?', [table, id], function (err, result) {
     if (err) {
       console.error('Error deleting item:', err.stack);
