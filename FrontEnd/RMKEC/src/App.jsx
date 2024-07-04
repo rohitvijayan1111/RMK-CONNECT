@@ -13,6 +13,7 @@ import Achievements from "./Pages/Achievements";
 import Clubactivities from "./Clubactivities";
 import CreateForm from "./Pages/CreateForm";
 import EmailNotification from "./Pages/EmailNotification";
+import EditForm from "./Pages/EditForm";
 
 function App() {
   return (
@@ -30,7 +31,9 @@ function App() {
             <Route path="course-coverage" element={<Coursecoverage />} />
             <Route path="sports" element={<Sports />} />
             <Route path="achievements" element={<Achievements />} />
-            <Route path="create-form" element={<CreateForm/>}/>      
+            <Route path="create-form" element={<CreateForm/>}/>
+            <Route path="create-form/edit-form" element={<EditForm/>}/>
+                   
           </Route>
         </Routes>
       </Router>
