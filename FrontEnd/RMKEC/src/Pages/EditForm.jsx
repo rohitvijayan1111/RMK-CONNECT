@@ -1,27 +1,51 @@
-import React from 'react';
-import { useLocation } from 'react-router-dom';
+import axios from 'axios';
+import React, { useState } from 'react';
+import { useLocation, useNavigate } from 'react-router-dom';
 
 const EditForm = () => {
+  const navigate = useNavigate();
   const location = useLocation();
-  const { attributenames, item } = location.state; 
+  const { table, attributenames, item } = location.state;
+  const [data, setdata] = useState(item);
+
+  const handleSubmit = async (e) => {
+    e.preventDefault();
+    try {
+      const response = await axios.put("http://localhost:3000/tables/updaterecord", {
+        id: data.id,
+        data: { ...data }, // Nesting data object
+        table
+      });
+      console.log(response.data); // Log the response data on success
+      navigate("/dashboard/create-form");
+    } catch (error) {
+      window.alert("Error updating record");
+      console.error('Error updating record:', error); // Log the error if request fails
+    }
+  };
 
   return (
-    <div className="container">
+    <div className="cnt">
       <h2>Edit Form</h2>
       {attributenames && attributenames.length > 0 ? (
-        <form>
+        <form className='edt' onSubmit={handleSubmit}>
           {attributenames.map((attribute, index) => (
-            <div className="form-group" key={index}>
-              <label htmlFor={attribute}>{attribute}:</label>
-              <input
-                type="text"
-                className="form-control"
-                id={attribute}
-                defaultValue={item[attribute] || ''}
-              />
-            </div>
+            attribute !== "id" && (
+              <div className="frm" key={index}>
+                <label htmlFor={attribute} className="lbl">{attribute}:</label>
+                <input
+                  type="text"
+                  className="cntr"
+                  id={attribute}
+                  onChange={(e) => setdata({ ...data, [attribute]: e.target.value })}
+                  value={data[attribute] || ''}
+                />
+              </div>
+            )
           ))}
-          <button type="submit" className="btn btn-primary">Save Changes</button>
+          <div className='holder'>
+          <button type="submit" className="btt">Save Changes</button>
+          </div>
         </form>
       ) : (
         <p>Loading...</p>

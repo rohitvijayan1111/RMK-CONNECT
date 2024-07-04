@@ -10,8 +10,8 @@ function CreateForm() {
   const [error, setError] = useState('');
   const [attributenames, setAttributenames] = useState(null);
 
-  const handleEdit = (attributenames, item) => {
-    navigate("/dashboard/create-form/edit-form", { state: { attributenames, item } }); // Fixed navigate path
+  const handleEdit = (attributenames,item) => {
+    navigate("/dashboard/create-form/edit-form", { state: {table,attributenames,item } }); // Fixed navigate path
   };
 
   const handleDelete = async (id) => {
@@ -83,7 +83,7 @@ function CreateForm() {
               <thead className="thead-dark">
                 <tr>
                   {
-                  attributenames && attributenames.map((name, index) => (
+                  attributenames && attributenames.map((name, index) =>(name=="id")?<th key={index}>S.No</th>:(
                     <th key={index}>{name}</th>
                   ))}
                   <th className="fixed-column">Action</th>
@@ -92,7 +92,7 @@ function CreateForm() {
               <tbody>
                 {data.map((item, index) => (
                   <tr key={index}>
-                    {attributenames.map((name, idx) => (
+                    {attributenames.map((name, idx) =>(name=="id")?<td key={idx}>{index+1}</td>:(
                       <td key={idx}>{item[name]}</td>
                     ))}
                     <td className="fixed-column">
