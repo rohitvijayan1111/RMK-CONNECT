@@ -4,10 +4,13 @@ var express = require('express');
 
 var bodyParser = require('body-parser');
 
+var cors = require('cors');
+
+var db = require('./config/db'); // Adjust path as per your project structure
+
+
 var app = express();
-
-var cors = require('cors'); // Middleware
-
+var PORT = process.env.PORT || 3000; // Middleware
 
 app.use(bodyParser.json());
 app.use(cors()); // Routes
@@ -24,11 +27,14 @@ var hallBookingsRoutes = require('./routes/hallbooking');
 
 var notificationsRoutes = require('./routes/notifications');
 
-var EmailRoutes = require('./routes/emailsender'); // Route handling
+var emailRoutes = require('./routes/emailsender');
+
+var tablesRoutes = require('./routes/tables'); // Route handling
 
 
 app.use('/auth', authRoutes);
-app.use('/mail', EmailRoutes);
+app.use('/mail', emailRoutes);
+app.use('/tables', tablesRoutes);
 /*
 app.use('/users', userRoutes);
 app.use('/club-activities', clubActivitiesRoutes);
@@ -38,7 +44,6 @@ app.use('/notifications', notificationsRoutes);
 */
 // Start the server
 
-var PORT = process.env.PORT || 3000;
 app.listen(PORT, function () {
   console.log("Server running on port ".concat(PORT));
 });

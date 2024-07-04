@@ -30,7 +30,7 @@ function App() {
             <Route path="course-coverage" element={<Coursecoverage />} />
             <Route path="sports" element={<Sports />} />
             <Route path="achievements" element={<Achievements />} />
-            <Route path="create-form" element={<CreateForm/>}/>
+            <Route path="create-form" element={<CreateForm/>}/>      
           </Route>
         </Routes>
       </Router>
