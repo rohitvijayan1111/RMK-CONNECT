@@ -12,10 +12,10 @@ function Navigation() {
       .join(' ');
   }
   return (
-    <div className='navigation'>
+      <div className='navigation'>
         <p className='head'>{capitalizeWords(lastPart.replaceAll("-"," "))}</p>
         <p>{capitalizeWords(location.pathname.replace("/","").replaceAll("-"," ").replaceAll("/"," > "))}</p>
-    </div>
+      </div>
   )
 }
 

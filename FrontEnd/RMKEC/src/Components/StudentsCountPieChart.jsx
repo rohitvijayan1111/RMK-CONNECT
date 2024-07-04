@@ -46,7 +46,13 @@ const CustomTooltip = ({ active, payload }) => {
   if (active && payload && payload.length) {
     return (
       <div className="custom-tooltip">
-        <p>{`${payload[0].name} : ${payload[0].value}`}</p>
+        <div className="tooltip-value">
+        {payload.map((entry, index) => (
+          <p key={`item-${index}`} className="intro" style={{ color: entry.payload.fill }}>
+            {`${entry.name}: ${entry.value}`}
+          </p>
+        ))}
+        </div>
       </div>
     );
   }

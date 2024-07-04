@@ -10,7 +10,7 @@ import Facultydetails from "./Pages/Facultydetails";
 import Coursecoverage from "./Pages/Coursecoverage";
 import Sports from "./Pages/Sports";
 import Achievements from "./Pages/Achievements";
-import Clubactivities from "./Clubactivities";
+import Clubactivities from "./Pages/Clubactivities";
 import CreateForm from "./Pages/CreateForm";
 import EmailNotification from "./Pages/EmailNotification";
 import EditForm from "./Pages/EditForm";

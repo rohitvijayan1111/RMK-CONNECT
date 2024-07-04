@@ -6,21 +6,14 @@
     justify-content: center;
     align-items: center;
     width: 100px; 
-    height: 60px; 
+    height: 80px; 
     border-radius: 8px;
-    overflow: hidden;
-  
+    overflow: hidden; 
     }
     .tooltip-label {
       font-size: 1.125rem; 
       font-weight: 500; 
     }
-    
-    .tooltip-revenue {
-      font-size: 0.875rem; 
-      color: white;
-    }
-    
     .tooltip-value {
       margin-left: 8px; 
       margin: 0;

@@ -1,9 +1,9 @@
-import React, { useCallback, useState } from "react";
+import React from "react";
 import { PieChart, Pie, Cell, Tooltip, ResponsiveContainer, Legend} from "recharts";
 import './FacultyCountPieChart.css'
 const data = [
-  { name: "PG Staff", value: 22 },
-  { name: "Pursuing PG", value: 10 },
+  { name: "PhD Staff", value: 22 },
+  { name: "Pursuing PhD", value: 10 },
   { name: "Asst. Prof", value: 5 },
   { name: "Non-Technical", value: 2 },
 ];
@@ -41,7 +41,13 @@ const CustomTooltip = ({ active, payload }) => {
   if (active && payload && payload.length) {
     return (
       <div className="custom-tooltip" >
-        <p>{`${payload[0].name} : ${payload[0].value}`}</p>
+        <div className="tooltip-value">
+        {payload.map((entry, index) => (
+          <p key={`item-${index}`} className="intro" style={{ color: entry.payload.fill }}>
+            {`${entry.name}: ${entry.value}`}
+          </p>
+        ))}
+        </div>
       </div>
     );
   }

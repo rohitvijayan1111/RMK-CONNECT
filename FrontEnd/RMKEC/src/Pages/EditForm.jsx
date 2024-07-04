@@ -43,9 +43,10 @@ const EditForm = () => {
               </div>
             )
           ))}
-          <div className='holder'>
-          <button type="submit" className="btt">Save Changes</button>
+          <div className="holder">
+            <input type='submit' value="Submit" className='btt'/>
           </div>
+          
         </form>
       ) : (
         <p>Loading...</p>

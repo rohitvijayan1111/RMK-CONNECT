@@ -1,6 +1,5 @@
 
 import React from 'react';
-import './PlacementBarGraph.css'
 import {
   BarChart,
   Bar,
@@ -11,23 +10,20 @@ import {
   Legend,
   ResponsiveContainer,
 } from 'recharts';
-
+import './PlacementBarGraph.css'
 
 const Details = [
   {
     status: 'Placed',
     students: 83,
-
   },
   {
     status: 'Yet to be Placed',
     students: 20,
-
   },
   {
     status: 'HS',
     students: 25,
-
   },
 ];
 
@@ -53,12 +49,16 @@ const PlacementBarGraph = () => {
   );
 };
 
-const CustomTooltip = ({ active, payload, label }) => {
+const CustomTooltip = ({ active, payload,}) => {
   if (active && payload && payload.length) {
     return (
       <div className="custom-tooltip">
-        <p className="tooltip-revenue">
-          No. of Students: <span className="tooltip-value">{payload[0].value}</span>
+        <p className="tooltip-value">
+        {payload.map((entry, index) => (
+          <p key={`item-${index}`} className="intro" style={{ color: entry.color }}>
+            {`${entry.name}: ${entry.value}`}
+          </p>
+        ))}
         </p>
       </div>
     );
