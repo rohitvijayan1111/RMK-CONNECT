@@ -9,9 +9,9 @@ function CreateForm() {
   const [attributenames, setAttributenames] = useState(null);
 
   const handleEdit = (item) => {
-    // Placeholder function for edit action
+
     console.log('Editing item:', item);
-    // Implement your edit functionality here
+
   };
 
   const handleDelete = async (id) => {
@@ -19,7 +19,7 @@ function CreateForm() {
     if (confirmDelete) {
       try {
         await axios.delete(`http://localhost:3000/tables/deleterecord`);
-        setData(data.filter((item) => item.id !== id)); // Update state after deletion
+        setData(data.filter((item) => item.id !== id)); 
       } catch (error) {
         console.error('Error deleting item:', error);
         setError('Error deleting item');
