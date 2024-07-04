@@ -1,31 +1,37 @@
 import React from 'react';
 import { useLocation } from 'react-router-dom';
-
+import './EditForm.css'
 const EditForm = () => {
   const location = useLocation();
   const { attributenames, item } = location.state; 
 
   return (
-    <div className="container">
-      <h2>Edit Form</h2>
+    <div className="cnt">
+      
+      <h2>Edit Field</h2>
       {attributenames && attributenames.length > 0 ? (
-        <form>
+        <form className="edt">
           {attributenames.map((attribute, index) => (
-            <div className="form-group" key={index}>
-              <label htmlFor={attribute}>{attribute}:</label>
+            <div className="frm" key={index}>
+              <label htmlFor={attribute} className="lbl">{attribute}:</label>
               <input
                 type="text"
-                className="form-control"
+                className="cntr"
                 id={attribute}
                 defaultValue={item[attribute] || ''}
               />
             </div>
           ))}
-          <button type="submit" className="btn btn-primary">Save Changes</button>
+          <div className="holder">
+          <button className='btt'>Save Changes</button>
+          </div>
+          
         </form>
       ) : (
         <p>Loading...</p>
-      )}
+      )} 
+      
+      
     </div>
   );
 };
