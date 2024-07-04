@@ -1,0 +1,37 @@
+.grid-container {
+    display: grid;
+    width: 100%;
+    max-width: 1400px;
+    gap: 40px;
+  }
+  
+  @media (min-width: 1024px) {
+    .grid-container {
+      grid-template-columns: repeat(2, 1fr);
+    }
+  }
+  
+  @media (min-width: 1280px) {
+    .grid-container {
+      grid-template-columns: repeat(3, 1fr);
+    }
+  }
+  
+  .grid-item {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    padding: 16px; 
+    background-color:white;
+    border-radius: 40px;
+    height: 450px;
+  }
+  
+  .grid-item-title {
+    font-size: 1.5rem;
+    font-weight: 600;
+    color: powderblue;
+    margin-bottom: 0px;
+  }
+  

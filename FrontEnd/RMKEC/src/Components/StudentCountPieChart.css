@@ -1,0 +1,14 @@
+.custom-tooltip {
+    
+    color: white;
+    display: flex;
+    text-align: center;
+    background-color: #1e293b;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    width: 100px; 
+    height: 80px; 
+    border-radius: 8px;
+    overflow: hidden;
+    }

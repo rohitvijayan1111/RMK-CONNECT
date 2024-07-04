@@ -1,6 +1,6 @@
 
 import React from 'react';
-import './Barcharts.css'
+import './PlacementBarGraph.css'
 import {
   BarChart,
   Bar,
@@ -11,7 +11,7 @@ import {
   Legend,
   ResponsiveContainer,
 } from 'recharts';
-import './Barcharts.css'
+
 
 const Details = [
   {
@@ -20,18 +20,18 @@ const Details = [
 
   },
   {
-    status: 'Higher studies',
+    status: 'Yet to be Placed',
     students: 20,
 
   },
   {
-    status: 'PG',
+    status: 'HS',
     students: 25,
 
   },
 ];
 
-const BarCharts = () => {
+const PlacementBarGraph = () => {
   return (
     <ResponsiveContainer width="100%" height="100%">
       <BarChart
@@ -47,7 +47,7 @@ const BarCharts = () => {
         <YAxis />
         <Tooltip content={<CustomTooltip />} />
         <Legend />
-        <Bar type="monotone" dataKey="students" fill="#8b5cf6" barSize={50} animationBegin={0} animationDuration={3000}/>
+        <Bar type="monotone" dataKey="students" fill="#8b5cf6" barSize={50} animationBegin={0} animationDuration={2000}/>
       </BarChart>
     </ResponsiveContainer>
   );
@@ -67,4 +67,4 @@ const CustomTooltip = ({ active, payload, label }) => {
   return null;
 };
 
-export default BarCharts;
+export default PlacementBarGraph;
