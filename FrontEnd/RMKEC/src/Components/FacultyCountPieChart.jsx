@@ -1,6 +1,12 @@
 import React from "react";
 import { PieChart, Pie, Cell, Tooltip, ResponsiveContainer, Legend } from "recharts";
 import './FacultyCountPieChart.css'
+const data = [
+  { name: "PG Staff", value: 22 },
+  { name: "Pursuing PG", value: 10 },
+  { name: "Asst. Prof", value: 5 },
+  { name: "Non-Technical", value: 2 },
+];
 
 const COLORS = ["#0088FE", "#00C49F", "#FFBB28", "#FF8042"];
 
@@ -34,14 +40,8 @@ const renderCustomizedLabel = ({
 const CustomTooltip = ({ active, payload }) => {
   if (active && payload && payload.length) {
     return (
-      <div className="custom-tooltip-fcp">
-        <div className="tooltip-value-fcp">
-          {payload.map((entry, index) => (
-            <p key={`item-${index}`} className="intro" style={{ color: entry.payload.fill }}>
-              {`${entry.name}: ${entry.value}`}
-            </p>
-          ))}
-        </div>
+      <div className="custom-tooltip" >
+        <p>{`${payload[0].name} : ${payload[0].value}`}</p>
       </div>
     );
   }

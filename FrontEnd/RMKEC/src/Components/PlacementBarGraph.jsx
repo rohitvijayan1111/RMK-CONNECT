@@ -9,7 +9,25 @@ import {
   Legend,
   ResponsiveContainer,
 } from 'recharts';
-import './PlacementBarGraph.css';
+
+
+const Details = [
+  {
+    status: 'Placed',
+    students: 83,
+
+  },
+  {
+    status: 'Yet to be Placed',
+    students: 20,
+
+  },
+  {
+    status: 'HS',
+    students: 25,
+
+  },
+];
 
 const PlacementBarGraph = ({ Details }) => {
   return (
@@ -33,16 +51,12 @@ const PlacementBarGraph = ({ Details }) => {
   );
 };
 
-const CustomTooltip = ({ active, payload }) => {
+const CustomTooltip = ({ active, payload, label }) => {
   if (active && payload && payload.length) {
     return (
-      <div className="custom-tooltip-pbg">
-        <p className="tooltip-value-pbg">
-          {payload.map((entry, index) => (
-            <p key={`item-${index}`} className="intro" style={{ color: entry.color }}>
-              {`${entry.value}`}
-            </p>
-          ))}
+      <div className="custom-tooltip">
+        <p className="tooltip-revenue">
+          No. of Students: <span className="tooltip-value">{payload[0].value}</span>
         </p>
       </div>
     );

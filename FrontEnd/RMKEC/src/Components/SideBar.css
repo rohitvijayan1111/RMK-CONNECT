@@ -42,7 +42,10 @@
     background-color: #164863;
   }
 
-  
   .sidebar a span {
     font-weight: bold;
+  }
+
+  li.active a {
+    background-color: #D0E8F0;
   }
