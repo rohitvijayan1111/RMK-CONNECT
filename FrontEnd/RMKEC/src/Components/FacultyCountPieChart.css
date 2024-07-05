@@ -1,5 +1,4 @@
-.custom-tooltip {
-    
+.custom-tooltip-fcp {
     color: white;
     display: flex;
     text-align: center;
@@ -8,7 +7,14 @@
     justify-content: center;
     align-items: center;
     width: 100px; 
-    height: 70px; 
+    height: 50px; 
     border-radius: 8px;
     overflow: hidden;
-    }
+    pointer-events: none;
+}
+    
+.tooltip-value-fcp {
+    margin-left: 8px; 
+    margin: 0;
+    font-size: 0.875rem; 
+}

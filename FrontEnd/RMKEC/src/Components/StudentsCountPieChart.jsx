@@ -9,12 +9,6 @@ import {
 } from "recharts";
 import "./StudentCountPieChart.css";
 
-const data = [
-  { name: "2nd Year", value: 125 },
-  { name: "3rd Year", value: 83 },
-  { name: "4th Year", value: 67 }
-];
-
 const COLORS = ["#0088FE", "#00C49F", "#FFBB28", "#FF8042"];
 
 const renderCustomizedLabel = ({
@@ -45,35 +39,47 @@ const renderCustomizedLabel = ({
 const CustomTooltip = ({ active, payload }) => {
   if (active && payload && payload.length) {
     return (
-      <div className="custom-tooltip">
-        <p>{`${payload[0].name} : ${payload[0].value}`}</p>
+      <div className="custom-tooltip-scp">
+        <div className="tooltip-value-scp">
+          {payload.map((entry, index) => (
+            <p key={`item-${index}`} className="intro" style={{ color: entry.payload.fill }}>
+              {`${entry.name}: ${entry.value}`}
+            </p>
+          ))}
+        </div>
       </div>
     );
   }
   return null;
 };
 
-const StudentCountPieChart = () => (
-  <ResponsiveContainer >
-    <PieChart width={400} height={400}>
-      <Pie
-        data={data}
-        cx={200}
-        cy={200}
-        labelLine={false}
-        label={renderCustomizedLabel}
-        outerRadius={120}
-        fill="#8884d8"
-        dataKey="value"
-        animationDuration={2800}
-      >
-        {data.map((entry, index) => (
-          <Cell key={`cell-${index}`} fill={COLORS[index % COLORS.length]} />
-        ))}
-      </Pie>
-      <Tooltip content={<CustomTooltip />} />
-      <Legend />
-    </PieChart>
+const StudentCountPieChart = ({ data }) => (
+  <ResponsiveContainer>
+    <div style={{
+      display: 'flex',
+      justifyContent: 'center',
+      alignItems: 'center',
+    }}>
+      <PieChart width={400} height={400}>
+        <Pie
+          data={data}
+          cx={200}
+          cy={200}
+          labelLine={false}
+          label={renderCustomizedLabel}
+          outerRadius={120}
+          fill="#8884d8"
+          dataKey="value"
+          animationDuration={2800}
+        >
+          {data.map((entry, index) => (
+            <Cell key={`cell-${index}`} fill={COLORS[index % COLORS.length]} />
+          ))}
+        </Pie>
+        <Tooltip content={<CustomTooltip />} />
+        <Legend />
+      </PieChart>
+    </div>
   </ResponsiveContainer>
 );
 

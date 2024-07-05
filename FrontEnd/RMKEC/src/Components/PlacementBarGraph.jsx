@@ -1,6 +1,4 @@
-
 import React from 'react';
-import './PlacementBarGraph.css'
 import {
   BarChart,
   Bar,
@@ -11,32 +9,14 @@ import {
   Legend,
   ResponsiveContainer,
 } from 'recharts';
+import './PlacementBarGraph.css';
 
-
-const Details = [
-  {
-    status: 'Placed',
-    students: 83,
-
-  },
-  {
-    status: 'Yet to be Placed',
-    students: 20,
-
-  },
-  {
-    status: 'HS',
-    students: 25,
-
-  },
-];
-
-const PlacementBarGraph = () => {
+const PlacementBarGraph = ({ Details }) => {
   return (
     <ResponsiveContainer width="100%" height="100%">
       <BarChart
-        width="100"
-        height="150"
+        width={500}
+        height={300}
         data={Details}
         margin={{
           right: 30,
@@ -47,18 +27,22 @@ const PlacementBarGraph = () => {
         <YAxis />
         <Tooltip content={<CustomTooltip />} />
         <Legend />
-        <Bar type="monotone" dataKey="students" fill="#8b5cf6" barSize={50} animationBegin={0} animationDuration={2000}/>
+        <Bar type="monotone" dataKey="students" fill="#9CDBA6" barSize={40} animationBegin={0} animationDuration={2400} />
       </BarChart>
     </ResponsiveContainer>
   );
 };
 
-const CustomTooltip = ({ active, payload, label }) => {
+const CustomTooltip = ({ active, payload }) => {
   if (active && payload && payload.length) {
     return (
-      <div className="custom-tooltip">
-        <p className="tooltip-revenue">
-          No. of Students: <span className="tooltip-value">{payload[0].value}</span>
+      <div className="custom-tooltip-pbg">
+        <p className="tooltip-value-pbg">
+          {payload.map((entry, index) => (
+            <p key={`item-${index}`} className="intro" style={{ color: entry.color }}>
+              {`${entry.value}`}
+            </p>
+          ))}
         </p>
       </div>
     );

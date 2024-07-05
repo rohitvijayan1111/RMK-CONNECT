@@ -29,12 +29,15 @@ var notificationsRoutes = require('./routes/notifications');
 
 var emailRoutes = require('./routes/emailsender');
 
-var tablesRoutes = require('./routes/tables'); // Route handling
+var tablesRoutes = require('./routes/tables');
+
+var graphRoutes = require('./routes/graph'); // Route handling
 
 
 app.use('/auth', authRoutes);
 app.use('/mail', emailRoutes);
 app.use('/tables', tablesRoutes);
+app.use('/graphs', graphRoutes);
 /*
 app.use('/users', userRoutes);
 app.use('/club-activities', clubActivitiesRoutes);
