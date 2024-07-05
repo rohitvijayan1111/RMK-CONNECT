@@ -92,5 +92,85 @@ router.post('/studentsyrsgraph', (req, res) => {
     res.json(results[0]);
   });
 });
+router.post('/adminstudentsgraph', (req, res) => {
+  const { academic_year } = req.body;
+  const query = `
+    SELECT
+      department, 
+      SUM(IF(placements_status = 'placed', 1, 0)) AS placed_students,
+      SUM(IF(placements_status = 'pending', 1, 0)) AS yet_placed_students,
+      SUM(IF(higher_studies_status != 'not applicable', 1, 0)) AS higher_studies_students
+    FROM 
+      students
+    WHERE 
+      academic_year = ?
+    GROUP BY 
+      department
+  `;
+
+  db.query(query, [academic_year], (err, results) => {
+    if (err) {
+      console.error('Error executing query:', err);
+      res.status(500).send({ message: 'Error executing query' });
+      return;
+    }
+
+    res.json(results);
+  });
+});
+
+
+router.post('/adminstaffgraph', (req, res) => {
+  const {dept} = req.body;
+  const query = `
+    SELECT 
+      department,
+      SUM(CASE WHEN designation = 'PG Staff' THEN 1 ELSE 0 END) as PG_Staff,
+      SUM(CASE WHEN designation = 'Asst. Prof' THEN 1 ELSE 0 END) as Asst_Prof,
+      SUM(CASE WHEN designation = 'Pursuing PG' THEN 1 ELSE 0 END) as Pursuing_PG,
+      SUM(CASE WHEN designation = 'Non-Technical' THEN 1 ELSE 0 END) as Non_Technical
+    FROM 
+      staffs GROUP BY department;
+  `;
+
+  db.query(query,[],(err, results) => {
+    if (err) {
+      console.error('Error executing query:', err);
+      res.status(500).send({ message: 'Error executing query' });
+      return;
+    }
+
+    res.json(results);
+  });
+});
+
+router.post('/adminstudentsyrsgraph', (req, res) => {
+  const { dept } = req.body;
+  const query = `
+    SELECT 
+    department,
+    SUM(CASE WHEN year = 'I' THEN 1 ELSE 0 END) AS firstyearcount,
+    SUM(CASE WHEN year = 'II' THEN 1 ELSE 0 END) AS secondyearcount,
+    SUM(CASE WHEN year = 'III' THEN 1 ELSE 0 END) AS thirdyearcount,
+    SUM(CASE WHEN year = 'IV' THEN 1 ELSE 0 END) AS fourthyearcount
+    FROM 
+        students
+    GROUP BY 
+        department
+    ORDER BY 
+        department;
+
+  `;
+
+  db.query(query, [dept], (err, results) => {
+    if (err) {
+      console.error('Error executing query:', err);
+      res.status(500).send({ message: 'Error executing query' });
+      return;
+    }
+
+    res.json(results);
+  });
+});
 
 module.exports = router;

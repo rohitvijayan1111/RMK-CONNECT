@@ -7,15 +7,17 @@ function Signup() {
   const [username, setUsername] = useState('');
   const [password, setPassword] = useState('');
   const [role, setRole] = useState('');
+  const [dept, setDept] = useState('');
   const [error, setError] = useState('');
-  
+
   const registerUser = async (userData) => {
     try {
       const response = await axios.post('http://localhost:3000/auth/register', userData);
       console.log(response.data);
       setError('');
+      // Redirect or show success message if needed
     } catch (error) {
-      console.error('Error registering user hehehehh:', error);
+      console.error('Error registering user:', error);
       if (error.response) {
         setError(error.response.data);
       } else {
@@ -24,58 +26,75 @@ function Signup() {
     }
   };
 
-  
-  
   const handleSubmit = async (event) => {
     event.preventDefault();
+
+    // Basic validation
+    if (!username || !password || !role) {
+      setError('Please fill in all required fields');
+      return;
+    }
+
     try {
       await registerUser({
         username: username.toLowerCase(),
         password: password,
-        role: role.toLowerCase()
+        role: role.toLowerCase(),
+        department: dept.toLowerCase(),
       });
-      console.log(`Username: ${username}, Password: ${password}`);
     } catch (error) {
       console.error('Error registering user:', error);
     }
   };
-  
+
   return (
     <div className="login-form">
-      
-        <div className="flower-logo"><img src={logo}/> </div>
+      <div className="flower-logo">
+        <img src={logo} alt="Logo" />
+      </div>
       <form onSubmit={handleSubmit}>
         <div className="form-group">
           <input
             type="text"
             id="username"
-            placeholder='USERNAME'
+            placeholder="USERNAME"
             value={username}
             onChange={(e) => setUsername(e.target.value)}
+            required
           />
         </div>
         <div className="form-group">
           <input
             type="password"
             id="password"
-            placeholder='PASSWORD'
+            placeholder="PASSWORD"
             value={password}
             onChange={(e) => setPassword(e.target.value)}
+            required
           />
         </div>
         <div className="form-group">
           <input
             type="text"
             id="role"
-            placeholder='Role'
+            placeholder="Role"
             value={role}
             onChange={(e) => setRole(e.target.value)}
+            required
+          />
+        </div>
+        <div className="form-group">
+          <input
+            type="text"
+            id="department"
+            placeholder="Department/NA"
+            value={dept}
+            onChange={(e) => setDept(e.target.value)}
           />
         </div>
         <button type="submit">Sign Up</button>
-        {error && <h6 className="error">{error}</h6>} {}
+        {error && <div className="error">{error}</div>}
       </form>
-      
     </div>
   );
 }

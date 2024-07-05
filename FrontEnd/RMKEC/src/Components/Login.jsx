@@ -14,15 +14,17 @@ function Login() {
   const validateUser = async (userData) => {
     try {
       const response = await axios.post('http://localhost:3000/auth/login', userData);
-      console.log(response.data.role); 
-      window.localStorage.setItem('userType',response.data.role);
-      window.localStorage.setItem('loggedIn',true);
+      window.localStorage.setItem('department',response.data.department); 
+      window.localStorage.setItem('userType', response.data.role);
+      window.localStorage.setItem('loggedIn', 'true');
       setError(''); 
-      if(response.data.role=='hod')  navigate('/dashboard');
+      if(response.data.role === 'hod') {
+        navigate('/dashboard');
+      }
     } catch (error) {
       console.error('Error logging in:', error.response);
-      window.localStorage.setItem('loggedIn',false);
-      if (error.response) {
+      window.localStorage.setItem('loggedIn', 'false');
+      if (error.response && error.response.data) {
         console.log('Error message from backend:', error.response.data);
         setError(error.response.data);  
       } else {
@@ -62,7 +64,7 @@ function Login() {
           />
         </div>
         <button type="submit">Sign in</button>
-        {error && <div className="error">{error}</div>} {}
+        {error && <div className="error">{error}</div>}
       </form>
     </div>
   );

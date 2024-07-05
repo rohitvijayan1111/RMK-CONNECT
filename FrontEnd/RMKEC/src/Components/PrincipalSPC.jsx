@@ -38,24 +38,25 @@ const renderCustomizedLabel = ({
 };
 
 const CustomTooltip = ({ active, payload }) => {
-  if (active && payload && payload.length) {
-    const { name, PG_Staff, Pursuing_PG, Asst_Prof, Non_Technical } = payload[0].payload;
-    return (
-      <div className="custom-tooltip-pfp">
-        <div className="tooltip-value-pfp">
-          <p style={{ color: payload[0].fill }}>{name}</p>
-          <p style={{ color: payload[0].fill }}>PG Staff: {PG_Staff}</p>
-          <p style={{ color: payload[0].fill }}>Pursuing PG: {Pursuing_PG}</p>
-          <p style={{ color: payload[0].fill }}>Asst Prof: {Asst_Prof}</p>
-          <p style={{ color: payload[0].fill }}>Non Technical: {Non_Technical}</p>
+    if (active && payload && payload.length) {
+      const { name, First_year, Second_year, Third_year, Fourth_year } = payload[0].payload;
+      return (
+        <div className="custom-tooltip-pfp">
+          <div className="tooltip-value-pfp">
+            <p style={{ color: payload[0].fill }}>{name}</p>
+            <p style={{ color: payload[0].fill }}>First Year: {First_year}</p>
+            <p style={{ color: payload[0].fill }}>Second Year: {Second_year}</p>
+            <p style={{ color: payload[0].fill }}>Third Year: {Third_year}</p>
+            <p style={{ color: payload[0].fill }}>Fourth Year: {Fourth_year}</p>
+          </div>
         </div>
-      </div>
-    );
-  }
-  return null;
-};
+      );
+    }
+    return null;
+  };
+  
 
-const PrincipalFPC = ({data}) => (
+const PrincipalSPC = ({data}) => (
   <ResponsiveContainer >
     <div style={{
   display: 'flex',
@@ -86,4 +87,4 @@ const PrincipalFPC = ({data}) => (
   </ResponsiveContainer>
 );
 
-export default PrincipalFPC;
+export default PrincipalSPC;

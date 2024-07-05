@@ -70,4 +70,49 @@ router.post('/studentsyrsgraph', function (req, res) {
     res.json(results[0]);
   });
 });
+router.post('/adminstudentsgraph', function (req, res) {
+  var academic_year = req.body.academic_year;
+  var query = "\n    SELECT\n      department, \n      SUM(IF(placements_status = 'placed', 1, 0)) AS placed_students,\n      SUM(IF(placements_status = 'pending', 1, 0)) AS yet_placed_students,\n      SUM(IF(higher_studies_status != 'not applicable', 1, 0)) AS higher_studies_students\n    FROM \n      students\n    WHERE \n      academic_year = ?\n    GROUP BY \n      department\n  ";
+  db.query(query, [academic_year], function (err, results) {
+    if (err) {
+      console.error('Error executing query:', err);
+      res.status(500).send({
+        message: 'Error executing query'
+      });
+      return;
+    }
+
+    res.json(results);
+  });
+});
+router.post('/adminstaffgraph', function (req, res) {
+  var dept = req.body.dept;
+  var query = "\n    SELECT \n      department,\n      SUM(CASE WHEN designation = 'PG Staff' THEN 1 ELSE 0 END) as PG_Staff,\n      SUM(CASE WHEN designation = 'Asst. Prof' THEN 1 ELSE 0 END) as Asst_Prof,\n      SUM(CASE WHEN designation = 'Pursuing PG' THEN 1 ELSE 0 END) as Pursuing_PG,\n      SUM(CASE WHEN designation = 'Non-Technical' THEN 1 ELSE 0 END) as Non_Technical\n    FROM \n      staffs GROUP BY department;\n  ";
+  db.query(query, [], function (err, results) {
+    if (err) {
+      console.error('Error executing query:', err);
+      res.status(500).send({
+        message: 'Error executing query'
+      });
+      return;
+    }
+
+    res.json(results);
+  });
+});
+router.post('/adminstudentsyrsgraph', function (req, res) {
+  var dept = req.body.dept;
+  var query = "\n    SELECT \n    department,\n    SUM(CASE WHEN year = 'I' THEN 1 ELSE 0 END) AS firstyearcount,\n    SUM(CASE WHEN year = 'II' THEN 1 ELSE 0 END) AS secondyearcount,\n    SUM(CASE WHEN year = 'III' THEN 1 ELSE 0 END) AS thirdyearcount,\n    SUM(CASE WHEN year = 'IV' THEN 1 ELSE 0 END) AS fourthyearcount\n    FROM \n        students\n    GROUP BY \n        department\n    ORDER BY \n        department;\n\n  ";
+  db.query(query, [dept], function (err, results) {
+    if (err) {
+      console.error('Error executing query:', err);
+      res.status(500).send({
+        message: 'Error executing query'
+      });
+      return;
+    }
+
+    res.json(results);
+  });
+});
 module.exports = router;
