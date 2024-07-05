@@ -19,13 +19,19 @@ const Layout = () => {
     return (
         <div>
             <NavBar />
-            <Navigation/>
-            <aside>
+            
 
-            <SideBar />
-            </aside>
-            <div className="main-frame">
-            <Outlet/>
+            <div className="er">
+                <aside>
+                <SideBar />
+                </aside>
+                <div className="pr">
+                <Navigation/>
+                    <div className="main-frame">
+                    <Outlet/>
+                    </div>
+                </div>
+               
             </div>
         </div>
     );

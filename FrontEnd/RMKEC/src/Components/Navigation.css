@@ -1,7 +1,8 @@
 .navigation{
     margin-top: 85px;
-    margin-left: 85px;
+
     height: 50px;
+
     background-color: #D0E8F0;
     display: flex;
     justify-content: space-between;
