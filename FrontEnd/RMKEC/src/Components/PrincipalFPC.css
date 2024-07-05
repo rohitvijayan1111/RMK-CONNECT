@@ -1,4 +1,4 @@
-.custom-tooltip-fcp {
+.custom-tooltip-pfp{
     color: white;
     display: flex;
     text-align: center;
@@ -10,12 +10,12 @@
     height: 50px; 
     border-radius: 8px;
     overflow: hidden;
-    pointer-events: none;
-}
-    
-.tooltip-value-fcp {
-    margin-left: 8px; 
-    margin: 0;
-    font-size: 0.875rem; 
-}
+    }
 
+.tooltip-value-pfp{
+    font-size: 0.875rem; 
+    padding: 0px;
+    color: white;
+    display: flex;
+    flex-direction: column;
+}

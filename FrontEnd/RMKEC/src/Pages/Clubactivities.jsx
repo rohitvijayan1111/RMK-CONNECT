@@ -1,18 +1,22 @@
 import React from 'react'
 import PrincipalBC from '../Components/PrincipalBC';
-
+import PrincipalFPC from '../Components/PrincipalFPC';
+import './Clubactivities.css'
 const Clubactivities = () => {
   return (
-    <div className="grid-container">
-    <GridItem title="Placement">
+    <div className="grid-containers">
+      <div className="home-grid-club">
+      <GridItem title="Placement">
       <PrincipalBC/>
     </GridItem>
     <GridItem title="Faculty">
-      
+      <PrincipalFPC/>
     </GridItem>
     <GridItem title="Student">
       
     </GridItem>
+      </div>
+    
   </div>
   )
 }

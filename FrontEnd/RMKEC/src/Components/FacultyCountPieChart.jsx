@@ -1,12 +1,6 @@
 import React from "react";
 import { PieChart, Pie, Cell, Tooltip, ResponsiveContainer, Legend} from "recharts";
 import './FacultyCountPieChart.css'
-const data = [
-  { name: "PhD Staff", value: 22 },
-  { name: "Pursuing PhD", value: 10 },
-  { name: "Asst. Prof", value: 5 },
-  { name: "Non-Technical", value: 2 },
-];
 
 const COLORS = ["#0088FE", "#00C49F", "#FFBB28", "#FF8042"];
 
@@ -40,8 +34,8 @@ const renderCustomizedLabel = ({
 const CustomTooltip = ({ active, payload }) => {
   if (active && payload && payload.length) {
     return (
-      <div className="custom-tooltip" >
-        <div className="tooltip-value">
+      <div className="custom-tooltip-fcp" >
+        <div className="tooltip-value-fcp">
         {payload.map((entry, index) => (
           <p key={`item-${index}`} className="intro" style={{ color: entry.payload.fill }}>
             {`${entry.name}: ${entry.value}`}
@@ -55,10 +49,15 @@ const CustomTooltip = ({ active, payload }) => {
   return null;
 };
 
-export default function FacultyCountPieChart() {
+export default function FacultyCountPieChart({data}) {
   return (
     <ResponsiveContainer>
-    <PieChart width={400} height={400}>
+      <div style={{
+      display: 'flex',
+      justifyContent: 'center',
+      alignItems: 'center',
+      }}>
+      <PieChart width={400} height={400}>
       <Pie
         data={data}
         cx={200}
@@ -68,7 +67,7 @@ export default function FacultyCountPieChart() {
         outerRadius={120}
         fill="#8884d8"
         dataKey="value"
-        animationDuration={2400}
+        animationDuration={2000}
       >
         {data.map((entry, index) => (
           <Cell key={`cell-${index}`} fill={COLORS[index % COLORS.length]} />
@@ -77,6 +76,8 @@ export default function FacultyCountPieChart() {
       <Tooltip content={<CustomTooltip />} />
       <Legend/>
     </PieChart>
+      </div>
+
 
     </ResponsiveContainer>
 

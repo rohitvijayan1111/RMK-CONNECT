@@ -7,9 +7,20 @@ import {
   ResponsiveContainer,
   Legend
 } from "recharts";
-import "./StudentCountPieChart.css";
+import "./PrincipalFPC.css";
 
-
+const data = [
+  { name: "IT", value: 35 },
+  { name: "Cs", value: 81 },
+  { name: "AD", value: 87 },
+  { name: "Me", value: 17 },
+  { name: "CB", value: 27 },
+  { name: "CD", value: 37 },
+  { name: "EI", value: 57 },
+  { name: "CI", value: 54 },
+  { name: "EEE",value: 37 },
+  { name: "SH", value: 43},
+];
 
 const COLORS = ["#0088FE", "#00C49F", "#FFBB28", "#FF8042"];
 
@@ -32,6 +43,7 @@ const renderCustomizedLabel = ({
       fill="white"
       textAnchor={x > cx ? "start" : "end"}
       dominantBaseline="central"
+      fontSize={15}
     >
       {`${(percent * 100).toFixed(0)}%`}
     </text>
@@ -41,8 +53,8 @@ const renderCustomizedLabel = ({
 const CustomTooltip = ({ active, payload }) => {
   if (active && payload && payload.length) {
     return (
-      <div className="custom-tooltip-scp">
-        <div className="tooltip-value-scp">
+      <div className="custom-tooltip-pfp">
+        <div className="tooltip-value-pfp">
         {payload.map((entry, index) => (
           <p key={`item-${index}`} className="intro" style={{ color: entry.payload.fill }}>
             {`${entry.name}: ${entry.value}`}
@@ -55,13 +67,12 @@ const CustomTooltip = ({ active, payload }) => {
   return null;
 };
 
-const StudentCountPieChart = ({data}) => (
+const PrincipalFPC = () => (
   <ResponsiveContainer >
     <div style={{
   display: 'flex',
   justifyContent: 'center',
   alignItems: 'center',
-
 }}>
     <PieChart width={400} height={400}>
       <Pie
@@ -81,10 +92,10 @@ const StudentCountPieChart = ({data}) => (
       </Pie>
       <Tooltip content={<CustomTooltip />} />
       <Legend />
-    </PieChart>
+    </PieChart>      
     </div>
-    
+
   </ResponsiveContainer>
 );
 
-export default StudentCountPieChart;
+export default PrincipalFPC;

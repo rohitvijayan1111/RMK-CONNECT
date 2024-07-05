@@ -1,4 +1,4 @@
-.custom-tooltip {
+.custom-tooltip-scp{
     
     color: white;
     display: flex;
@@ -8,12 +8,12 @@
     justify-content: center;
     align-items: center;
     width: 100px; 
-    height: 80px; 
+    height: 50px; 
     border-radius: 8px;
     overflow: hidden;
     }
 
-.tooltip-value{
+.tooltip-value-scp{
     font-size: 0.875rem; 
     padding: 0px;
     color: white;

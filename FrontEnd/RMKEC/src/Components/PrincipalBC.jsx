@@ -9,6 +9,7 @@ import {
   CartesianGrid,
   Tooltip,
   Legend,
+  ResponsiveContainer,
 } from "recharts";
 
 const data = [
@@ -19,13 +20,13 @@ const data = [
     HS: 20,
   },
   {
-    name: "CSC",
+    name: "CS",
     Placed: 23,
     NotPlaced: 40,
     HS: 12,
   },
   {
-    name: "Mech",
+    name: "Me",
     Placed: 53,
     NotPlaced: 34,
     HS: 24,
@@ -37,19 +38,37 @@ const data = [
     HS: 76,
   },
   {
-    name: "EE",
+    name: "EEE",
     Placed: 23,
     NotPlaced: 32,
     HS: 11,
   },
   {
-    name: "CSBD",
+    name: "CD",
     Placed: 21,
     NotPlaced: 21,
     HS: 54,
   },
   {
-    name: "CSD",
+    name: "EI",
+    Placed: 21,
+    NotPlaced: 43,
+    HS: 51,
+  },
+  {
+    name: "CD",
+    Placed: 21,
+    NotPlaced: 43,
+    HS: 51,
+  },
+  {
+    name: "CI",
+    Placed: 21,
+    NotPlaced: 43,
+    HS: 51,
+  },
+  {
+    name: "AI",
     Placed: 21,
     NotPlaced: 43,
     HS: 51,
@@ -59,34 +78,37 @@ const data = [
 function PrincipalBC() {
   return (
     <>
-      <BarChart
+    <ResponsiveContainer>
+    <BarChart
         width={500}
         height={300}
         data={data}
         margin={{
           top: 20,
-          right: 30,
-          left: 20,
+          right: 0,
+          left: 0,
           bottom: 5,
         }}
       >
-        <CartesianGrid strokeDasharray="3 3" />
+        <CartesianGrid stroke="white" strokeDasharray="3 3" />
         <XAxis dataKey="name" />
         <YAxis />
         <Tooltip content={<CustomTooltip />}/>
         <Legend />
-        <Bar dataKey="Placed" stackId="a" fill="#82ca9d" animationDuration={1500}/>
+        <Bar dataKey="Placed" barSize={15} stackId="a" fill="#82ca9d" animationDuration={1500}/>
         <Bar dataKey="NotPlaced" stackId="a" fill="#8884d8" animationDuration={1500} />
         <Bar dataKey="HS" stackId="a" fill="pink" animationDuration={1500}/>
       </BarChart>
+    </ResponsiveContainer>
+      
     </>
   );
 }
 const CustomTooltip = ({ active, payload, label }) => {
     if (active && payload && payload.length) {
       return (
-        <div className="custom-tooltip">
-          <p className="tooltip-revenue">
+        <div className="custom-tooltip-pbc">
+          <p className="tooltip-value-pbc">
           {payload.map((entry, index) => (
           <p key={`item-${index}`} className="intro" style={{ color: entry.color }}>
             {`${entry.name}: ${entry.value}`}
