@@ -59,6 +59,7 @@ router.post('/login', (req, res) => {
     const responseData = {
       username: user.username,
       role: user.role,
+      department:user.department
     };
     
     // Send the response as JSON

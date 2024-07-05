@@ -130,7 +130,8 @@ router.post('/login', function (req, res) {
           case 11:
             responseData = {
               username: user.username,
-              role: user.role
+              role: user.role,
+              department: user.department
             }; // Send the response as JSON
 
             res.status(200).json(responseData);

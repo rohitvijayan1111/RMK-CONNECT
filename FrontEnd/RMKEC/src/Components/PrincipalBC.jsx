@@ -12,70 +12,8 @@ import {
   ResponsiveContainer,
 } from "recharts";
 
-const data = [
-  {
-    name: "IT",
-    Placed: 40,
-    NotPlaced: 23,
-    HS: 20,
-  },
-  {
-    name: "CS",
-    Placed: 23,
-    NotPlaced: 40,
-    HS: 12,
-  },
-  {
-    name: "Me",
-    Placed: 53,
-    NotPlaced: 34,
-    HS: 24,
-  },
-  {
-    name: "ECE",
-    Placed: 23,
-    NotPlaced: 54,
-    HS: 76,
-  },
-  {
-    name: "EEE",
-    Placed: 23,
-    NotPlaced: 32,
-    HS: 11,
-  },
-  {
-    name: "CD",
-    Placed: 21,
-    NotPlaced: 21,
-    HS: 54,
-  },
-  {
-    name: "EI",
-    Placed: 21,
-    NotPlaced: 43,
-    HS: 51,
-  },
-  {
-    name: "CD",
-    Placed: 21,
-    NotPlaced: 43,
-    HS: 51,
-  },
-  {
-    name: "CI",
-    Placed: 21,
-    NotPlaced: 43,
-    HS: 51,
-  },
-  {
-    name: "AI",
-    Placed: 21,
-    NotPlaced: 43,
-    HS: 51,
-  },
-];
 
-function PrincipalBC() {
+function PrincipalBC({data}) {
   return (
     <>
     <ResponsiveContainer>
