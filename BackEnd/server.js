@@ -19,11 +19,13 @@ const hallBookingsRoutes = require('./routes/hallbooking');
 const notificationsRoutes = require('./routes/notifications');
 const emailRoutes = require('./routes/emailsender');
 const tablesRoutes = require('./routes/tables');
-
+const graphRoutes = require('./routes/graph');
 // Route handling
 app.use('/auth', authRoutes);
 app.use('/mail', emailRoutes);
 app.use('/tables', tablesRoutes);
+app.use('/graphs', graphRoutes);
+
 /*
 app.use('/users', userRoutes);
 app.use('/club-activities', clubActivitiesRoutes);

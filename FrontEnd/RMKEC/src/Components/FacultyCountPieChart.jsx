@@ -1,5 +1,5 @@
 import React from "react";
-import { PieChart, Pie, Cell, Tooltip, ResponsiveContainer, Legend} from "recharts";
+import { PieChart, Pie, Cell, Tooltip, ResponsiveContainer, Legend } from "recharts";
 import './FacultyCountPieChart.css'
 
 const COLORS = ["#0088FE", "#00C49F", "#FFBB28", "#FF8042"];
@@ -80,6 +80,5 @@ export default function FacultyCountPieChart({data}) {
 
 
     </ResponsiveContainer>
-
   );
 }
