@@ -1,4 +1,3 @@
-
 import React from 'react';
 import {
   BarChart,
@@ -10,14 +9,14 @@ import {
   Legend,
   ResponsiveContainer,
 } from 'recharts';
-import './PlacementBarGraph.css'
+
 
 const PlacementBarGraph = ({ Details }) => {
   return (
     <ResponsiveContainer width="100%" height="100%">
       <BarChart
-        width="100"
-        height="150"
+        width={500}
+        height={300}
         data={Details}
         margin={{
           right: 30,
@@ -34,7 +33,7 @@ const PlacementBarGraph = ({ Details }) => {
   );
 };
 
-const CustomTooltip = ({ active, payload,}) => {
+const CustomTooltip = ({ active, payload, label }) => {
   if (active && payload && payload.length) {
     return (
       <div className="custom-tooltip-pbg">
