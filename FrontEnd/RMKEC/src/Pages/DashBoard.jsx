@@ -93,18 +93,19 @@ function DashBoard() {
   
   return (
     <div>
-      <select value={selectedYear} onChange={handleYearChange}>
+      <select className='dropbutton' value={selectedYear} onChange={handleYearChange}> 
         {academicYears.map((year, index) => (
           <option key={index} value={year}>{year}</option>
-        ))}
+        ))} 
       </select>
       <div className="grid-container">
-        <div className='home-grid'>
+        <div className='home-grid-db'>
         <GridItem title="Faculty">
           <PieChartComponent data={facultyDetails} />
         </GridItem>
         <GridItem title="Placement">
           <PlacementBarGraph Details={studentDetails} />
+          <button className="cute-button">View</button>
         </GridItem>
         <GridItem title="Student">
           <StudentCountPieChart data={studentYrsDetails}/>
@@ -118,8 +119,8 @@ function DashBoard() {
 
 function GridItem({ title, children }) {
   return (
-    <div className="grid-item">
-      <h3 className="grid-item-title">{title}</h3>
+    <div className="grid-item-db">
+      <h3 className="grid-item-db-title">{title}</h3>
       {children}
     </div>
   );

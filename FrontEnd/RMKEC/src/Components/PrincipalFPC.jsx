@@ -19,10 +19,10 @@ const data = [
   { name: "EI", value: 57 },
   { name: "CI", value: 54 },
   { name: "EEE",value: 37 },
-  { name: "SH", value: 43},
+  { name: "SH", value: 60},
 ];
 
-const COLORS = ["#0088FE", "#00C49F", "#FFBB28", "#FF8042"];
+const COLORS = ["#0088FE", "#00C49F", "#FFBB28", "#FF8042","#77D8FF","#6EBE64","#F7D154","#B291E5","#FFA02D","#FF6666"];
 
 const renderCustomizedLabel = ({
   cx,
@@ -84,7 +84,7 @@ const PrincipalFPC = () => (
         outerRadius={120}
         fill="#8884d8"
         dataKey="value"
-        animationDuration={2800}
+        animationDuration={1000}
       >
         {data.map((entry, index) => (
           <Cell key={`cell-${index}`} fill={COLORS[index % COLORS.length]} />

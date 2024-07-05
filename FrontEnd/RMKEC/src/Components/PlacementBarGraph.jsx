@@ -9,7 +9,7 @@ import {
   Legend,
   ResponsiveContainer,
 } from 'recharts';
-
+import './PlacementBarGraph.css'
 
 const PlacementBarGraph = ({ Details }) => {
   return (
@@ -27,7 +27,7 @@ const PlacementBarGraph = ({ Details }) => {
         <YAxis />
         <Tooltip content={<CustomTooltip />} />
         <Legend />
-        <Bar type="monotone" dataKey="students" fill="#9CDBA6" barSize={40} animationBegin={0} animationDuration={2400}/>
+        <Bar type="monotone" dataKey="students" fill="#9CDBA6" barSize={40} animationBegin={0} animationDuration={1400}/>
       </BarChart>
     </ResponsiveContainer>
   );

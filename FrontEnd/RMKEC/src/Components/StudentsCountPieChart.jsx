@@ -73,7 +73,7 @@ const StudentCountPieChart = ({data}) => (
         outerRadius={120}
         fill="#8884d8"
         dataKey="value"
-        animationDuration={2800}
+        animationDuration={1800}
       >
         {data.map((entry, index) => (
           <Cell key={`cell-${index}`} fill={COLORS[index % COLORS.length]} />

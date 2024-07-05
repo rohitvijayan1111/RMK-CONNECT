@@ -6,15 +6,19 @@ const Clubactivities = () => {
   return (
     <div className="grid-containers">
       <div className="home-grid-club">
-      <GridItem title="Placement">
-      <PrincipalBC/>
-    </GridItem>
-    <GridItem title="Faculty">
-      <PrincipalFPC/>
-    </GridItem>
-    <GridItem title="Student">
+
+        <GridItem title="Faculty">
+          <PrincipalFPC/>
+        </GridItem>
       
-    </GridItem>
+        <GridItem title="Placement">
+          <PrincipalBC/>
+          <button className="cute-button">View</button>
+        </GridItem>
+
+        <GridItem title="Student">
+      
+        </GridItem>
       </div>
     
   </div>
@@ -22,8 +26,8 @@ const Clubactivities = () => {
 }
 function GridItem({ title, children }) {
   return (
-    <div className="grid-item">
-      <h3 className="grid-item-title">{title}</h3>
+    <div className="grid-item-ca">
+      <h3 className="grid-item-ca-title">{title}</h3>
       {children}
     </div>
   );
