@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState,useEffect} from 'react';
 import axios from 'axios';
 import { useNavigate } from 'react-router-dom';
 import './EditForm.css';
@@ -10,16 +10,49 @@ function ViewForm() {
   const [data, setData] = useState(null);
   const [error, setError] = useState('');
   const [attributenames, setAttributenames] = useState(null);
-
+  const [lockedstatus,setLockedstatus]=useState('');
+  useEffect(() => {
+    const fetchLockStatus = async () => {
+      try {
+        const response = await axios.post('http://localhost:3000/tables/getlocktablestatus', {id:1,table:'form_locks'});
+        setLockedstatus(response.data.is_locked);
+      } catch (error) {
+        console.error('Error fetching lock status:', error);
+        setError('Error fetching lock status');
+      }
+    };
+  
+    fetchLockStatus();
+  }, []);
+  
   const handleEdit = (attributenames, item) => {
+    (lockedstatus)?alert("Form is locked."):
     navigate("/dashboard/view-form/edit-form", { state: { table, attributenames, item } }); 
   };
 
   const handleAdd = () => {
+    (lockedstatus)?alert("Form is locked."):
     navigate("/dashboard/view-form/add-form", { state: { table, attributenames } }); 
   };
-
+  const handleLock = async () => {
+    const confirmLock = window.confirm("Are you sure you want to lock this form?");
+    if (confirmLock) {
+      try {
+        await axios.post('http://localhost:3000/tables/locktable', {id:1,lock:!lockedstatus});
+        setLockedstatus(!lockedstatus); 
+      } catch (error) {
+        console.error('Error locking form:', error);
+        setError('Error locking form');
+      }
+    }
+  };
+  
   const handleDelete = async (id) => {
+    if (lockedstatus) {
+      alert("Form is locked. You cannot delete records.");
+      return; // Exit function if form is locked
+    }
+  
     const confirmDelete = window.confirm("Are you sure you want to delete this record?");
     if (confirmDelete) {
       try {
@@ -78,6 +111,9 @@ function ViewForm() {
           <div className="col">
             <button type="submit" className="btn btn-primary">Fetch Data</button>
           </div>
+          <div className="col">
+            <button type="button" onClick={handleLock} className="btn btn-warning">{(!lockedstatus)?"Lock Form":"Unlock Form"}</button>
+          </div>
         </div>
       </form>
 
@@ -105,20 +141,19 @@ function ViewForm() {
                         name === "id" ? 
                         <td key={idx}>{index + 1}</td> : 
                         <td key={idx}>
-  {name === 'deadline' || name === 'createdAt' ? 
-    new Date(item[name]).toLocaleString('en-US', { 
-      year: 'numeric', 
-      month: '2-digit', 
-      day: '2-digit', 
-      hour: '2-digit', 
-      minute: '2-digit' 
-    }) 
-    : 
-    item[name]}
-</td>
+                {name === 'deadline' || name === 'createdAt' ? 
+                  new Date(item[name]).toLocaleString('en-US', { 
+                    year: 'numeric', 
+                    month: '2-digit', 
+                    day: '2-digit', 
+                    hour: '2-digit', 
+                    minute: '2-digit' 
+                  }) 
+                  : 
+                  item[name]}
+              </td>
 
                     ))}
-
                     <td className="fixed-column">
                       <button className="btn btn-warning btn-sm mr-2" style={{ marginRight: "5px" }} onClick={() => handleEdit(attributenames, item)}>Edit</button>
                       <button className="btn btn-danger btn-sm" onClick={() => handleDelete(item.id)}>Delete</button>

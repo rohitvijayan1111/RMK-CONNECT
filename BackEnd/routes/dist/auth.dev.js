@@ -16,15 +16,16 @@ router.post('/register', function _callee2(req, res) {
       switch (_context2.prev = _context2.next) {
         case 0:
           _req$body = req.body, username = _req$body.username, password = _req$body.password, role = _req$body.role, department = _req$body.department;
+          console.log(department);
 
           if (!(!username || !password)) {
-            _context2.next = 3;
+            _context2.next = 4;
             break;
           }
 
           return _context2.abrupt("return", res.status(400).send("Enter all fields"));
 
-        case 3:
+        case 4:
           db.query('SELECT * FROM users WHERE username = ?', [username], function _callee(err, results) {
             var hashedPassword, sql;
             return regeneratorRuntime.async(function _callee$(_context) {
@@ -48,13 +49,19 @@ router.post('/register', function _callee2(req, res) {
                     return _context.abrupt("return", res.status(400).send('User already exists'));
 
                   case 5:
-                    _context.next = 7;
+                    userDepartment = department;
+
+                    if (department == 'na') {
+                      userDepartment = role;
+                    }
+
+                    _context.next = 9;
                     return regeneratorRuntime.awrap(bcrypt.hash(password, 10));
 
-                  case 7:
+                  case 9:
                     hashedPassword = _context.sent;
                     sql = 'INSERT INTO users (username, password, role,department) VALUES (?, ?, ?,?)';
-                    db.query(sql, [username, hashedPassword, role, department], function (err, result) {
+                    db.query(sql, [username, hashedPassword, role, userDepartment], function (err, result) {
                       if (err) {
                         console.error(err);
                         return res.status(500).send('Server error');
@@ -63,7 +70,7 @@ router.post('/register', function _callee2(req, res) {
                       res.status(201).send('User registered');
                     });
 
-                  case 10:
+                  case 12:
                   case "end":
                     return _context.stop();
                 }
@@ -71,7 +78,7 @@ router.post('/register', function _callee2(req, res) {
             });
           });
 
-        case 4:
+        case 5:
         case "end":
           return _context2.stop();
       }
