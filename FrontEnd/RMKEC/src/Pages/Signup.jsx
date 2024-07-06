@@ -122,7 +122,6 @@ function SignPage() {
           />
         </div>
         <button type="submit">Sign Up</button>
-        {error && <div className="error">{error}</div>}
       </form>
     </div>
     <ToastContainer />
