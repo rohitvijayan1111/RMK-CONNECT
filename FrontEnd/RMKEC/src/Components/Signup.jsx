@@ -35,12 +35,15 @@ function Signup() {
       return;
     }
 
+    // Check if department is provided or set it to 'NA'
+    const department = dept.trim() ? dept.trim().toLowerCase() : 'na';
+
     try {
       await registerUser({
         username: username.toLowerCase(),
         password: password,
         role: role.toLowerCase(),
-        department: dept.toLowerCase(),
+        department: department,
       });
     } catch (error) {
       console.error('Error registering user:', error);

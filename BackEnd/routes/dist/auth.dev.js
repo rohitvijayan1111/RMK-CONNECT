@@ -9,13 +9,13 @@ var db = require('../config/db');
 var router = express.Router(); // Register endpoint
 
 router.post('/register', function _callee2(req, res) {
-  var _req$body, username, password, role;
+  var _req$body, username, password, role, department;
 
   return regeneratorRuntime.async(function _callee2$(_context2) {
     while (1) {
       switch (_context2.prev = _context2.next) {
         case 0:
-          _req$body = req.body, username = _req$body.username, password = _req$body.password, role = _req$body.role;
+          _req$body = req.body, username = _req$body.username, password = _req$body.password, role = _req$body.role, department = _req$body.department;
 
           if (!(!username || !password)) {
             _context2.next = 3;
@@ -53,8 +53,8 @@ router.post('/register', function _callee2(req, res) {
 
                   case 7:
                     hashedPassword = _context.sent;
-                    sql = 'INSERT INTO users (username, password, role) VALUES (?, ?, ?)';
-                    db.query(sql, [username, hashedPassword, role], function (err, result) {
+                    sql = 'INSERT INTO users (username, password, role,department) VALUES (?, ?, ?,?)';
+                    db.query(sql, [username, hashedPassword, role, department], function (err, result) {
                       if (err) {
                         console.error(err);
                         return res.status(500).send('Server error');

@@ -6,7 +6,7 @@ const router = express.Router();
 
 // Register endpoint
 router.post('/register', async (req, res) => {
-  const { username, password, role } = req.body;
+  const { username, password, role,department} = req.body;
   if(!username || !password)
     {
       return res.status(400).send("Enter all fields");  
@@ -22,8 +22,8 @@ router.post('/register', async (req, res) => {
 
     const hashedPassword = await bcrypt.hash(password, 10);
 
-    const sql = 'INSERT INTO users (username, password, role) VALUES (?, ?, ?)';
-    db.query(sql, [username, hashedPassword, role], (err, result) => {
+    const sql = 'INSERT INTO users (username, password, role,department) VALUES (?, ?, ?,?)';
+    db.query(sql, [username, hashedPassword, role,department], (err, result) => {
       if (err) {
         console.error(err);
         return res.status(500).send('Server error');
