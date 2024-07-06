@@ -4,6 +4,9 @@ import './App.css';
 import Layout from './Components/Layout';
 import DashBoard from './Pages/DashBoard';
 import LoginPage from './Pages/LoginPage';
+import { LocalizationProvider } from '@mui/x-date-pickers';
+import { AdapterDateFns } from '@mui/x-date-pickers/AdapterDateFnsV3'
+
 import SignPage from './Pages/Signup';
 import Guestlecture from "./Pages/Guestlecture";
 import Facultydetails from "./Pages/Facultydetails";
@@ -11,12 +14,14 @@ import Coursecoverage from "./Pages/Coursecoverage";
 import Sports from "./Pages/Sports";
 import Achievements from "./Pages/Achievements";
 import Clubactivities from "./Pages/Clubactivities";
-import CreateForm from "./Pages/CreateForm";
 import EmailNotification from "./Pages/EmailNotification";
 import EditForm from "./Pages/EditForm";
+import ViewForm from "./Pages/ViewForm";
+import AddForm from "./Pages/AddForm";
 
 function App() {
   return (
+    <LocalizationProvider dateAdapter={AdapterDateFns}>
     <div className='app'>
       <Router>
         <Routes>
@@ -31,13 +36,14 @@ function App() {
             <Route path="course-coverage" element={<Coursecoverage />} />
             <Route path="sports" element={<Sports />} />
             <Route path="achievements" element={<Achievements />} />
-            <Route path="create-form" element={<CreateForm/>}/>
-            <Route path="create-form/edit-form" element={<EditForm/>}/>
-                   
+            <Route path="view-form" element={<ViewForm/>}/>
+            <Route path="view-form/edit-form" element={<EditForm/>}/>
+            <Route path="view-form/add-form" element={<AddForm/>}/>        
           </Route>
         </Routes>
       </Router>
     </div>
+    </LocalizationProvider>
   );
 }
 
