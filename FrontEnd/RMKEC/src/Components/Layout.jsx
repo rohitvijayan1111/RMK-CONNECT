@@ -18,7 +18,7 @@ const Layout = () => {
 
     return (
         <div>
-            <NavBar />
+            <NavBar/>
             
 
             <div className="er">

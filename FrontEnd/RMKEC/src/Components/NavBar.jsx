@@ -14,7 +14,7 @@ function NavBar() {
       <header className='header'>
       <nav className='left'>
         <img src={logo} width="50px" height="70px" alt="Logo" />
-        <a href='/' className='logo' style={{ textDecoration: 'none' }}>R.M.K. Engineering College</a>
+        <a href='/dashboard' className='logo' style={{ textDecoration: 'none' }}>R.M.K. Engineering College</a>
       </nav>
       <div className='alig'>
         <h5>IT</h5>

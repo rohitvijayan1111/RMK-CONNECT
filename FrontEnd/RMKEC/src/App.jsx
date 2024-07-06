@@ -23,7 +23,7 @@ function App() {
           <Route path="/" element={<LoginPage />} />
           <Route path="/signup" element={<SignPage />} />
           <Route path="/dashboard/*" element={<Layout />}>
-            <Route index element={<DashBoard />} />
+            <Route index element={<DashBoard/>} />
             <Route path="club-activity" element={<Clubactivities/>} />
             <Route path="mail" element=  {<EmailNotification />} />
             <Route path="guest-lecture" element={<Guestlecture />} />

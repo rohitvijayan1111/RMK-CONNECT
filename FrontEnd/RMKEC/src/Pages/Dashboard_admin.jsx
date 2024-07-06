@@ -1,9 +1,9 @@
 import React, { useState, useEffect } from 'react';
-import PrincipalBC from '../Components/PrincipalBC';
+import PrincipalBC from '../Components/Admin-Component/PrincipalBC';
 import axios from 'axios';
-import PrincipalFPC from '../Components/PrincipalFPC';
+import PrincipalFPC from '../Components/Admin-Component/PrincipalFPC';
 import './Dashboard_admin.css';
-import PrincipalSPC from '../Components/PrincipalSPC';
+import PrincipalSPC from '../Components/Admin-Component/PrincipalSPC';
 
 const Dashboard_admin = () => {
   const [adminacademicYears, setadminAcademicYears] = useState([]);

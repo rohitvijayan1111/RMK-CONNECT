@@ -8,6 +8,8 @@ import course from '../assets/course.png';
 import sports from '../assets/sports.png';
 import achievements from '../assets/achievements.png';
 import dashboard from '../assets/dashboard.png';
+import IV from '../assets/location.png';
+import mail from '../assets/mail.png';
 
 function SideBar() {
   const location = useLocation(); // Get current location
@@ -24,18 +26,6 @@ function SideBar() {
             Dashboard
           </Link>
         </li>
-        <li className={isActive('/dashboard/club-activity')}>
-          <Link to="/dashboard/club-activity">
-            <img src={club} width="40px" height="40px" alt="Club Activity" />
-            Club Activity
-          </Link>
-        </li>
-        <li className={isActive('/dashboard/guest-lecture')}>
-          <Link to="/dashboard/guest-lecture">
-            <img src={lecture} width="40px" height="40px" alt="Guest Lecture" />
-            Guest Lecture
-          </Link>
-        </li>
         <li className={isActive('/dashboard/faculty-details')}>
           <Link to="/dashboard/faculty-details">
             <img src={faculty} width="40px" height="40px" alt="Faculty Details" />
@@ -46,6 +36,31 @@ function SideBar() {
           <Link to="/dashboard/course-coverage">
             <img src={course} width="40px" height="40px" alt="Course Coverage" />
             Course Coverage
+          </Link>
+        </li>
+        <li className={isActive('/dashboard/achievements')}>
+          <Link to="/dashboard/achievements">
+            <img src={IV} width="40px" height="40px" alt="I V" />
+            I V
+          </Link>
+        </li>
+        <li className={isActive('/dashboard/achievements')}>
+          <Link to="/dashboard/achievements">
+            <img src={mail} width="40px" height="40px" alt="Mail" />
+            Mail
+          </Link>
+        </li>
+        <li className={isActive('/dashboard/club-activity')}>
+          <Link to="/dashboard/club-activity">
+            <img src={club} width="40px" height="40px" alt="Club Activity" />
+            Club Activity
+          </Link>
+        </li>
+
+        <li className={isActive('/dashboard/guest-lecture')}>
+          <Link to="/dashboard/guest-lecture">
+            <img src={lecture} width="40px" height="50px" alt="Guest Lecture" />
+            Guest Lecture
           </Link>
         </li>
         <li className={isActive('/mail')}>
@@ -60,6 +75,7 @@ function SideBar() {
             Achievements
           </Link>
         </li>
+        
       </ul>
     </div>
   );

@@ -1,9 +1,9 @@
 import axios from 'axios';
 import React, { useState, useEffect } from 'react';
 import './DashBoard.css';
-import PieChartComponent from '../Components/FacultyCountPieChart';
-import StudentCountPieChart from '../Components/StudentsCountPieChart';
-import PlacementBarGraph from '../Components/PlacementBarGraph';
+import PieChartComponent from '../Components/Department-Component/FacultyCountPieChart';
+import StudentCountPieChart from '../Components/Department-Component/StudentsCountPieChart';
+import PlacementBarGraph from '../Components/Department-Component/PlacementBarGraph';
 
 function DashBoard() {
   const department = window.localStorage.getItem('department') || '';
