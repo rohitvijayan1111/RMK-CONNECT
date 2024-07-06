@@ -4,7 +4,7 @@ const db = require('../config/db');
 const util = require('util');
 const moment = require('moment');
 
-// Promisify db.query for async/await usage
+
 const query = util.promisify(db.query).bind(db);
 
 router.post('/gettable', async (req, res) => {
@@ -38,7 +38,7 @@ router.put('/updaterecord', async (req, res) => {
   }
 
   try {
-    // Check if the record with given id exists
+    
     const existingRows = await query('SELECT * FROM ?? WHERE id = ?', [table, id]);
     if (existingRows.length === 0) {
       return res.status(404).json({ message: 'Record not found' });
@@ -49,12 +49,28 @@ router.put('/updaterecord', async (req, res) => {
     if (data.deadline) {
       data.deadline = moment(data.deadline).format('YYYY-MM-DD HH:mm:ss');
     }
-    // Perform the update operation
+    
     await query('UPDATE ?? SET ? WHERE id = ?', [table, data, id]);
 
     res.json({ message: 'Record updated successfully' });
   } catch (error) {
     console.error('Error updating record:', error);
+    res.status(500).json({ error: 'Internal Server Error' });
+  }
+});
+router.post('/insertrecord', async (req, res) => {
+  const { data, table } = req.body;
+
+  if (!data || !table) {
+    return res.status(400).json({ error: 'Data and table are required' });
+  }
+
+  try {
+    await query('INSERT INTO ?? SET ?', [table, data]);
+
+    res.json({ message: 'Record inserted successfully' });
+  } catch (error) {
+    console.error('Error inserting record:', error);
     res.status(500).json({ error: 'Internal Server Error' });
   }
 });

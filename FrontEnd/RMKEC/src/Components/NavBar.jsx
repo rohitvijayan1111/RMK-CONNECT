@@ -9,7 +9,12 @@ function NavBar() {
     window.localStorage.removeItem('userType');
     window.location.href = '/';
   }
-
+  function capitalizeWords(str) {
+    return str
+      .split(' ')
+      .map(word => word.charAt(0).toUpperCase() + word.slice(1))
+      .join(' ');
+  }
   return (
       <header className='header'>
       <nav className='left'>
@@ -17,7 +22,7 @@ function NavBar() {
         <a href='/' className='logo' style={{ textDecoration: 'none' }}>R.M.K. Engineering College</a>
       </nav>
       <div className='alig'>
-        <h5>IT</h5>
+        <h5>{capitalizeWords(window.localStorage.getItem('department'))}</h5>
         <button className="logout-button" onClick={handleLogout}>Logout</button>
       </div>
       

@@ -8,8 +8,7 @@ var db = require('../config/db');
 
 var util = require('util');
 
-var moment = require('moment'); // Promisify db.query for async/await usage
-
+var moment = require('moment');
 
 var query = util.promisify(db.query).bind(db);
 router.post('/gettable', function _callee(req, res) {
@@ -106,8 +105,7 @@ router.put('/updaterecord', function _callee2(req, res) {
 
           if (data.deadline) {
             data.deadline = moment(data.deadline).format('YYYY-MM-DD HH:mm:ss');
-          } // Perform the update operation
-
+          }
 
           _context2.next = 13;
           return regeneratorRuntime.awrap(query('UPDATE ?? SET ? WHERE id = ?', [table, data, id]));
@@ -134,48 +132,93 @@ router.put('/updaterecord', function _callee2(req, res) {
     }
   }, null, null, [[3, 16]]);
 });
-router["delete"]('/deleterecord', function _callee3(req, res) {
-  var _req$body3, id, table;
+router.post('/insertrecord', function _callee3(req, res) {
+  var _req$body3, data, table;
 
   return regeneratorRuntime.async(function _callee3$(_context3) {
     while (1) {
       switch (_context3.prev = _context3.next) {
         case 0:
-          _req$body3 = req.body, id = _req$body3.id, table = _req$body3.table;
+          _req$body3 = req.body, data = _req$body3.data, table = _req$body3.table;
 
-          if (!(!table || !id)) {
+          if (!(!data || !table)) {
             _context3.next = 3;
             break;
           }
 
           return _context3.abrupt("return", res.status(400).json({
+            error: 'Data and table are required'
+          }));
+
+        case 3:
+          _context3.prev = 3;
+          _context3.next = 6;
+          return regeneratorRuntime.awrap(query('INSERT INTO ?? SET ?', [table, data]));
+
+        case 6:
+          res.json({
+            message: 'Record inserted successfully'
+          });
+          _context3.next = 13;
+          break;
+
+        case 9:
+          _context3.prev = 9;
+          _context3.t0 = _context3["catch"](3);
+          console.error('Error inserting record:', _context3.t0);
+          res.status(500).json({
+            error: 'Internal Server Error'
+          });
+
+        case 13:
+        case "end":
+          return _context3.stop();
+      }
+    }
+  }, null, null, [[3, 9]]);
+});
+router["delete"]('/deleterecord', function _callee4(req, res) {
+  var _req$body4, id, table;
+
+  return regeneratorRuntime.async(function _callee4$(_context4) {
+    while (1) {
+      switch (_context4.prev = _context4.next) {
+        case 0:
+          _req$body4 = req.body, id = _req$body4.id, table = _req$body4.table;
+
+          if (!(!table || !id)) {
+            _context4.next = 3;
+            break;
+          }
+
+          return _context4.abrupt("return", res.status(400).json({
             error: 'Table name and ID are required'
           }));
 
         case 3:
           console.log("Deleting from ".concat(table, " where id=").concat(id));
-          _context3.prev = 4;
-          _context3.next = 7;
+          _context4.prev = 4;
+          _context4.next = 7;
           return regeneratorRuntime.awrap(query('DELETE FROM ?? WHERE id = ?', [table, id]));
 
         case 7:
           res.json({
             message: 'Item deleted successfully'
           });
-          _context3.next = 14;
+          _context4.next = 14;
           break;
 
         case 10:
-          _context3.prev = 10;
-          _context3.t0 = _context3["catch"](4);
-          console.error('Error deleting item:', _context3.t0.stack);
+          _context4.prev = 10;
+          _context4.t0 = _context4["catch"](4);
+          console.error('Error deleting item:', _context4.t0.stack);
           res.status(500).json({
             error: 'Database error'
           });
 
         case 14:
         case "end":
-          return _context3.stop();
+          return _context4.stop();
       }
     }
   }, null, null, [[4, 10]]);
