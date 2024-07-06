@@ -1,7 +1,8 @@
 import React, { useState,useRef,useEffect } from 'react';
 import axios from 'axios';
 import './EmailNotification.css';
-
+import { ToastContainer, toast,Zoom,Bounce } from 'react-toastify';
+import 'react-toastify/dist/ReactToastify.css';
 const EmailNotification = () => {
   const [to, setTo] = useState('');
   const [subject, setSubject] = useState('');
@@ -13,8 +14,6 @@ const EmailNotification = () => {
   ]);
 
   const textAreaRef = useRef(null);
-
-
   const adjustTextareaHeight = () => {
     if (textAreaRef.current) {
       textAreaRef.current.style.height = 'auto';
@@ -50,18 +49,56 @@ const EmailNotification = () => {
         subject: subject,
         desc: text
       });
+      toast.success('Mail sent Successfully', {
+        position: "top-center",
+        autoClose: 5000,
+        hideProgressBar: false,
+        closeOnClick: true,
+        pauseOnHover: true,
+        draggable: true,
+        progress: undefined,
+        theme: "colored",
+        transition: Zoom,
+        });
       console.log(response.data);
+      setTo('');
+      setSubject('');
+      setText('');
+      setSenderList([
+        { id: 1, text: 'rohitvijayan1111@gmail.com', checked: false },
+        { id: 2, text: 'broh22012.it@rmkec.ac.in', checked: false },
+        { id: 3, text: 'like22050.it@rmkec.ac.in', checked: false }
+      ]);
     } catch (error) {
-      console.error('Error sending email:', error);
+      toast.error('Error!!!. Mail not sent', {
+        position: "top-center",
+        autoClose: 5000,
+        hideProgressBar: false,
+        closeOnClick: true,
+        pauseOnHover: true,
+        draggable: true,
+        progress: undefined,
+        theme: "colored",
+        transition: Bounce,
+        });
+      setTo('');
+      setSubject('');
+      setText('');
+      setSenderList([
+        { id: 1, text: 'rohitvijayan1111@gmail.com', checked: false },
+        { id: 2, text: 'broh22012.it@rmkec.ac.in', checked: false },
+        { id: 3, text: 'like22050.it@rmkec.ac.in', checked: false }
+      ])
     }
+    setSenderList(initialSenderList);
   };
 
   return (
     <div className="email-notification">
       <h3>Subject:</h3>
-      <input type="text" placeholder="Subject" value={subject} onChange={(e) => setSubject(e.target.value)} />
+      <input type="text" placeholder="Subject" value={subject} onChange={(e) => setSubject(e.target.value)} required />
       <h3>Body:</h3>
-      <textarea  style={{resize:'none',minHeight: '90px'}} ref={textAreaRef} placeholder="Email Body" value={text} onChange={(e) => setText(e.target.value)} />
+      <textarea  style={{resize:'none',minHeight: '90px'}} ref={textAreaRef} placeholder="Email Body" value={text} onChange={(e) => setText(e.target.value)} required />
       <h3>Recipient Emails:</h3>
       <ul>
         {senderlist.map(item => (
@@ -69,17 +106,18 @@ const EmailNotification = () => {
             <label>
               
               <input type="checkbox" class="sc-gJwTLC ikxBAC" checked={item.checked}
-                onChange={() => handleCheck(item.id)}/>
+                onChange={() => handleCheck(item.id)} />
 
               {item.text}
             </label>
           </li>
         ))}
       </ul>
-      <input type="email" placeholder="Other Recipient Emails (comma-separated)" value={to} onChange={(e) => setTo(e.target.value)} />
+      <input type="email" placeholder="Other Recipient Emails (comma-separated)" value={to} onChange={(e) => setTo(e.target.value)}/>
       <div className="send-button-container">
       <button onClick={handleSendEmail}>Send Email</button>
       </div>
+      <ToastContainer />
     </div>
   );
 };
