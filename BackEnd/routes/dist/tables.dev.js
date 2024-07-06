@@ -11,6 +11,47 @@ var util = require('util');
 var moment = require('moment');
 
 var query = util.promisify(db.query).bind(db);
+
+var getFriendlyErrorMessage = function getFriendlyErrorMessage(errCode) {
+  switch (errCode) {
+    case 'ER_NO_SUCH_TABLE':
+      return "Table does not exist.";
+
+    case 'ER_DUP_ENTRY':
+      return "Duplicate entry for a key.";
+
+    case 'ER_BAD_FIELD_ERROR':
+      return "Unknown column.";
+
+    case 'ER_PARSE_ERROR':
+      return "Error in SQL syntax.";
+
+    case 'ER_NO_REFERENCED_ROW_2':
+      return "Referenced entry does not exist.";
+
+    case 'ER_ROW_IS_REFERENCED_2':
+      return "Cannot delete or update a parent row: a foreign key constraint fails.";
+
+    case 'ER_TRUNCATED_WRONG_VALUE_FOR_FIELD':
+      return "Incorrect value for a field.";
+
+    case 'ER_DATA_TOO_LONG':
+      return "Data too long for column.";
+
+    case 'ER_ACCESS_DENIED_ERROR':
+      return "Access denied for user.";
+
+    case 'ER_NOT_SUPPORTED_YET':
+      return "Feature not supported yet.";
+
+    case 'ER_WRONG_VALUE_COUNT_ON_ROW':
+      return "Incorrect number of values.";
+
+    default:
+      return "An unknown error occurred.";
+  }
+};
+
 router.post('/gettable', function _callee(req, res) {
   var _req$body, table, dept, sql, values, results;
 
@@ -53,8 +94,8 @@ router.post('/gettable', function _callee(req, res) {
         case 15:
           _context.prev = 15;
           _context.t0 = _context["catch"](6);
-          console.error(_context.t0);
-          return _context.abrupt("return", res.status(500).send('Server error and is in debug'));
+          console.error(_context.t0.message);
+          return _context.abrupt("return", res.status(500).send(getFriendlyErrorMessage(_context.t0.code)));
 
         case 19:
         case "end":
@@ -121,9 +162,7 @@ router.put('/updaterecord', function _callee2(req, res) {
           _context2.prev = 16;
           _context2.t0 = _context2["catch"](3);
           console.error('Error updating record:', _context2.t0);
-          res.status(500).json({
-            error: 'Internal Server Error'
-          });
+          res.status(500).send(getFriendlyErrorMessage(_context2.t0.code));
 
         case 20:
         case "end":
@@ -212,9 +251,7 @@ router["delete"]('/deleterecord', function _callee4(req, res) {
           _context4.prev = 10;
           _context4.t0 = _context4["catch"](4);
           console.error('Error deleting item:', _context4.t0.stack);
-          res.status(500).json({
-            error: 'Database error'
-          });
+          res.status(500).send(getFriendlyErrorMessage(_context4.t0.code));
 
         case 14:
         case "end":
@@ -257,9 +294,7 @@ router.post('/locktable', function _callee5(req, res) {
           _context5.prev = 9;
           _context5.t0 = _context5["catch"](3);
           console.error('Error updating lock status:', _context5.t0.stack);
-          res.status(500).json({
-            error: 'Database error'
-          });
+          res.status(500).send(getFriendlyErrorMessage(_context5.t0.code));
 
         case 13:
         case "end":
@@ -310,9 +345,7 @@ router.post('/getlocktablestatus', function _callee6(req, res) {
           _context6.prev = 10;
           _context6.t0 = _context6["catch"](3);
           console.error('Failed to fetch lock status:', _context6.t0.stack);
-          res.status(500).json({
-            error: 'Database error'
-          });
+          res.status(500).send(getFriendlyErrorMessage(_context6.t0.code));
 
         case 14:
         case "end":
