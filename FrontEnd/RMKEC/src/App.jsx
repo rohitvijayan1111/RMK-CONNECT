@@ -18,6 +18,8 @@ import EmailNotification from "./Pages/EmailNotification";
 import EditForm from "./Pages/EditForm";
 import ViewForm from "./Pages/ViewForm";
 import AddForm from "./Pages/AddForm";
+import Dashboard_admin from "./Pages/Dashboard_admin";
+import { Placements } from "./Pages/Placements";
 
 function App() {
   return (
@@ -38,7 +40,8 @@ function App() {
             <Route path="achievements" element={<Achievements />} />
             <Route path="view-form" element={<ViewForm/>}/>
             <Route path="view-form/edit-form" element={<EditForm/>}/>
-            <Route path="view-form/add-form" element={<AddForm/>}/>        
+            <Route path="view-form/add-form" element={<AddForm/>}/>
+            <Route path="placements" element={<Placements/>} />        
           </Route>
         </Routes>
       </Router>

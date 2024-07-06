@@ -12,7 +12,7 @@ const AddForm = () => {
   const location = useLocation();
   const { table, attributenames } = location.state;
   const [data, setData] = useState({});
-
+  
   const handleDateTimeChange = (dateTime) => {
     const formattedDateTime = dateTime.toISOString().slice(0, 19).replace('T', ' ');
     setData({ ...data, deadline: formattedDateTime });

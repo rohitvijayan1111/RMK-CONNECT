@@ -129,7 +129,7 @@ const Dashboard_admin = () => {
 
   return (
     <div>
-      <select value={adminselectedYear} onChange={handleYearChange}>
+      <select className='dropbutton' value={adminselectedYear} onChange={handleYearChange}>
         {adminacademicYears.map((year, index) => (
           <option key={index} value={year}>{year}</option>
         ))}

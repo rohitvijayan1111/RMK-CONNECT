@@ -51,7 +51,7 @@ function ViewForm() {
   };
 
   return (
-    <div className="container">
+      <div className="container">
       <form onSubmit={handleSubmit}>
         <div className="row mb-3">
           <div className="col">
