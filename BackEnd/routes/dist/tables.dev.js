@@ -223,4 +223,102 @@ router["delete"]('/deleterecord', function _callee4(req, res) {
     }
   }, null, null, [[4, 10]]);
 });
+router.post('/locktable', function _callee5(req, res) {
+  var _req$body5, id, lock;
+
+  return regeneratorRuntime.async(function _callee5$(_context5) {
+    while (1) {
+      switch (_context5.prev = _context5.next) {
+        case 0:
+          _req$body5 = req.body, id = _req$body5.id, lock = _req$body5.lock;
+
+          if (!(!id || lock === undefined)) {
+            _context5.next = 3;
+            break;
+          }
+
+          return _context5.abrupt("return", res.status(400).json({
+            error: 'ID and lock status are required'
+          }));
+
+        case 3:
+          _context5.prev = 3;
+          _context5.next = 6;
+          return regeneratorRuntime.awrap(query('UPDATE form_locks SET is_locked = ? WHERE id = ?', [lock, id]));
+
+        case 6:
+          res.json({
+            message: 'Item lock status updated successfully'
+          });
+          _context5.next = 13;
+          break;
+
+        case 9:
+          _context5.prev = 9;
+          _context5.t0 = _context5["catch"](3);
+          console.error('Error updating lock status:', _context5.t0.stack);
+          res.status(500).json({
+            error: 'Database error'
+          });
+
+        case 13:
+        case "end":
+          return _context5.stop();
+      }
+    }
+  }, null, null, [[3, 9]]);
+}); // Endpoint to get lock status of a record
+
+router.post('/getlocktablestatus', function _callee6(req, res) {
+  var _req$body6, id, table, results;
+
+  return regeneratorRuntime.async(function _callee6$(_context6) {
+    while (1) {
+      switch (_context6.prev = _context6.next) {
+        case 0:
+          _req$body6 = req.body, id = _req$body6.id, table = _req$body6.table;
+
+          if (!(!table || !id)) {
+            _context6.next = 3;
+            break;
+          }
+
+          return _context6.abrupt("return", res.status(400).json({
+            error: 'Table name and ID are required'
+          }));
+
+        case 3:
+          _context6.prev = 3;
+          _context6.next = 6;
+          return regeneratorRuntime.awrap(query('SELECT is_locked FROM ?? WHERE id=?', [table, id]));
+
+        case 6:
+          results = _context6.sent;
+
+          if (results.length > 0) {
+            res.status(200).json(results[0]);
+          } else {
+            res.status(404).json({
+              error: 'Record not found'
+            });
+          }
+
+          _context6.next = 14;
+          break;
+
+        case 10:
+          _context6.prev = 10;
+          _context6.t0 = _context6["catch"](3);
+          console.error('Failed to fetch lock status:', _context6.t0.stack);
+          res.status(500).json({
+            error: 'Database error'
+          });
+
+        case 14:
+        case "end":
+          return _context6.stop();
+      }
+    }
+  }, null, null, [[3, 10]]);
+});
 module.exports = router;

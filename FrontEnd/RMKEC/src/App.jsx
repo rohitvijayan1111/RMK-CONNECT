@@ -6,7 +6,6 @@ import DashBoard from './Pages/DashBoard';
 import LoginPage from './Pages/LoginPage';
 import { LocalizationProvider } from '@mui/x-date-pickers';
 import { AdapterDateFns } from '@mui/x-date-pickers/AdapterDateFnsV3'
-
 import SignPage from './Pages/Signup';
 import Guestlecture from "./Pages/Guestlecture";
 import Facultydetails from "./Pages/Facultydetails";

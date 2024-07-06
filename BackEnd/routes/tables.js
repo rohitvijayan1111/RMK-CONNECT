@@ -91,5 +91,40 @@ router.delete('/deleterecord', async (req, res) => {
     res.status(500).json({ error: 'Database error' });
   }
 });
+router.post('/locktable', async (req, res) => {
+  const { id, lock } = req.body;
 
+  if (!id || lock === undefined) {
+    return res.status(400).json({ error: 'ID and lock status are required' });
+  }
+
+  try {
+    await query('UPDATE form_locks SET is_locked = ? WHERE id = ?', [lock, id]);
+    res.json({ message: 'Item lock status updated successfully' });
+  } catch (err) {
+    console.error('Error updating lock status:', err.stack);
+    res.status(500).json({ error: 'Database error' });
+  }
+});
+
+// Endpoint to get lock status of a record
+router.post('/getlocktablestatus', async (req, res) => {
+  const { id, table } = req.body;
+
+  if (!table || !id) {
+    return res.status(400).json({ error: 'Table name and ID are required' });
+  }
+
+  try {
+    const results = await query('SELECT is_locked FROM ?? WHERE id=?', [table, id]);
+    if (results.length > 0) {
+      res.status(200).json(results[0]); 
+    } else {
+      res.status(404).json({ error: 'Record not found' });
+    }
+  } catch (err) {
+    console.error('Failed to fetch lock status:', err.stack);
+    res.status(500).json({ error: 'Database error' });
+  }
+});
 module.exports = router;

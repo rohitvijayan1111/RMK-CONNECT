@@ -43,7 +43,7 @@ function Signup() {
         username: username.toLowerCase(),
         password: password,
         role: role.toLowerCase(),
-        department: department,
+        department: department.toLowerCase(),
       });
     } catch (error) {
       console.error('Error registering user:', error);
