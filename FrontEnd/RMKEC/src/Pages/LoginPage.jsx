@@ -9,7 +9,7 @@ function LoginPage() {
   const [password, setPassword] = useState('');
   const navigate = useNavigate();
   const notifysuccess = () =>{
-    toast.success('Signed Up Successfully!', {
+    toast.success('Signed In Successfully!', {
       position: "top-center",
       autoClose: 1500,
       hideProgressBar: false,
