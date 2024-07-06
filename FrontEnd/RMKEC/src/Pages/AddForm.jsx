@@ -5,6 +5,7 @@ import { AdapterDayjs } from '@mui/x-date-pickers/AdapterDayjs';
 import { LocalizationProvider } from '@mui/x-date-pickers/LocalizationProvider';
 import { MobileDateTimePicker } from '@mui/x-date-pickers/MobileDateTimePicker';
 import DateFnsUtils from '@date-io/date-fns';
+import { ToastContainer, toast,Zoom} from 'react-toastify';
 import './EditForm.css';
 
 const AddForm = () => {
@@ -12,7 +13,32 @@ const AddForm = () => {
   const location = useLocation();
   const { table, attributenames } = location.state;
   const [data, setData] = useState({});
-  
+  const notifysuccess = () =>{
+    toast.success('Added Record Successfully!', {
+      position: "top-center",
+      autoClose: 3000,
+      hideProgressBar: false,
+      closeOnClick: true,
+      pauseOnHover: true,
+      draggable: true,
+      progress: undefined,
+      theme: "colored",
+      transition: Zoom,
+      });
+  }
+  const notifyfailure=(error)=>{
+    toast.error(error, {
+      position: "top-center",
+      autoClose: 5000,
+      hideProgressBar: false,
+      closeOnClick: true,
+      pauseOnHover: true,
+      draggable: true,
+      progress: undefined,
+      theme: "colored",
+      transition: Zoom,
+      });
+  }
   const handleDateTimeChange = (dateTime) => {
     const formattedDateTime = dateTime.toISOString().slice(0, 19).replace('T', ' ');
     setData({ ...data, deadline: formattedDateTime });
@@ -26,10 +52,12 @@ const AddForm = () => {
         table
       });
       console.log(response.data);
-      navigate("/dashboard/view-form");
+      notifysuccess();
+      setTimeout(() => {
+        navigate("/dashboard/view-form");
+      }, 1500);
     } catch (error) {
-      window.alert("Error inserting record");
-      console.error('Error inserting record:', error);
+      notifyfailure('Error inserting record:');
     }
   };
 
@@ -52,6 +80,7 @@ const AddForm = () => {
                         type="text"
                         className="cntr"
                         id={attribute}
+                        required
                       />
                     )}
                   />
@@ -62,6 +91,7 @@ const AddForm = () => {
                     id={attribute}
                     onChange={(e) => setData({ ...data, [attribute]: e.target.value })}
                     value={data[attribute] || ''}
+                    required
                   />
                 )}
               </div>
@@ -74,6 +104,7 @@ const AddForm = () => {
       ) : (
         <p>Loading...</p>
       )}
+      <ToastContainer />
     </div>
   );
 };

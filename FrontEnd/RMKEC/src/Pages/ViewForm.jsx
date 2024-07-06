@@ -2,15 +2,40 @@ import React, { useState,useEffect} from 'react';
 import axios from 'axios';
 import { useNavigate } from 'react-router-dom';
 import './EditForm.css';
-
+import { ToastContainer, toast,Zoom} from 'react-toastify';
 function ViewForm() {
   const navigate = useNavigate();
   const [table, setTable] = useState('');
   const [dept, setDept] = useState('');
   const [data, setData] = useState(null);
-  const [error, setError] = useState('');
   const [attributenames, setAttributenames] = useState(null);
   const [lockedstatus,setLockedstatus]=useState('');
+  const notifysuccess = () =>{
+    toast.success('Signed Up Successfully!', {
+      position: "top-center",
+      autoClose: 3000,
+      hideProgressBar: false,
+      closeOnClick: true,
+      pauseOnHover: true,
+      draggable: true,
+      progress: undefined,
+      theme: "colored",
+      transition: Zoom,
+      });
+  }
+  const notifyfailure=(error)=>{
+    toast.error(error, {
+      position: "top-center",
+      autoClose: 5000,
+      hideProgressBar: false,
+      closeOnClick: true,
+      pauseOnHover: true,
+      draggable: true,
+      progress: undefined,
+      theme: "colored",
+      transition: Zoom,
+      });
+  }
   useEffect(() => {
     const fetchLockStatus = async () => {
       try {
@@ -18,7 +43,7 @@ function ViewForm() {
         setLockedstatus(response.data.is_locked);
       } catch (error) {
         console.error('Error fetching lock status:', error);
-        setError('Error fetching lock status');
+        notifyfailure(response.error.data);
       }
     };
   
@@ -42,7 +67,7 @@ function ViewForm() {
         setLockedstatus(!lockedstatus); 
       } catch (error) {
         console.error('Error locking form:', error);
-        setError('Error locking form');
+        notifyfailure(response.error.data);
       }
     }
   };
@@ -50,7 +75,7 @@ function ViewForm() {
   const handleDelete = async (id) => {
     if (lockedstatus) {
       alert("Form is locked. You cannot delete records.");
-      return; // Exit function if form is locked
+      return; 
     }
   
     const confirmDelete = window.confirm("Are you sure you want to delete this record?");
@@ -60,7 +85,7 @@ function ViewForm() {
         setData(data.filter((item) => item.id !== id));
       } catch (error) {
         console.error('Error deleting item:', error);
-        setError('Error deleting item');
+        notifyfailure(response.error.data);
       }
     }
   };
@@ -71,12 +96,11 @@ function ViewForm() {
       const response = await axios.post('http://localhost:3000/tables/gettable', { table, dept });
       setData(response.data);
       setAttributenames(Object.keys(response.data[0]));
-      setError('');
     } catch (err) {
       if (err.response && err.response.data) {
-        setError(err.response.data);
+        notifyfailure(err.response.data);
       } else {
-        setError('Something went wrong');
+        notifyfailure('Something went wrong');
       }
       setData(null);
       setAttributenames(null);
@@ -116,9 +140,6 @@ function ViewForm() {
           </div>
         </div>
       </form>
-
-      {error && <p style={{ color: 'red' }}>{error}</p>}
-
       {data && (
         <div>
           <h2>Results:</h2>
@@ -165,6 +186,7 @@ function ViewForm() {
           </div>
         </div>
       )}
+      <ToastContainer />
     </div>
   );
 }

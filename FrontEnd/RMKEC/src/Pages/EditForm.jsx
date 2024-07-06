@@ -4,6 +4,7 @@ import { useLocation, useNavigate } from 'react-router-dom';
 import { AdapterDayjs } from '@mui/x-date-pickers/AdapterDayjs';
 import { LocalizationProvider } from '@mui/x-date-pickers/LocalizationProvider';
 import { MobileDateTimePicker } from '@mui/x-date-pickers/MobileDateTimePicker';
+import { ToastContainer, toast,Zoom} from 'react-toastify';
 import './EditForm.css';
 
 const EditForm = () => {
@@ -11,7 +12,32 @@ const EditForm = () => {
   const location = useLocation();
   const { table, attributenames, item } = location.state;
   const [data, setData] = useState(item);
-
+  const notifysuccess = () =>{
+    toast.success('Record Edited Successfully!', {
+      position: "top-center",
+      autoClose: 3000,
+      hideProgressBar: false,
+      closeOnClick: true,
+      pauseOnHover: true,
+      draggable: true,
+      progress: undefined,
+      theme: "colored",
+      transition: Zoom,
+      });
+  }
+  const notifyfailure=(error)=>{
+    toast.error(error, {
+      position: "top-center",
+      autoClose: 5000,
+      hideProgressBar: false,
+      closeOnClick: true,
+      pauseOnHover: true,
+      draggable: true,
+      progress: undefined,
+      theme: "colored",
+      transition: Zoom,
+      });
+  }
   const handleDateTimeChange = (dateTime) => {
     const formattedDateTime = dateTime.toISOString().slice(0, 19).replace('T', ' ');
     setData({ ...data, deadline: formattedDateTime });
@@ -26,10 +52,12 @@ const EditForm = () => {
         table
       });
       console.log(response.data);
-      navigate("/dashboard/view-form");
+      notifysuccess();
+      setTimeout(() => {
+        navigate("/dashboard/view-form");
+      }, 1500);
     } catch (error) {
-      window.alert("Error updating record");
-      console.error('Error updating record:', error);
+      notifyfailure('Error updating record:', error);
     }
   };
 
@@ -52,6 +80,7 @@ const EditForm = () => {
                         type="text"
                         className="cntr"
                         id={attribute}
+                        required
                       />
                     )}
                   />
@@ -62,6 +91,7 @@ const EditForm = () => {
                     id={attribute}
                     onChange={(e) => setData({ ...data, [attribute]: e.target.value })}
                     value={data[attribute] || ''}
+                    required
                   />
                 )}
               </div>
@@ -74,6 +104,7 @@ const EditForm = () => {
       ) : (
         <p>Loading...</p>
       )}
+      <ToastContainer />
     </div>
   );
 };
