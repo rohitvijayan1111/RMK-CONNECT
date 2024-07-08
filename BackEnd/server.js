@@ -20,12 +20,12 @@ const notificationsRoutes = require('./routes/notifications');
 const emailRoutes = require('./routes/emailsender');
 const tablesRoutes = require('./routes/tables');
 const graphRoutes = require('./routes/graph');
-
+const formRoutes=require('./routes/forms');
 app.use('/auth', authRoutes);
 app.use('/mail', emailRoutes);
 app.use('/tables', tablesRoutes);
 app.use('/graphs', graphRoutes);
-
+app.use('/forms', formRoutes);
 
 app.listen(PORT, () => {
   console.log(`Server running on port ${PORT}`);

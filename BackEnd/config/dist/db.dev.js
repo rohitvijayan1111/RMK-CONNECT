@@ -1,15 +1,13 @@
 "use strict";
 
-var mysql = require('mysql'); 
-
+var mysql = require('mysql');
 
 var db = mysql.createConnection({
   host: 'localhost',
   user: 'root',
-  password: '1207',
+  password: 'pass123',
   database: 'rmkec'
-}); 
-
+});
 db.connect(function (err) {
   if (err) {
     console.error('Error connecting to the database:', err);
