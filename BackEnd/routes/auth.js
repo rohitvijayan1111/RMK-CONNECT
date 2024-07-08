@@ -4,7 +4,7 @@ const db = require('../config/db');
 
 const router = express.Router();
 
-// Register endpoint
+
 router.post('/register', async (req, res) => {
   const { username, password, role,department} = req.body;
   console.log(department);
@@ -36,7 +36,7 @@ router.post('/register', async (req, res) => {
   });
 });
 
-// Login endpoint
+
 router.post('/login', (req, res) => {
   const { username, password } = req.body;
   console.log('Received login request for username:', username);
@@ -65,7 +65,7 @@ router.post('/login', (req, res) => {
       department:user.department
     };
     
-    // Send the response as JSON
+    
     res.status(200).json(responseData);
   });
 });

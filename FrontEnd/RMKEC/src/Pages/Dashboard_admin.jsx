@@ -31,7 +31,6 @@ const Dashboard_admin = () => {
 
     fetchData();
 
-    // Return cleanup function properly
     return () => {
       setadminAcademicYears([]);
       setadminSelectedYear('');
@@ -56,8 +55,7 @@ const Dashboard_admin = () => {
     try {
       const response = await axios.post("http://localhost:3000/graphs/adminstudentsgraph", { academic_year: year });
       setadminStudentDetails(transformData(response.data));
-      //console.log(response.data);
-      //console.log(transformData(response.data));
+      
     } catch (error) {
       console.error('Error fetching student data:', error);
     }
@@ -88,7 +86,7 @@ const Dashboard_admin = () => {
       const response = await axios.post("http://localhost:3000/graphs/adminstaffgraph", {});
       console.log(response.data);
       const transformedData = transformadminstaffData(response.data);
-      console.log('Transformed Staff Data:', transformedData); // Add this line
+      console.log('Transformed Staff Data:', transformedData); 
       setadminFacultyDetails(transformedData);
     } catch (error) {
       console.error('Error fetching staff data:', error);
@@ -97,7 +95,7 @@ const Dashboard_admin = () => {
   
   const transformadminstaffData = (data) => {
     return data.map((item) => ({
-      name: departmentMapping[item.department] || item.department, // Use the mapped name or default to the original name
+      name: departmentMapping[item.department] || item.department, 
       value:item.PG_Staff+item.Pursuing_PG+item.Asst_Prof+item.Non_Technical,
       PG_Staff:item.PG_Staff ,
       Pursuing_PG:item.Pursuing_PG,
@@ -117,7 +115,7 @@ const Dashboard_admin = () => {
   
   const transformadminyrsData = (data) => {
     return data.map((item) => ({
-      name: departmentMapping[item.department] || item.department, // Use the mapped name or default to the original name
+      name: departmentMapping[item.department] || item.department,
       value:item.firstyearcount+item.secondyearcount+item.thirdyearcount+item.fourthyearcount,
       First_year:item.firstyearcount,
       Second_year:item.secondyearcount,

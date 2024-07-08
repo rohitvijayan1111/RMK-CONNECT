@@ -4,10 +4,26 @@ import './LoginPage.css';
 import logo from '../assets/Logo.png';
 import axios from 'axios';
 import { ToastContainer, toast,Zoom} from 'react-toastify';
+import refresh from '../assets/refresh.png';
 function LoginPage() {
   const [username, setUsername] = useState('');
   const [password, setPassword] = useState('');
   const navigate = useNavigate();
+  const generateCaptcha = () => {
+    const chars = 'abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789';
+    let captcha = '';
+    for (let i = 0; i < 5; i++) {
+      const char = chars[Math.floor(Math.random() * chars.length)];
+      captcha += char;
+    }
+    return captcha;
+  };
+  const [random, setRandom] = useState('');
+  const [captcha, setCaptcha] = useState(generateCaptcha());
+
+  const handleClick = () => {
+    setCaptcha(generateCaptcha());
+  };
   const notifysuccess = () =>{
     toast.success('Signed In Successfully!', {
       position: "top-center",
@@ -58,8 +74,14 @@ function LoginPage() {
 
   const handleSubmit = (event) => {
     event.preventDefault();
-    validateUser({ username: username.toLowerCase(), password: password });
-    console.log(`Username: ${username}, Password: ${password}`);
+    if (random.toLowerCase() === captcha.toLowerCase()) {
+      validateUser({ username: username.toLowerCase(), password });
+      console.log(`Username: ${username}, Password: ${password}`);
+    } else {
+      notifyfailure('Incorrect captcha. Please try again.');
+      setCaptcha(generateCaptcha());
+      setRandom('');
+    }
   };
 
   return (
@@ -86,6 +108,17 @@ function LoginPage() {
             value={password}
             onChange={(e) => setPassword(e.target.value)}
           />
+        </div>
+        <div className="form-group">
+          <div className='captcha'>
+            {captcha}
+            <img src={refresh} onClick={handleClick} width="20px" height="20px" alt="refresh captcha"/>
+          </div>
+          <input type="text"
+            id="s"
+            placeholder="Enter Captch"
+            value={random} 
+        onChange={(e) => setRandom(e.target.value)}/>
         </div>
         <button type="submit">Sign in</button>
       </form>

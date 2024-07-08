@@ -1,4 +1,3 @@
-// Dashboard_hod.jsx
 import axios from 'axios';
 import React, { useState, useEffect } from 'react';
 import './Dashboard_hod.css';

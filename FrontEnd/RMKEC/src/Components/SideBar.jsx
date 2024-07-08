@@ -1,6 +1,6 @@
 import React from 'react';
 import './SideBar.css';
-import { Link, useLocation } from 'react-router-dom'; // Import useLocation
+import { Link, useLocation } from 'react-router-dom'; 
 import club from '../assets/club.png';
 import lecture from '../assets/lecture.png';
 import faculty from '../assets/faculty.png';
@@ -12,7 +12,7 @@ import IV from '../assets/location.png';
 import mail from '../assets/mail.png';
 
 function SideBar() {
-  const location = useLocation(); // Get current location
+  const location = useLocation(); 
   const isActive = (path) => {
     return location.pathname === path ? 'active' : '';
   };

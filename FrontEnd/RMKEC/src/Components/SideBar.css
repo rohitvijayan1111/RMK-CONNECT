@@ -1,6 +1,6 @@
 .sidebar {
   background-color: white;
-  min-height: 100vh; /* Minimum height to cover the entire viewport */
+  min-height: 100vh; 
   width: 85px;
   display: flex;
   margin-top: 60px;
@@ -8,7 +8,7 @@
   z-index: 10;
   transition: left 0.3s ease-in-out;
   padding-top: 20px;
-  overflow-y: auto; /* Enable vertical scrolling if content exceeds height */
+  overflow-y: auto; 
 }
 
 @media (max-width: 768px) {
@@ -29,7 +29,7 @@
 }
 
 .sidebar li {
-  margin-bottom: 10px; /* Add some space between sidebar items */
+  margin-bottom: 10px;
 }
 
 .sidebar li a {

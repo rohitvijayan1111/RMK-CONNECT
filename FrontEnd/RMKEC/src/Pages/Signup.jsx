@@ -54,13 +54,11 @@ function SignPage() {
   const handleSubmit = async (event) => {
     event.preventDefault();
 
-    // Basic validation
     if (!username || !password || !role) {
       setError('Please fill in all required fields');
       return;
     }
 
-    // Check if department is provided or set it to 'NA'
     const department = dept.trim() ? dept.trim().toLowerCase() : 'na';
 
     try {

@@ -135,7 +135,7 @@ router.post('/locktable', async (req, res) => {
   }
 });
 
-// Endpoint to get lock status of a record
+
 router.post('/getlocktablestatus', async (req, res) => {
   const { id, table } = req.body;
 

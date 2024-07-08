@@ -6,7 +6,7 @@ var bcrypt = require('bcryptjs');
 
 var db = require('../config/db');
 
-var router = express.Router(); // Register endpoint
+var router = express.Router(); 
 
 router.post('/register', function _callee2(req, res) {
   var _req$body, username, password, role, department;
@@ -84,7 +84,7 @@ router.post('/register', function _callee2(req, res) {
       }
     }
   });
-}); // Login endpoint
+}); 
 
 router.post('/login', function (req, res) {
   var _req$body2 = req.body,
@@ -139,7 +139,7 @@ router.post('/login', function (req, res) {
               username: user.username,
               role: user.role,
               department: user.department
-            }; // Send the response as JSON
+            }; 
 
             res.status(200).json(responseData);
 

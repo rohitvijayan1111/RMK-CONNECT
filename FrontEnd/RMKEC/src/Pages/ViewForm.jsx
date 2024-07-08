@@ -3,6 +3,8 @@ import axios from 'axios';
 import { useNavigate } from 'react-router-dom';
 import './EditForm.css';
 import { ToastContainer, toast,Zoom} from 'react-toastify';
+import Swal from 'sweetalert2';
+import 'react-toastify/dist/ReactToastify.css';
 function ViewForm() {
   const navigate = useNavigate();
   const [table, setTable] = useState('');
@@ -10,19 +12,7 @@ function ViewForm() {
   const [data, setData] = useState(null);
   const [attributenames, setAttributenames] = useState(null);
   const [lockedstatus,setLockedstatus]=useState('');
-  const notifysuccess = () =>{
-    toast.success('Signed Up Successfully!', {
-      position: "top-center",
-      autoClose: 3000,
-      hideProgressBar: false,
-      closeOnClick: true,
-      pauseOnHover: true,
-      draggable: true,
-      progress: undefined,
-      theme: "colored",
-      transition: Zoom,
-      });
-  }
+  
   const notifyfailure=(error)=>{
     toast.error(error, {
       position: "top-center",
@@ -51,43 +41,102 @@ function ViewForm() {
   }, []);
   
   const handleEdit = (attributenames, item) => {
-    (lockedstatus)?alert("Form is locked."):
+
+    if(lockedstatus)
+      {
+        toast.error('Form is locked. You cannot edit records.', {
+          position: "top-center",
+          autoClose: 4000,
+          hideProgressBar: false,
+          closeOnClick: true,
+          pauseOnHover: true,
+          draggable: true,
+          progress: undefined,
+          theme: "colored",
+          transition: Zoom,
+        });
+        return;
+      }
     navigate("/dashboard/view-form/edit-form", { state: { table, attributenames, item } }); 
   };
 
   const handleAdd = () => {
-    (lockedstatus)?alert("Form is locked."):
+    if(lockedstatus)
+      {
+        toast.error('Form is locked. You cannot add records.', {
+          position: "top-center",
+          autoClose: 4000,
+          hideProgressBar: false,
+          closeOnClick: true,
+          pauseOnHover: true,
+          draggable: true,
+          progress: undefined,
+          theme: "colored",
+          transition: Zoom,
+        });
+        return; 
+      }
     navigate("/dashboard/view-form/add-form", { state: { table, attributenames } }); 
   };
   const handleLock = async () => {
-    const confirmLock = window.confirm("Are you sure you want to lock this form?");
-    if (confirmLock) {
-      try {
-        await axios.post('http://localhost:3000/tables/locktable', {id:1,lock:!lockedstatus});
-        setLockedstatus(!lockedstatus); 
-      } catch (error) {
-        console.error('Error locking form:', error);
-        notifyfailure(response.error.data);
-      }
-    }
+    Swal.fire({
+      title: 'Do you want to change the lock status of this form?',
+      showCancelButton: true,
+      confirmButtonText: lockedstatus ? 'Unlock' : 'Lock',
+    }).then(async (result) => {
+      if (result.isConfirmed) {
+        try {
+          const response = await axios.post('http://localhost:3000/tables/locktable', { id: 1, lock: !lockedstatus });
+          setLockedstatus(!lockedstatus);
+          Swal.fire(`${lockedstatus ? 'Unlocked' : 'Locked'}!`, '', 'success');
+        } catch (error) {
+          console.error('Error locking form:', error);
+          notifyfailure(error.response.data);
+          Swal.fire('Error!', 'There was an error changing the lock status', 'error');
+        }
+      } 
+    });
   };
+  
   
   const handleDelete = async (id) => {
     if (lockedstatus) {
-      alert("Form is locked. You cannot delete records.");
+      toast.error('Form is locked. You cannot delete records.', {
+        position: "top-center",
+        autoClose: 4000,
+        hideProgressBar: false,
+        closeOnClick: true,
+        pauseOnHover: true,
+        draggable: true,
+        progress: undefined,
+        theme: "colored",
+        transition: Zoom,
+      });
       return; 
     }
   
-    const confirmDelete = window.confirm("Are you sure you want to delete this record?");
-    if (confirmDelete) {
-      try {
-        await axios.delete('http://localhost:3000/tables/deleterecord', { data: { id, table } });
-        setData(data.filter((item) => item.id !== id));
-      } catch (error) {
-        console.error('Error deleting item:', error);
-        notifyfailure(response.error.data);
+  
+    Swal.fire({
+      title: "Are you sure?",
+      text: "You won't be able to revert this!",
+      icon: "warning",
+      showCancelButton: true,
+      confirmButtonColor: "#3085d6",
+      cancelButtonColor: "#d33",
+      confirmButtonText: "Yes, delete it!"
+    }).then(async (result) => {
+      if (result.isConfirmed) {
+        try {
+          await axios.delete('http://localhost:3000/tables/deleterecord', { data: { id, table } });
+          setData(data.filter((item) => item.id !== id));
+          Swal.fire("Deleted!", "Your record has been deleted.", "success");
+        } catch (error) {
+          console.error('Error deleting item:', error);
+          notifyfailure(error.response.data);
+          Swal.fire('Error!', 'There was an error deleting the record', 'error');
+        }
       }
-    }
+    });
   };
 
   const handleSubmit = async (e) => {
@@ -184,9 +233,10 @@ function ViewForm() {
               </tbody>
             </table>
           </div>
+          <ToastContainer />
         </div>
       )}
-      <ToastContainer />
+      
     </div>
   );
 }
