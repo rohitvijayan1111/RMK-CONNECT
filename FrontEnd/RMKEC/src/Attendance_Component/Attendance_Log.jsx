@@ -3,7 +3,7 @@ import { DemoContainer } from '@mui/x-date-pickers/internals/demo';
 import { AdapterDayjs } from '@mui/x-date-pickers/AdapterDayjs';
 import { LocalizationProvider } from '@mui/x-date-pickers/LocalizationProvider';
 import { DatePicker } from '@mui/x-date-pickers/DatePicker';
-import './Achievements.css'
+import './Attendance_Log.css'
 
 const BatchSelector = ({ onBatchSelect }) => {
   const [selectedBatch, setSelectedBatch] = useState('');
@@ -25,7 +25,7 @@ const BatchSelector = ({ onBatchSelect }) => {
     </div>
   );
 };
-const Achievements = () => {
+const Attendance_Log = () => {
   const [selectedYearGroup, setSelectedYearGroup] = useState('');
 
   const handleYearGroupSelect = (yearGroup) => {
@@ -33,17 +33,20 @@ const Achievements = () => {
   };
   return (
     <div className='hon'>
+        <div>
+        <BatchSelector setSelectedYearGroup={handleYearGroupSelect} />
+        </div>
       <div className='conte'>
           <LocalizationProvider dateAdapter={AdapterDayjs}>
             <DemoContainer components={['DatePicker']}>
               <DatePicker label="Basic date picker" />
             </DemoContainer>
           </LocalizationProvider>
-          <BatchSelector setSelectedYearGroup={handleYearGroupSelect} />
+          
           <input type='submit' value="Fetch" className='btm'/>
       </div>
     </div>
   )
 }
 
-export default Achievements
+export default Attendance_Log

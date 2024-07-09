@@ -5,6 +5,7 @@ import SideBar from "./SideBar";
 import LoginPage from "../Pages/LoginPage";
 import './Layout.css'; 
 import Navigation from "./Navigation";
+import Attendance_SideBar from "../Attendance_Component/Attendance_SideBar";
 
 const Layout = () => {
     const navigate = useNavigate();
@@ -23,7 +24,7 @@ const Layout = () => {
 
             <div className="er">
                 <aside>
-                <SideBar />
+                <Attendance_SideBar/>
                 </aside>
                 <div className="pr">
                 <Navigation/>

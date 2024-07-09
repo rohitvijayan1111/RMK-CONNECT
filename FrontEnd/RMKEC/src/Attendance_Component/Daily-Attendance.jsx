@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import './Coursecoverage.css';
+import './Daily-Attendance.css';
 
 const BatchDropdown = ({ onBatchSelect }) => {
   const [selectedBatch, setSelectedBatch] = useState('');
@@ -43,7 +43,7 @@ const BatchSelector = ({ onBatchSelect }) => {
   );
 };
 
-const Coursecoverage = () => {
+const Daily_Attendance = () => {
   const currentDate = new Date();
   const day = String(currentDate.getDate()).padStart(2, '0');
   const month = String(currentDate.getMonth() + 1).padStart(2, '0'); 
@@ -89,4 +89,4 @@ const Coursecoverage = () => {
   );
 };
 
-export default Coursecoverage;
+export default Daily_Attendance;

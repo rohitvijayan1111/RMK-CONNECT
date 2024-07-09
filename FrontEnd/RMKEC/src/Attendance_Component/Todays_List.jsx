@@ -1,9 +1,5 @@
 import React,{useState} from 'react'
-import { DemoContainer } from '@mui/x-date-pickers/internals/demo';
-import { AdapterDayjs } from '@mui/x-date-pickers/AdapterDayjs';
-import { LocalizationProvider } from '@mui/x-date-pickers/LocalizationProvider';
-import { DatePicker } from '@mui/x-date-pickers/DatePicker';
-import './Achievements.css'
+import './Todays_List.css'
 
 const BatchSelector = ({ onBatchSelect }) => {
   const [selectedBatch, setSelectedBatch] = useState('');
@@ -25,25 +21,19 @@ const BatchSelector = ({ onBatchSelect }) => {
     </div>
   );
 };
-const Achievements = () => {
+const Todays_List = () => {
   const [selectedYearGroup, setSelectedYearGroup] = useState('');
 
   const handleYearGroupSelect = (yearGroup) => {
     setSelectedYearGroup(yearGroup);
   };
   return (
-    <div className='hon'>
-      <div className='conte'>
-          <LocalizationProvider dateAdapter={AdapterDayjs}>
-            <DemoContainer components={['DatePicker']}>
-              <DatePicker label="Basic date picker" />
-            </DemoContainer>
-          </LocalizationProvider>
-          <BatchSelector setSelectedYearGroup={handleYearGroupSelect} />
-          <input type='submit' value="Fetch" className='btm'/>
+    <div>
+      <div>
+        <BatchSelector setSelectedYearGroup={handleYearGroupSelect} />
       </div>
     </div>
   )
 }
 
-export default Achievements
+export default Todays_List

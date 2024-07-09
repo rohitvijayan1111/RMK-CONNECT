@@ -19,6 +19,11 @@ import ViewForm from "./Pages/ViewForm";
 import AddForm from "./Pages/AddForm";
 import Dashboard_admin from "./Pages/Dashboard_admin";
 import { Placements } from "./Pages/Placements";
+import Daily_Attendance from "./Attendance_Component/Daily-Attendance";
+import Edit_Entry from "./Attendance_Component/Edit_Entry";
+import Attendance_Log from "./Attendance_Component/Attendance_Log";
+import Todays_List from "./Attendance_Component/Todays_List";
+import Attendance_Analysis from "./Attendance_Component/Attendance_Analysis";
 
 function App() {
   return (
@@ -40,7 +45,12 @@ function App() {
             <Route path="view-form" element={<ViewForm/>}/>
             <Route path="view-form/edit-form" element={<EditForm/>}/>
             <Route path="view-form/add-form" element={<AddForm/>}/>
-            <Route path="placements" element={<Placements/>} />        
+            <Route path="placements" element={<Placements/>} />
+            <Route path="Daily-Attendance" element={<Daily_Attendance/>} />  
+            <Route path="Edit-Entry" element={<Edit_Entry/>} />  
+            <Route path="Attendance-Log" element={<Attendance_Log/>} />  
+            <Route path="Todays-List" element={<Todays_List/>} />  
+            <Route path="Attendance-Analysis" element={<Attendance_Analysis/>} />  
           </Route>
         </Routes>
       </Router>
