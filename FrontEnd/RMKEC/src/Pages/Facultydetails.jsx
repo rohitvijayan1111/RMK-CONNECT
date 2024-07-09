@@ -1,5 +1,4 @@
 import React from 'react'
-import './Facultydetails.css'
 
 const Facultydetails = () => {
 
@@ -10,19 +9,7 @@ const Facultydetails = () => {
   const formattedDate = `${day}-${month}-${year}`;
 
   return (
-    <div className="faculty">
-        <h2>Edit Attendance</h2>
-        <h4>{formattedDate}</h4>
-        <form className='edit-att'>
-      
-          <label>Roll Number</label>
-          <input type='number' required />          
-          <div className="bttcnt">
-          <button className='hg' >Mark as Present</button>
-          </div>
-        
-        </form>
-      </div>
+    <div>Facultydetails</div>
   )
 }
 

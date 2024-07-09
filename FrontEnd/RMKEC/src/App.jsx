@@ -24,7 +24,10 @@ import Edit_Entry from "./Attendance_Component/Edit_Entry";
 import Attendance_Log from "./Attendance_Component/Attendance_Log";
 import Todays_List from "./Attendance_Component/Todays_List";
 import Attendance_Analysis from "./Attendance_Component/Attendance_Analysis";
-
+import ViewOtherForms from "./Pages/ViewOtherForms";
+import AddOtherForm from "./Pages/AddOtherForm";
+import AddNewRecord from "./Pages/AddNewRecord";
+import {ViewOtherFormRecord,EditOtherFormRecord } from "./Pages/ViewOtherFormRecord";
 function App() {
   return (
     <LocalizationProvider dateAdapter={AdapterDateFns}>
@@ -37,7 +40,7 @@ function App() {
             <Route index element={<DashBoard/>} />
             <Route path="club-activity" element={<Clubactivities/>} />
             <Route path="mail" element=  {<EmailNotification />} />
-            <Route path="guest-lecture" element={<Guestlecture />} />
+            <Route path="guest-lecture" element={<Guestlecture/>} />
             <Route path="faculty-details" element={<Facultydetails />} />
             <Route path="course-coverage" element={<Coursecoverage />} />
             <Route path="sports" element={<Sports />} />
