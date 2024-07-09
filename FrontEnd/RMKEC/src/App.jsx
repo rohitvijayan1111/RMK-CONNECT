@@ -19,6 +19,10 @@ import ViewForm from "./Pages/ViewForm";
 import AddForm from "./Pages/AddForm";
 import Dashboard_admin from "./Pages/Dashboard_admin";
 import { Placements } from "./Pages/Placements";
+import ViewOtherForms from "./Pages/ViewOtherForms";
+import AddOtherForm from "./Pages/AddOtherForm";
+import AddNewRecord from "./Pages/AddNewRecord";
+import {ViewOtherFormRecord,EditOtherFormRecord } from "./Pages/ViewOtherFormRecord";
 
 function App() {
   return (
@@ -40,7 +44,12 @@ function App() {
             <Route path="view-form" element={<ViewForm/>}/>
             <Route path="view-form/edit-form" element={<EditForm/>}/>
             <Route path="view-form/add-form" element={<AddForm/>}/>
-            <Route path="placements" element={<Placements/>} />        
+            <Route path="placements" element={<Placements/>} /> 
+            <Route path="view-other-forms" element={<ViewOtherForms/>} />
+            <Route path="view-other-forms/new-form" element={<AddOtherForm/>} />
+            <Route path="view-other-forms/new-record" element={<AddNewRecord/>} />
+            <Route path="view-other-forms/view-record" element={<ViewOtherFormRecord/> }/>  
+            <Route path="view-other-forms/view-record/edit-form-record" element={<EditOtherFormRecord/>} />  
           </Route>
         </Routes>
       </Router>
