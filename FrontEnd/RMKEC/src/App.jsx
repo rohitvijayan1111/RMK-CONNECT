@@ -29,6 +29,11 @@ import AddOtherForm from "./Pages/AddOtherForm";
 import AddNewRecord from "./Pages/AddNewRecord";
 import {ViewOtherFormRecord,EditOtherFormRecord } from "./Pages/ViewOtherFormRecord";
 import Attendance_DB_Dept from "./Attendance_Component/Attendance_DB_Dept";
+import Hall_Request from "./HallBooking_Component/Hall_Request";
+import Request_Status from "./HallBooking_Component/Request_Status";
+import Past_Events from "./HallBooking_Component/Past_Events";
+import Available_Halls from "./HallBooking_Component/Available_Halls";
+import DashBoard_Hall from "./HallBooking_Component/DashBoard_Hall";
 function App() {
   return (
     <LocalizationProvider dateAdapter={AdapterDateFns}>
@@ -61,6 +66,11 @@ function App() {
             <Route path="Todays-List" element={<Todays_List/>} />  
             <Route path="Attendance-Analysis" element={<Attendance_Analysis/>} />  
             <Route path="Attendance_DB_Dept" element={<Attendance_DB_Dept/>} />  
+            <Route path="Hall-Request" element={<Hall_Request/>} />  
+            <Route path="Request-Status" element={<Request_Status/>} />  
+            <Route path="Past-Events" element={<Past_Events/>} />  
+            <Route path="Available-Halls" element={<Available_Halls/>} />  
+            <Route path="DashBoard-Hall" element={<DashBoard_Hall/>} />  
           </Route>
         </Routes>
       </Router>

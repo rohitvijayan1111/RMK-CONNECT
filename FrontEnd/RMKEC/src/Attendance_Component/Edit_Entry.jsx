@@ -12,8 +12,8 @@ const UserGroupSelector = ({ setSelectedUserGroup }) => {
 
   return (
     <div>
-      <select id="userGroupSelect" className='status-yr' onChange={handleUserGroupChange} required>
-        <option value="" default>Select User Group</option>
+      <select id="userGroupSelect" className='status-yr' onChange={handleUserGroupChange} required defaultValue="">
+        <option value="">Select User Group</option>
         <option value="Student">Student</option>
         <option value="Staff">Staff</option>
       </select>
@@ -27,8 +27,9 @@ const Edit_Entry = () => {
   const month = String(currentDate.getMonth() + 1).padStart(2, '0'); 
   const year = currentDate.getFullYear();
   const formattedDate = `${year}-${month}-${day}`;
-const [selectedUserGroup, setSelectedUserGroup] = useState('');
-  
+
+  const [selectedUserGroup, setSelectedUserGroup] = useState('');
+  const [rollNumber, setRollNumber] = useState('');
 
   const notifysuccess = (message) => {
     toast.success(message, {
@@ -65,7 +66,10 @@ const [selectedUserGroup, setSelectedUserGroup] = useState('');
       return;
     }
 
-    const rollNumber = e.target.elements.rollNumber.value;
+    if (!rollNumber) {
+      notifyfailure("Enter Roll/Enrollment Number");
+      return;
+    }
 
     let payload = {
       date: formattedDate,
@@ -90,6 +94,10 @@ const [selectedUserGroup, setSelectedUserGroup] = useState('');
     }
   };
 
+  const handleRollNumberChange = (e) => {
+    setRollNumber(e.target.value);
+  };
+
   return (
     <div>
       <UserGroupSelector setSelectedUserGroup={setSelectedUserGroup} />
@@ -98,7 +106,7 @@ const [selectedUserGroup, setSelectedUserGroup] = useState('');
         <h4>{formattedDate}</h4>
         <form className='edit-att'>
           <label>{(selectedUserGroup === 'Student') ? "Roll Number" : "Enrollment Number"}</label>
-          <input type='number' name='rollNumber' required />
+          <input type='number' name='rollNumber' value={rollNumber} onChange={handleRollNumberChange} required />
           <div className="bttcnt">
             <button onClick={handleSubmit} className='gh'>Mark as Present</button>
           </div>
