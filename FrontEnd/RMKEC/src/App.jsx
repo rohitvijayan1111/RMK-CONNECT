@@ -28,6 +28,7 @@ import ViewOtherForms from "./Pages/ViewOtherForms";
 import AddOtherForm from "./Pages/AddOtherForm";
 import AddNewRecord from "./Pages/AddNewRecord";
 import {ViewOtherFormRecord,EditOtherFormRecord } from "./Pages/ViewOtherFormRecord";
+import Attendance_DB_Dept from "./Attendance_Component/Attendance_DB_Dept";
 function App() {
   return (
     <LocalizationProvider dateAdapter={AdapterDateFns}>
@@ -59,6 +60,7 @@ function App() {
             <Route path="Attendance-Log" element={<Attendance_Log/>} />  
             <Route path="Todays-List" element={<Todays_List/>} />  
             <Route path="Attendance-Analysis" element={<Attendance_Analysis/>} />  
+            <Route path="Attendance_DB_Dept" element={<Attendance_DB_Dept/>} />  
           </Route>
         </Routes>
       </Router>
