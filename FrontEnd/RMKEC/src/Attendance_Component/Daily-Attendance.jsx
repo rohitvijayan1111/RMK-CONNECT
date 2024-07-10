@@ -16,7 +16,6 @@ const BatchDropdown = ({ onBatchSelect }) => {
         <option value="" disabled>Status</option>
         <option value="Informed">Informed</option>
         <option value="Un-Informed">Un-Informed</option>
-
       </select>
     </div>
   );
@@ -34,10 +33,8 @@ const BatchSelector = ({ onBatchSelect }) => {
   return (
     <div>
       <select id="batchSelect" className='status-yr' value={selectedBatch} onChange={handleBatchChange}>
-        <option value="2022-2026">2022-2026</option>
-        <option value="2023-2027">2023-2027</option>
-        <option value="2024-2028">2024-2028</option>
-        <option value="2025-2029">2025-2029</option>
+      <option value="Student">Student</option>
+      <option value="Faculty">Faculty</option>
       </select>
     </div>
   );
@@ -61,9 +58,7 @@ const Daily_Attendance = () => {
   const handleYearGroupSelect = (yearGroup) => {
     setSelectedYearGroup(yearGroup);
   };
-
   
-
   return (
     <div>
       <div>
@@ -73,7 +68,6 @@ const Daily_Attendance = () => {
         <h1>Attendance</h1>
         <h4>{formattedDate}</h4>
         <form>
-      
           <label>Roll Number</label>
           <input type='number' required />
           <label>Reason</label>
@@ -82,7 +76,6 @@ const Daily_Attendance = () => {
           <div className="bttcnt">
           <button className='gh' >Absent</button>
           </div>
-        
         </form>
     </div>
     </div>
