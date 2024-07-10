@@ -302,8 +302,7 @@ router.post('/locktable', function _callee5(req, res) {
       }
     }
   }, null, null, [[3, 9]]);
-}); 
-
+});
 router.post('/getlocktablestatus', function _callee6(req, res) {
   var _req$body6, id, table, results;
 

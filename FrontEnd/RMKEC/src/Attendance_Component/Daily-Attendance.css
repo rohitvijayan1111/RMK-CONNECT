@@ -39,12 +39,11 @@ h4,h1{
     cursor: pointer;
     border-radius: 3px;
     font-size: 14px;
-    align-items: center;
-    text-align: center;
 }
 
 .bttcnt{
     text-align: center;
+    align-items: center;
 }
 
 .status {

@@ -21,11 +21,13 @@ const emailRoutes = require('./routes/emailsender');
 const tablesRoutes = require('./routes/tables');
 const graphRoutes = require('./routes/graph');
 const formRoutes=require('./routes/forms');
+const attendanceRoutes=require('./routes/attendance');
 app.use('/auth', authRoutes);
 app.use('/mail', emailRoutes);
 app.use('/tables', tablesRoutes);
 app.use('/graphs', graphRoutes);
 app.use('/forms', formRoutes);
+app.use('/attendance',attendanceRoutes);
 
 app.listen(PORT, () => {
   console.log(`Server running on port ${PORT}`);

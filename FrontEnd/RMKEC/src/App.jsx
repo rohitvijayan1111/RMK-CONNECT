@@ -48,6 +48,11 @@ function App() {
             <Route path="view-form" element={<ViewForm/>}/>
             <Route path="view-form/edit-form" element={<EditForm/>}/>
             <Route path="view-form/add-form" element={<AddForm/>}/>
+            <Route path="view-other-forms" element={<ViewOtherForms/>} />
+            <Route path="view-other-forms/new-form" element={<AddOtherForm/>} />
+            <Route path="view-other-forms/new-record" element={<AddNewRecord/>} />
+            <Route path="view-other-forms/view-record" element={<ViewOtherFormRecord/> }/>  
+            <Route path="view-other-forms/view-record/edit-form-record" element={<EditOtherFormRecord/>} />  
             <Route path="placements" element={<Placements/>} />
             <Route path="Daily-Attendance" element={<Daily_Attendance/>} />  
             <Route path="Edit-Entry" element={<Edit_Entry/>} />  

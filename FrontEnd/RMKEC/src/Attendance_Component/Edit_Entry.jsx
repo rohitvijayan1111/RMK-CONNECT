@@ -1,73 +1,112 @@
-import React,{useState} from 'react'
-import './Edit_Entry.css'
+import React, { useState } from 'react';
+import axios from 'axios';
+import { ToastContainer, toast, Zoom } from 'react-toastify';
+import 'react-toastify/dist/ReactToastify.css';
+import './Edit_Entry.css';
 
-
-
-const BatchSelector = ({ onBatchSelect }) => {
-  const [selectedBatch, setSelectedBatch] = useState('');
-
-  const handleBatchChange = (event) => {
-    const batch = event.target.value;
-    setSelectedBatch(batch);
-    onBatchSelect(batch);
+const UserGroupSelector = ({ setSelectedUserGroup }) => {
+  const handleUserGroupChange = (event) => {
+    const userGroup = event.target.value;
+    setSelectedUserGroup(userGroup);
   };
 
   return (
     <div>
-      <select id="batchSelect" className='status-yr' value={selectedBatch} onChange={handleBatchChange}>
-        <option value="2022-2026">2022-2026</option>
-        <option value="2023-2027">2023-2027</option>
-        <option value="2024-2028">2024-2028</option>
-        <option value="2025-2029">2025-2029</option>
+      <select id="userGroupSelect" className='status-yr' onChange={handleUserGroupChange} required>
+        <option value="" default>Select User Group</option>
+        <option value="Student">Student</option>
+        <option value="Staff">Staff</option>
       </select>
     </div>
   );
 };
 
 const Edit_Entry = () => {
-
   const currentDate = new Date();
   const day = String(currentDate.getDate()).padStart(2, '0');
   const month = String(currentDate.getMonth() + 1).padStart(2, '0'); 
   const year = currentDate.getFullYear();
-  const formattedDate = `${day}-${month}-${year}`;
-
-    const [selectedYearGroup, setSelectedYearGroup] = useState('');
-
-    const handleYearGroupSelect = (yearGroup) => {
-      setSelectedYearGroup(yearGroup);
+  const formattedDate = `${year}-${month}-${day}`;
+const [selectedUserGroup, setSelectedUserGroup] = useState('');
   
-    return (
-      
-      <div>
-        <select id="batchSelect" className='status-yr' value={selectedBatch} onChange={handleBatchChange}>
-          <option value="2022-2026">2022-2026</option>
-          <option value="2023-2027">2023-2027</option>
-          <option value="2024-2028">2024-2028</option>
-          <option value="2025-2029">2025-2029</option>
-        </select>
-      </div>
-    );
+
+  const notifysuccess = (message) => {
+    toast.success(message, {
+      position: "top-center",
+      autoClose: 3000,
+      hideProgressBar: false,
+      closeOnClick: true,
+      pauseOnHover: true,
+      draggable: true,
+      progress: undefined,
+      theme: "colored",
+      transition: Zoom,
+    });
   };
-  
+
+  const notifyfailure = (error) => {
+    toast.error(error, {
+      position: "top-center",
+      autoClose: 5000,
+      hideProgressBar: false,
+      closeOnClick: true,
+      pauseOnHover: true,
+      draggable: true,
+      progress: undefined,
+      theme: "colored",
+      transition: Zoom,
+    });
+  };
+
+  const handleSubmit = async (e) => {
+    e.preventDefault();
+    if (!selectedUserGroup) {
+      notifyfailure("Select User Group Type");
+      return;
+    }
+
+    const rollNumber = e.target.elements.rollNumber.value;
+
+    let payload = {
+      date: formattedDate,
+      rollnumber: rollNumber,
+      userGroup: selectedUserGroup
+    };
+
+    try {
+      const response = await axios.post("http://localhost:3000/attendance/removeabsent", payload);
+      console.log(response.data);
+      if (response.data.error) {
+        notifyfailure(response.data.error);
+      } else {
+        notifysuccess(response.data.message);
+      }
+    } catch (error) {
+      if (error.response && error.response.status === 404) {
+        notifyfailure('Record not found');
+      } else {
+        notifyfailure('Error removing record: ' + error.message);
+      }
+    }
+  };
+
   return (
     <div>
-      <BatchSelector setSelectedYearGroup={handleYearGroupSelect} />
-        <div className="faculty">
+      <UserGroupSelector setSelectedUserGroup={setSelectedUserGroup} />
+      <div className="faculty">
         <h1>Edit Attendance</h1>
         <h4>{formattedDate}</h4>
         <form className='edit-att'>
-      
-          <label>Roll Number</label>
-          <input type='number' required />          
+          <label>{(selectedUserGroup === 'Student') ? "Roll Number" : "Enrollment Number"}</label>
+          <input type='number' name='rollNumber' required />
           <div className="bttcnt">
-          <button className='hg' >Mark as Present</button>
+            <button onClick={handleSubmit} className='gh'>Mark as Present</button>
           </div>
-        
         </form>
       </div>
+      <ToastContainer />
     </div>
-  )
+  );
 }
 
 export default Edit_Entry;

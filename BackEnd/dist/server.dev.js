@@ -33,11 +33,14 @@ var graphRoutes = require('./routes/graph');
 
 var formRoutes = require('./routes/forms');
 
+var attendanceRoutes = require('./routes/attendance');
+
 app.use('/auth', authRoutes);
 app.use('/mail', emailRoutes);
 app.use('/tables', tablesRoutes);
 app.use('/graphs', graphRoutes);
 app.use('/forms', formRoutes);
+app.use('/attendance', attendanceRoutes);
 app.listen(PORT, function () {
   console.log("Server running on port ".concat(PORT));
 });
