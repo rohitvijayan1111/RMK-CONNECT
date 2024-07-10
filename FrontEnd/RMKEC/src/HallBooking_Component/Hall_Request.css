@@ -1,0 +1,75 @@
+.email-notification {
+    max-width: 600px;
+    margin: 20px auto;
+    padding: 20px;
+    border: 1px solid #ccc;
+    border-radius: 10px;
+    background-color: white;
+    box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+    font-family: Arial, sans-serif;
+  }
+  
+  .send-button-container {
+    margin-top: 20px;
+    text-align: center;
+  }
+  
+  .email-notification h3 {
+    margin-bottom: 10px;
+  }
+  
+  .email-notification h5 {
+    margin-bottom: 10px;
+  }
+  
+  .email-notification input[type="text"],
+  .email-notification textarea,
+  .email-notification input[type="email"] {
+    width: 100%;
+    padding: 10px;
+    margin-bottom: 14px;
+    border: 1px solid #ccc;
+    border-radius: 20px;
+    font-size: 14px;
+    background-color: #f4f4f4;
+    margin-top: 14px;
+  }
+  
+  .email-notification textarea {
+    height: 150px;
+  }
+  
+  .email-notification ul {
+    list-style-type: none;
+    padding: 0;
+  }
+  
+  .email-notification li {
+    margin-bottom: 8px;
+  }
+  
+  .email-notification label {
+    display: block;
+    cursor: pointer;
+  }
+  
+  .email-notification button {
+    background-color: #164863;
+    color: white;
+    border: none;
+    padding: 10px 20px;
+    cursor: pointer;
+    border-radius: 3px;
+    font-size: 14px;
+    align-items: center;
+  }
+  
+  .email-notification button:hover {
+    background-color: #0056b3;
+  }
+  
+  .tyy{
+    color: pink;
+  }
+
+ 
