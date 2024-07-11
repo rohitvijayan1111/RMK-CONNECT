@@ -5,6 +5,7 @@ import 'react-toastify/dist/ReactToastify.css';
 import './Attendance_DB_Dept.css';
 import LineCharts from './LineCharts';
 import Attendance_BC from './Attendance_BC';
+import Attendance_BC_Admin from '../Components/Admin-Component/Attendance_BC_Admin';
 
 const BatchSelector = ({ onBatchSelect }) => {
   const [selectedBatch, setSelectedBatch] = useState('Student');

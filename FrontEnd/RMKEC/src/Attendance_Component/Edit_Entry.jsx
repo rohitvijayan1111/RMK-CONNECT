@@ -12,8 +12,8 @@ const UserGroupSelector = ({ setSelectedUserGroup }) => {
 
   return (
     <div>
-      <select id="userGroupSelect" className='status-yr' onChange={handleUserGroupChange} required>
-        <option value="" default>Select User Group</option>
+      <select id="userGroupSelect" className='status-yr' onChange={handleUserGroupChange} required defaultValue="">
+        <option value="">Select User Group</option>
         <option value="Student">Student</option>
         <option value="Staff">Staff</option>
       </select>

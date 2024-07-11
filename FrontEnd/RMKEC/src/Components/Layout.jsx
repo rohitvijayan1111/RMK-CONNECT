@@ -6,6 +6,7 @@ import LoginPage from "../Pages/LoginPage";
 import './Layout.css'; 
 import Navigation from "./Navigation";
 import Attendance_SideBar from "../Attendance_Component/Attendance_SideBar";
+import HallBooking_SideBar from "../HallBooking_Component/HallBooking_SideBar";
 
 const Layout = () => {
     const navigate = useNavigate();
@@ -24,7 +25,7 @@ const Layout = () => {
 
             <div className="er">
                 <aside>
-                <Attendance_SideBar/>
+                <HallBooking_SideBar/>
                 </aside>
                 <div className="pr">
                 <Navigation/>
