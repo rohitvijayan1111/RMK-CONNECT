@@ -43,7 +43,7 @@ function HallBooking_SideBar() {
             Past Events
           </Link>
         </li>
-        <li className={isActive('/dashboard/Attendance-Log')}>
+        <li className={isActive('/dashboard/Available-Halls')}>
           <Link to="/dashboard/Available-Halls">
           <img src={Available} width="40px" height="40px" alt="Available Hall" />
             Available Halls
