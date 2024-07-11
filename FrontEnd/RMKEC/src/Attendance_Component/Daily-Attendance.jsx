@@ -48,6 +48,7 @@ const Daily_Attendance = () => {
 
   const [selectedLeaveType, setSelectedLeaveType] = useState('');
   const [selectedUserGroup, setSelectedUserGroup] = useState('');
+
   const [rollNumber, setRollNumber] = useState('');
   const [reason, setReason] = useState('');
 
@@ -66,14 +67,7 @@ const Daily_Attendance = () => {
   };
 
   const notifyfailure = (error) => {
-    let errorMessage = 'Error inserting record';
-    if (error.response && error.response.data && error.response.data.error) {
-      errorMessage += ': ' + error.response.data.error;
-    } else if (error.message) {
-      errorMessage += ': ' + error.message;
-    }
-
-    toast.error(errorMessage, {
+    toast.error(error, {
       position: "top-center",
       autoClose: 5000,
       hideProgressBar: false,
@@ -88,43 +82,54 @@ const Daily_Attendance = () => {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    if (!selectedLeaveType ||!selectedUserGroup ||!rollNumber ||!reason) {
+    if (!selectedLeaveType || !selectedUserGroup || !rollNumber || !reason) {
       notifyfailure("Select User Group, Leave Type, provide Roll/Enrollment Number, and Reason");
       return;
     }
-  
+
     let payload = {
       reason: reason,
       leave_type: selectedLeaveType,
       attendance_date: formattedDate,
       department_name: window.localStorage.getItem('department')
     };
-  
+
     if (selectedUserGroup === 'Student') {
       payload.student_id = rollNumber;
     } else {
       payload.staff_id = rollNumber;
     }
-  
+
     try {
       const response = await axios.post("http://localhost:3000/attendance/addabsent", payload);
       console.log(response.data);
       if (response.data.error) {
-        notifyfailure(response.data.error); 
+        notifyfailure(response.data.error);
       } else {
         notifysuccess(response.data.message);
         setRollNumber('');
         setReason('');
       }
     } catch (error) {
-      notifyfailure('Error inserting record: ' +error.message); 
-    }
-  
-    if (response.status === 400 || response.status === 404 || response.status === 500) {
-      notifyfailure(response.data.error);
+      // Enhanced error handling and logging
+      console.error('Axios error:', error);
+      if (error.response) {
+        // The request was made and the server responded with a status code outside of the range of 2xx
+        console.error('Error response data:', error.response.data);
+        console.error('Error response status:', error.response.status);
+        console.error('Error response headers:', error.response.headers);
+        notifyfailure('Error inserting record: ' + (error.response.data.error || error.response.data.message || error.message));
+      } else if (error.request) {
+        // The request was made but no response was received
+        console.error('Error request:', error.request);
+        notifyfailure('No response received from server');
+      } else {
+        // Something happened in setting up the request that triggered an Error
+        console.error('Error message:', error.message);
+        notifyfailure('Error inserting record: ' + error.message);
+      }
     }
   };
-  
 
   return (
     <div>
@@ -153,5 +158,6 @@ const Daily_Attendance = () => {
     </div>
   );
 };
+
 
 export default withAuthorization(['Attendance Manager'])(Daily_Attendance);

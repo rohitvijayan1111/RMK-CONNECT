@@ -80,7 +80,7 @@ const Todays_List = () => {
 
   const fetchData = async () => {
     try {
-      const departmentToFetch = user === 'hod' ? window.localStorage.getItem('department') : selectedDepartment;
+      const departmentToFetch = (user === 'hod' || user==="Attendance Manager") ? window.localStorage.getItem('department') : selectedDepartment;
       console.log('Fetching data with department:', departmentToFetch);
   
       const response = await axios.post('http://localhost:3000/attendance/fetchtoday', {

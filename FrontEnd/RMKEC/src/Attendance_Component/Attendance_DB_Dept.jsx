@@ -232,8 +232,9 @@ export function Attendance_DB_Admin() {
 }
 
 const Attendance_Dashboard = () => {
+  const user=window.localStorage.getItem("userType");
   return (
-    (window.localStorage.getItem("userType")=== "hod") ? <Attendance_DB_Dept /> : <Attendance_DB_Admin />
+    (user==="hod" || user==="Attendance Manager") ? <Attendance_DB_Dept /> : <Attendance_DB_Admin />
   );
 
 }
