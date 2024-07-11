@@ -118,4 +118,4 @@ const Attendance_Analysis = () => {
   );
 };
 
-export default withAuthorization(['Principal','VC','Dean'])(Attendance_Analysis);
+export default withAuthorization(['hod','Principal','VC','Dean','Attendance Manager'])(Attendance_Analysis);

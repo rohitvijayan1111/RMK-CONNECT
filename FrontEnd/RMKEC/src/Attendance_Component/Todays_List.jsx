@@ -5,6 +5,7 @@ import { ToastContainer, toast, Zoom } from 'react-toastify';
 import 'bootstrap/dist/css/bootstrap.min.css';
 import 'react-toastify/dist/ReactToastify.css';
 import './Todays_List.css';
+import withAuthorization from '../Components/WithAuthorization';
 
 const UserGroupSelector = ({ setSelectedUserGroup }) => {
   const handleUserGroupChange = (event) => {
@@ -110,7 +111,7 @@ const Todays_List = () => {
     <div className="container">
       <h1>Today's List</h1>
       <UserGroupSelector setSelectedUserGroup={setSelectedUserGroup} />
-      {(user!=='hod')&& <DepartmentSelector setSelectedDepartment={setSelectedDepartment} />}
+      {(user!=='hod' && user!=="Attendance Manager")&& <DepartmentSelector setSelectedDepartment={setSelectedDepartment} />}
       {data.length > 0 && (
         <Table striped bordered hover>
           <thead>
@@ -138,4 +139,4 @@ const Todays_List = () => {
   );
 };
 
-export default Todays_List;
+export default withAuthorization(['hod','Principal','VC','Dean','Attendance Manager'])(Todays_List);

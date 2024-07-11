@@ -3,6 +3,7 @@ import axios from 'axios';
 import { ToastContainer, toast, Zoom } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
 import './Daily-Attendance.css';
+import withAuthorization from '../Components/WithAuthorization';
 
 const LeaveTypeDropdown = ({ onLeaveTypeSelect }) => {
   const handleLeaveTypeChange = (event) => {
@@ -153,4 +154,4 @@ const Daily_Attendance = () => {
   );
 };
 
-export default Daily_Attendance;
+export default withAuthorization(['Attendance Manager'])(Daily_Attendance);

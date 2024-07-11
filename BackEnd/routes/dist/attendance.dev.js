@@ -219,7 +219,7 @@ function getStudentYear(student_id) {
 }
 
 router.post('/removeabsent', function _callee2(req, res) {
-  var _req$body, date, rollnumber, userGroup, department_name, column, studentYear, updateField, decrementQuery, _decrementQuery, result;
+  var _req$body, date, rollnumber, userGroup, department_name, column, checkQuery, records, studentYear, updateField, decrementQuery, result, _decrementQuery, _result, deleteResult;
 
   return regeneratorRuntime.async(function _callee2$(_context3) {
     while (1) {
@@ -240,20 +240,37 @@ router.post('/removeabsent', function _callee2(req, res) {
           console.log(userGroup);
           column = userGroup === 'Student' ? 'student_id' : 'staff_id';
           _context3.prev = 5;
+          // Check if the attendance record exists
+          checkQuery = "SELECT * FROM absent_attendance_records WHERE attendance_date=? AND ".concat(column, "=?");
+          _context3.next = 9;
+          return regeneratorRuntime.awrap(query(checkQuery, [date, rollnumber]));
 
-          if (!(userGroup === 'Student')) {
-            _context3.next = 18;
+        case 9:
+          records = _context3.sent;
+
+          if (!(records.length === 0)) {
+            _context3.next = 12;
             break;
           }
 
-          _context3.next = 9;
+          return _context3.abrupt("return", res.status(404).json({
+            error: 'Attendance record not found'
+          }));
+
+        case 12:
+          if (!(userGroup === 'Student')) {
+            _context3.next = 27;
+            break;
+          }
+
+          _context3.next = 15;
           return regeneratorRuntime.awrap(getStudentYear(rollnumber));
 
-        case 9:
+        case 15:
           studentYear = _context3.sent;
 
           if (studentYear) {
-            _context3.next = 12;
+            _context3.next = 18;
             break;
           }
 
@@ -261,35 +278,43 @@ router.post('/removeabsent', function _callee2(req, res) {
             error: 'Student year not found'
           }));
 
-        case 12:
+        case 18:
           updateField = "todayabsentcount_year_".concat(studentYear);
           decrementQuery = "\n                UPDATE MemberCount \n                SET ".concat(updateField, " = ").concat(updateField, " - 1 \n                WHERE department_name = ?");
-          _context3.next = 16;
+          console.log("Executing query: ".concat(decrementQuery, " with department_name: ").concat(department_name));
+          _context3.next = 23;
           return regeneratorRuntime.awrap(query(decrementQuery, [department_name]));
 
-        case 16:
-          _context3.next = 22;
+        case 23:
+          result = _context3.sent;
+          console.log("Update result: ".concat(JSON.stringify(result)));
+          _context3.next = 34;
           break;
 
-        case 18:
+        case 27:
           if (!(userGroup === 'Staff')) {
-            _context3.next = 22;
+            _context3.next = 34;
             break;
           }
 
           _decrementQuery = "\n                UPDATE MemberCount \n                SET todayabsentcount_staff = todayabsentcount_staff - 1 \n                WHERE department_name = ?";
-          _context3.next = 22;
+          console.log("Executing query: ".concat(_decrementQuery, " with department_name: ").concat(department_name));
+          _context3.next = 32;
           return regeneratorRuntime.awrap(query(_decrementQuery, [department_name]));
 
-        case 22:
-          _context3.next = 24;
+        case 32:
+          _result = _context3.sent;
+          console.log("Update result: ".concat(JSON.stringify(_result)));
+
+        case 34:
+          _context3.next = 36;
           return regeneratorRuntime.awrap(query("DELETE FROM absent_attendance_records WHERE attendance_date=? AND ".concat(column, "=?"), [date, rollnumber]));
 
-        case 24:
-          result = _context3.sent;
+        case 36:
+          deleteResult = _context3.sent;
 
-          if (!(result.affectedRows === 0)) {
-            _context3.next = 27;
+          if (!(deleteResult.affectedRows === 0)) {
+            _context3.next = 39;
             break;
           }
 
@@ -297,27 +322,27 @@ router.post('/removeabsent', function _callee2(req, res) {
             error: 'Record not found'
           }));
 
-        case 27:
+        case 39:
           res.json({
             message: 'Record removed successfully'
           });
-          _context3.next = 34;
+          _context3.next = 46;
           break;
 
-        case 30:
-          _context3.prev = 30;
+        case 42:
+          _context3.prev = 42;
           _context3.t0 = _context3["catch"](5);
           console.error('Error removing record:', _context3.t0);
           res.status(500).json({
             error: 'Error removing record'
           });
 
-        case 34:
+        case 46:
         case "end":
           return _context3.stop();
       }
     }
-  }, null, null, [[5, 30]]);
+  }, null, null, [[5, 42]]);
 });
 router.post('/getindividual', function _callee3(req, res) {
   var _req$body2, rollnumber, userGroup, column, result;

@@ -3,6 +3,7 @@ import axios from 'axios';
 import { ToastContainer, toast, Zoom } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
 import './Edit_Entry.css';
+import withAuthorization from '../Components/WithAuthorization';
 
 const UserGroupSelector = ({ setSelectedUserGroup }) => {
   const handleUserGroupChange = (event) => {
@@ -119,4 +120,4 @@ const Edit_Entry = () => {
   );
 }
 
-export default Edit_Entry;
+export default withAuthorization(['Attendance Manager'])(Edit_Entry);

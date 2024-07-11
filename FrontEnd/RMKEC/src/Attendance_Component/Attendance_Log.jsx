@@ -8,6 +8,7 @@ import './Todays_List.css';
 import { DatePicker, LocalizationProvider } from '@mui/x-date-pickers';
 import { AdapterDayjs } from '@mui/x-date-pickers/AdapterDayjs';
 import TextField from '@mui/material/TextField';
+import withAuthorization from '../Components/WithAuthorization';
 
 const UserGroupSelector = ({ setSelectedUserGroup }) => {
   const handleUserGroupChange = (event) => {
@@ -110,7 +111,7 @@ const Attendance_Log = () => {
     <div className='hon'>
       <div>
         <UserGroupSelector setSelectedUserGroup={setSelectedUserGroup} />
-        {(user!=='hod')&& <DepartmentSelector setSelectedDepartment={setSelectedDepartment} />}
+        {(user!=='hod' && user!=="Attendance Manager")&& <DepartmentSelector setSelectedDepartment={setSelectedDepartment} />}
       </div>
       <div className='conte'>
         <LocalizationProvider dateAdapter={AdapterDayjs}>
@@ -150,4 +151,4 @@ const Attendance_Log = () => {
   );
 };
 
-export default Attendance_Log;
+export default withAuthorization(['hod','Principal','VC','Dean','Attendance Manager'])(Attendance_Log);
