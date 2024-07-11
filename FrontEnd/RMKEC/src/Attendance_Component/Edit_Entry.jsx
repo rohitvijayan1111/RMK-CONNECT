@@ -89,7 +89,8 @@ const Edit_Entry = () => {
     } catch (error) {
       if (error.response && error.response.status === 404) {
         notifyfailure('Record not found');
-      } else {
+      }
+       else {
         notifyfailure('Error removing record: ' + error.message);
       }
     }

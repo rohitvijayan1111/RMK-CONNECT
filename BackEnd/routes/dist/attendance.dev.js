@@ -52,7 +52,7 @@ var getFriendlyErrorMessage = function getFriendlyErrorMessage(errCode) {
 
 var query = util.promisify(db.query).bind(db);
 router.post('/addabsent', function _callee(req, res) {
-  var data, studentDetails, year, updateField, updateQuery, _updateQuery, insertQuery;
+  var data, existingRecord, studentDetails, year, updateField, updateQuery, _updateQuery, insertQuery;
 
   return regeneratorRuntime.async(function _callee$(_context) {
     while (1) {
@@ -75,7 +75,7 @@ router.post('/addabsent', function _callee(req, res) {
           _context.prev = 5;
 
           if (!data.student_id) {
-            _context.next = 29;
+            _context.next = 32;
             break;
           }
 
@@ -85,7 +85,6 @@ router.post('/addabsent', function _callee(req, res) {
 
         case 10:
           studentDetails = _context.sent;
-          // Add await here
           console.log('Query executed for student_id:', data.student_id);
           console.log('Student details:', studentDetails);
 
@@ -122,59 +121,80 @@ router.post('/addabsent', function _callee(req, res) {
           return regeneratorRuntime.awrap(query(updateQuery, [data.department_name]));
 
         case 27:
-          _context.next = 39;
-          break;
+          _context.next = 29;
+          return regeneratorRuntime.awrap(query('SELECT * FROM absent_attendance_records WHERE student_id = ? AND attendance_date = ?', [data.student_id, data.attendance_date]));
 
         case 29:
+          existingRecord = _context.sent;
+          _context.next = 45;
+          break;
+
+        case 32:
           if (!data.staff_id) {
-            _context.next = 37;
+            _context.next = 43;
             break;
           }
 
           console.log('Processing staff_id:', data.staff_id);
           _updateQuery = "\n                UPDATE MemberCount \n                SET todayabsentcount_staff = todayabsentcount_staff + 1 \n                WHERE department_name = ?";
           console.log('Executing query:', _updateQuery);
-          _context.next = 35;
+          _context.next = 38;
           return regeneratorRuntime.awrap(query(_updateQuery, [data.department_name]));
 
-        case 35:
-          _context.next = 39;
+        case 38:
+          _context.next = 40;
+          return regeneratorRuntime.awrap(query('SELECT * FROM absent_attendance_records WHERE staff_id = ? AND attendance_date = ?', [data.staff_id, data.attendance_date]));
+
+        case 40:
+          existingRecord = _context.sent;
+          _context.next = 45;
           break;
 
-        case 37:
+        case 43:
           console.error('Invalid data format');
           return _context.abrupt("return", res.status(400).json({
             error: 'Invalid data format'
           }));
 
-        case 39:
+        case 45:
+          if (!(existingRecord && existingRecord.length > 0)) {
+            _context.next = 48;
+            break;
+          }
+
+          console.log('Record already exists:', existingRecord);
+          return _context.abrupt("return", res.status(400).json({
+            error: 'Record already exists for this date and user'
+          }));
+
+        case 48:
           console.log('Data to insert:', data);
           insertQuery = 'INSERT INTO absent_attendance_records SET ?';
           console.log('Executing insert query:', insertQuery, data);
-          _context.next = 44;
+          _context.next = 53;
           return regeneratorRuntime.awrap(query(insertQuery, data));
 
-        case 44:
+        case 53:
           res.json({
             message: 'Record inserted successfully'
           });
-          _context.next = 51;
+          _context.next = 60;
           break;
 
-        case 47:
-          _context.prev = 47;
+        case 56:
+          _context.prev = 56;
           _context.t0 = _context["catch"](5);
           console.error('Error inserting record:', _context.t0);
           res.status(500).json({
             error: 'Internal Server Error'
           });
 
-        case 51:
+        case 60:
         case "end":
           return _context.stop();
       }
     }
-  }, null, null, [[5, 47]]);
+  }, null, null, [[5, 56]]);
 });
 
 function getStudentYear(student_id) {
