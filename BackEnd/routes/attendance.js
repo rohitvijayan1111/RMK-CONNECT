@@ -109,6 +109,7 @@ router.post('/addabsent', async (req, res) => {
     }
 });
 
+
 async function getStudentYear(student_id) {
     const result = await query('SELECT year FROM students WHERE id = ?', [student_id]);
     return result.length > 0 ? result[0].year : null;
