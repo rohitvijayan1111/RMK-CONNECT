@@ -85,10 +85,11 @@ const Edit_Entry = () => {
         notifyfailure(response.data.error);
       } else {
         notifysuccess(response.data.message);
+        setRollNumber('')
       }
     } catch (error) {
       if (error.response && error.response.status === 404) {
-        notifyfailure('Record not found');
+        notifyfailure('Person is already marked as present');
       } else {
         notifyfailure('Error removing record: ' + error.message);
       }

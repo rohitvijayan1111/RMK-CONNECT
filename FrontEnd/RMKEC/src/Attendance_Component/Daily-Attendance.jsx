@@ -110,7 +110,20 @@ const Daily_Attendance = () => {
         setReason('');
       }
     } catch (error) {
-      notifyfailure('Error inserting record: ' + error.message);
+      console.error('Axios error:', error);
+      if (error.response) {
+        console.error('Error response data:', error.response.data);
+        console.error('Error response status:', error.response.status);
+        console.error('Error response headers:', error.response.headers);
+        notifyfailure('Error inserting record: ' + (error.response.data.error || error.response.data.message || error.message));
+      } else if (error.request) {
+        console.error('Error request:', error.request);
+        notifyfailure('No response received from server');
+      } else {
+        
+        console.error('Error message:', error.message);
+        notifyfailure('Error inserting record: ' + error.message);
+      }
     }
   };
 

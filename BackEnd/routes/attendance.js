@@ -37,16 +37,17 @@ const query = util.promisify(db.query).bind(db);
 router.post('/addabsent', async (req, res) => {
     const data = req.body;
     console.log('Received data:', data);
-  
+
     if (!data) {
         console.error('Data is required');
         return res.status(400).json({ error: 'Data is required' });
     }
-  
+
     try {
+        let existingRecord;
         if (data.student_id) {
             console.log('Processing student_id:', data.student_id);
-            const studentDetails = await query('SELECT year FROM students WHERE id = ?', [data.student_id]); // Add await here
+            const studentDetails = await query('SELECT year FROM students WHERE id = ?', [data.student_id]);
       
             console.log('Query executed for student_id:', data.student_id);
             console.log('Student details:', studentDetails);
@@ -71,6 +72,9 @@ router.post('/addabsent', async (req, res) => {
                 WHERE department_name = ?`;
             console.log('Executing query:', updateQuery);
             await query(updateQuery, [data.department_name]);
+
+            // Check if the record already exists
+            existingRecord = await query('SELECT * FROM absent_attendance_records WHERE student_id = ? AND attendance_date = ?', [data.student_id, data.attendance_date]);
       
         } else if (data.staff_id) {
             console.log('Processing staff_id:', data.staff_id);
@@ -80,23 +84,32 @@ router.post('/addabsent', async (req, res) => {
                 WHERE department_name = ?`;
             console.log('Executing query:', updateQuery);
             await query(updateQuery, [data.department_name]);
+
+            // Check if the record already exists
+            existingRecord = await query('SELECT * FROM absent_attendance_records WHERE staff_id = ? AND attendance_date = ?', [data.staff_id, data.attendance_date]);
       
         } else {
             console.error('Invalid data format');
             return res.status(400).json({ error: 'Invalid data format' });
         }
-      
+
+        if (existingRecord && existingRecord.length > 0) {
+            console.log('Record already exists:', existingRecord);
+            return res.status(400).json({ error: 'Record already exists for this date and user' });
+        }
+
         console.log('Data to insert:', data);
         const insertQuery = 'INSERT INTO absent_attendance_records SET ?';
         console.log('Executing insert query:', insertQuery, data);
         await query(insertQuery, data);
-      
+
         res.json({ message: 'Record inserted successfully' });
     } catch (error) {
         console.error('Error inserting record:', error);
         res.status(500).json({ error: 'Internal Server Error' });
     }
 });
+
 
 async function getStudentYear(student_id) {
     const result = await query('SELECT year FROM students WHERE id = ?', [student_id]);
