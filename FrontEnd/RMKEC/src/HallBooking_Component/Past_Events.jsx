@@ -1,8 +1,11 @@
 import React from 'react'
-import './Past_Events.css'
+
+import EventDetails from './EventDetails'
 function Past_Events() {
   return (
-    <div>Past_Events</div>
+    <div>
+      <EventDetails/>
+    </div>
   )
 }
 

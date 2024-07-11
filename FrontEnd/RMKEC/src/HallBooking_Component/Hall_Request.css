@@ -1,4 +1,4 @@
-.email-notification {
+.Attendance_request {
     max-width: 600px;
     margin: 20px auto;
     padding: 20px;
@@ -13,18 +13,15 @@
     margin-top: 20px;
     text-align: center;
   }
+
   
-  .email-notification h3 {
+  .Attendance_request h5 {
     margin-bottom: 10px;
   }
   
-  .email-notification h5 {
-    margin-bottom: 10px;
-  }
-  
-  .email-notification input[type="text"],
-  .email-notification textarea,
-  .email-notification input[type="email"] {
+  .Attendance_request input[type="text"],
+  .Attendance_request textarea,
+  .Attendance_request input[type="email"] {
     width: 100%;
     padding: 10px;
     margin-bottom: 14px;
@@ -35,25 +32,25 @@
     margin-top: 14px;
   }
   
-  .email-notification textarea {
-    height: 150px;
+  .Attendance_request textarea {
+    height: 100px;
   }
   
-  .email-notification ul {
+  .Attendance_request ul {
     list-style-type: none;
     padding: 0;
   }
   
-  .email-notification li {
+  .Attendance_request li {
     margin-bottom: 8px;
   }
   
-  .email-notification label {
+  .Attendance_request label {
     display: block;
     cursor: pointer;
   }
   
-  .email-notification button {
+  .Attendance_request button {
     background-color: #164863;
     color: white;
     border: none;
@@ -64,12 +61,7 @@
     align-items: center;
   }
   
-  .email-notification button:hover {
+  .Attendance_request button:hover {
     background-color: #0056b3;
   }
-  
-  .tyy{
-    color: pink;
-  }
-
  

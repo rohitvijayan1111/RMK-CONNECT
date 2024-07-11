@@ -28,18 +28,19 @@ const LeaveTypeDropdown = ({ onLeaveTypeSelect }) => {
     );
   };
 const Hall_Request = () => {
-  const [value, setValue] = useState(); 
+  const [fvalue, setFvalue] = useState(); 
+  const [tvalue, setTvalue] = useState(); 
   const [selectedLeaveType, setSelectedLeaveType] = useState('');
   const [selectedUserGroup, setSelectedUserGroup] = useState('');
 
   return (
-    <div className="email-notification">
+    <div className="Attendance_request">
       <h5>Name Of the Event</h5>
       <input type='text' />
       <h5>Speaker</h5>
       <input type='text' />
       <h5>Description of the Speaker</h5>
-      <textarea name="" id=""></textarea>
+      <textarea style={{resize:'none'}} name="" id=""></textarea>
       <h5>Date</h5>
       <LocalizationProvider dateAdapter={AdapterDayjs}>
         <DemoContainer  components={['DatePicker']}>
@@ -54,13 +55,13 @@ const Hall_Request = () => {
         <DemoContainer components={['TimePicker', 'TimePicker']}>
           <TimePicker
             label="From"
-            value={value}
-            onChange={(newValue) => setValue(newValue)}
+            value={fvalue}
+            onChange={(newValue) => setFvalue(newValue)}
           />
           <TimePicker
             label="To"
-            value={value}
-            onChange={(newValue) => setValue(newValue)}
+            value={tvalue}
+            onChange={(newValue) => setTvalue(newValue)}
           />
         </DemoContainer>
       </LocalizationProvider>
@@ -68,11 +69,12 @@ const Hall_Request = () => {
       <LeaveTypeDropdown onLeaveTypeSelect={setSelectedLeaveType} />
       <h5>Participants</h5>
       <input type='text' />
-      <h5>Name Of the Event</h5>
+      <h5>Incharge Faculty</h5>
       <input type='text' />
-      
+      <h5>Facility Needed</h5>
+      <textarea style={{resize:'none'}} name="" id=""></textarea>
       <div className="send-button-container">
-        <button>Send Email</button>
+        <button>Request Hall</button>
       </div>
     </div>
   );

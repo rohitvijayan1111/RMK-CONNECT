@@ -3,6 +3,7 @@ import './Attendance_DB_Dept.css'
 import PlacementBarGraph from '../Components/Department-Component/PlacementBarGraph';
 import LineCharts from './LineCharts';
 import Attendance_BC from './Attendance_BC';
+import Attendance_BC_Admin from '../Components/Admin-Component/Attendance_BC_Admin';
 
 const BatchSelector = ({ onBatchSelect }) => {
     const [selectedBatch, setSelectedBatch] = useState('');
@@ -47,7 +48,7 @@ function Attendance_DB_Dept() {
             <div className="grid-containers">
             <div className='home-grid-db'>
             <GridItem title="Attendance">
-                <Attendance_BC/>
+                <Attendance_BC_Admin/>
             </GridItem>
             <GridItem title="Data">
                 <div className='content-container'>
