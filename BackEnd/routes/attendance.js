@@ -456,7 +456,12 @@ router.post('/attendance-graph', async (req, res) => {
         console.log('Query results:', results);
 
         if (results.length === 0) {
-            return res.status(404).json({ error: 'No attendance records found for this department and user type' });
+            const date = new Date(row.date);
+            const formattedDate = `${date.getDate()}/${date.getMonth() + 1}`;
+            return res.json({
+                name: formattedDate,
+                absent: 0
+            });
         }
 
         const formattedResults = results.map(row => {
@@ -474,5 +479,141 @@ router.post('/attendance-graph', async (req, res) => {
         res.status(500).json({ error: 'Internal Server Error' });
     }
 });
+
+router.post('/admin-attendance-summary', async (req, res) => {
+    const { user } = req.body;
+
+    if (!user) {
+        return res.status(400).json({ error: 'User type is required' });
+    }
+
+    let queryStr;
+    let presentField;
+    let absentField;
+
+    if (user.toLowerCase() === 'student') {
+        queryStr = `
+            SELECT 
+                department_name, 
+                (SUM(year_I_count) + SUM(year_II_count) + SUM(year_III_count) + SUM(year_IV_count)) AS total_students, 
+                (SUM(todayabsentcount_year_I) + SUM(todayabsentcount_year_II) + SUM(todayabsentcount_year_III) + SUM(todayabsentcount_year_IV)) AS total_absent_students
+            FROM membercount 
+            GROUP BY department_name
+        `;
+        presentField = 'total_students';
+        absentField = 'total_absent_students';
+    } else if (user.toLowerCase() === 'faculty') {
+        queryStr = `
+            SELECT 
+                department_name, 
+                SUM(staff_count) AS total_staff, 
+                SUM(todayabsentcount_staff) AS total_absent_staff
+            FROM membercount 
+            GROUP BY department_name
+        `;
+        presentField = 'total_staff';
+        absentField = 'total_absent_staff';
+    } else {
+        return res.status(400).json({ error: 'Invalid user type' });
+    }
+
+    try {
+        const results = await query(queryStr);
+
+        if (results.length === 0) {
+            return res.status(404).json({ error: 'No departments found' });
+        }
+
+        const data = results.map(row => ({
+            name: row.department_name,
+            present: row[presentField] - row[absentField],
+            absent: row[absentField]
+        }));
+
+        res.json(data);
+    } catch (error) {
+        console.error('Error fetching attendance summary:', error);
+        res.status(500).json({ error: 'Internal Server Error' });
+    }
+});
+router.post('/admin-attendance-count-summary', async (req, res) => {
+    try {
+        console.log("INNN");
+        const results = await query('SELECT * FROM membercount');
+        if (results.length === 0) {
+            return res.status(404).json({ error: 'No departments found' });
+        }
+
+        let total_student = 0;
+        let absent_student = 0;
+        let total_staff = 0;
+        let absent_staff = 0;
+
+        results.forEach(row => {
+            total_student += row.year_I_count + row.year_II_count + row.year_III_count + row.year_IV_count;
+            absent_student += row.todayabsentcount_year_I + row.todayabsentcount_year_II + row.todayabsentcount_year_III + row.todayabsentcount_year_IV;
+            total_staff += row.staff_count;
+            absent_staff += row.todayabsentcount_staff;
+        });
+
+        const data = {
+            Total_students: total_student,
+            Student_Present: total_student - absent_student,
+            Student_Absent: absent_student,
+            Total_staff: total_staff,
+            Staff_Present: total_staff - absent_staff,
+            Staff_Absent: absent_staff
+        };
+
+        res.json(data);
+    } catch (error) {
+        console.error('Error fetching attendance summary:', error);
+        res.status(500).json({ error: 'Internal Server Error' });
+    }
+});
+router.post('/admin-attendance-graph', async (req, res) => {
+    const { user } = req.body;
+    console.log(req.body);
+    
+    if (!user) {
+        return res.status(400).json({ error: 'User type is required' });
+    }
+
+    let column;
+    if (user === 'Student') {
+        column = "student_id";
+    } else {
+        column = "staff_id";
+    }
+
+    try {
+        const results = await query(`SELECT attendance_date as date, count(*) as total FROM absent_attendance_records WHERE ${column} IS NOT NULL GROUP BY date LIMIT 7`);
+        console.log('Query results:', results);
+
+        if (results.length === 0) {
+            const date = new Date(row.date);
+            const formattedDate = `${date.getDate()}/${date.getMonth() + 1}`;
+            return res.json({
+                name: formattedDate,
+                absent: 0
+            });
+        }
+
+        const formattedResults = results.map(row => {
+            const date = new Date(row.date);
+            const formattedDate = `${date.getDate()}/${date.getMonth() + 1}`;
+            return {
+                name: formattedDate,
+                absent: row.total
+            };
+        });
+
+        res.json(formattedResults);
+    } catch (error) {
+        console.error('Error fetching attendance summary:', error);
+        res.status(500).json({ error: 'Internal Server Error' });
+    }
+});
+
 
 module.exports = router;

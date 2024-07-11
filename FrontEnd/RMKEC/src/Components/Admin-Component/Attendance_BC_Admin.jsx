@@ -12,68 +12,6 @@ import {
   ResponsiveContainer,
 } from "recharts";
 
-const data = [
-  {
-    name: "A",
-    uv: 4000,
-    pv: 2400,
-    amt: 2400,
-  },
-  {
-    name: "B",
-    uv: 3000,
-    pv: 1398,
-    amt: 2210,
-  },
-  {
-    name: "C",
-    uv: 2000,
-    pv: 9800,
-    amt: 2290,
-  },
-  {
-    name: "C",
-    uv: 2000,
-    pv: 9800,
-    amt: 2290,
-  },
-  {
-    name: "C",
-    uv: 2000,
-    pv: 9800,
-    amt: 2290,
-  },
-  {
-    name: "C",
-    uv: 2000,
-    pv: 9800,
-    amt: 2290,
-  },
-  {
-    name: "C",
-    uv: 2000,
-    pv: 9800,
-    amt: 2290,
-  },
-  {
-    name: "C",
-    uv: 2000,
-    pv: 9800,
-    amt: 2290,
-  },
-  {
-    name: "C",
-    uv: 2000,
-    pv: 9800,
-    amt: 2290,
-  },
-  {
-    name: "C",
-    uv: 2000,
-    pv: 9800,
-    amt: 2290,
-  },
-];
 const CustomTooltip = ({ active, payload, label }) => {
     if (active && payload && payload.length) {
       return (
@@ -91,7 +29,9 @@ const CustomTooltip = ({ active, payload, label }) => {
   
     return null;
   };
-export default function Attendance_BC_Admin() {
+export default function Attendance_BC_Admin({data}) {
+  console.log("ADMMIN GRAPH");
+  console.log(data);
   return (
     <>
     <ResponsiveContainer>
@@ -111,8 +51,8 @@ export default function Attendance_BC_Admin() {
         <YAxis />
         <Tooltip content={<CustomTooltip />} />
         <Legend />
-        <Bar dataKey="pv" stackId="a" fill="#8884d8" barSize="20" animationBegin={0} animationDuration={1400} />
-        <Bar dataKey="uv" stackId="a" fill="#82ca9d" barSize="20" animationBegin={0} animationDuration={1400}/>
+        <Bar dataKey="present" stackId="a" fill="#8884d8" barSize="15" animationBegin={0} animationDuration={1400} />
+        <Bar dataKey="absent" stackId="a" fill="#82ca9d" barSize="15" animationBegin={0} animationDuration={1400}/>
       </BarChart>
     </ResponsiveContainer>
     </>

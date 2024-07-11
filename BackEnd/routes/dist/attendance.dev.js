@@ -609,7 +609,8 @@ router.post('/fetchdatedata', function _callee5(req, res) {
   }, null, null, [[35, 44]]);
 });
 router.post('/attendance-summary', function _callee6(req, res) {
-  var department, results, row, data;
+  var department, results, _row, data;
+
   return regeneratorRuntime.async(function _callee6$(_context7) {
     while (1) {
       switch (_context7.prev = _context7.next) {
@@ -643,27 +644,27 @@ router.post('/attendance-summary', function _callee6(req, res) {
           }));
 
         case 9:
-          row = results[0];
+          _row = results[0];
           data = [{
             name: "I YR",
-            present: row.year_I_count - row.todayabsentcount_year_I,
-            absent: row.todayabsentcount_year_I
+            present: _row.year_I_count - _row.todayabsentcount_year_I,
+            absent: _row.todayabsentcount_year_I
           }, {
             name: "II YR",
-            present: row.year_II_count - row.todayabsentcount_year_II,
-            absent: row.todayabsentcount_year_II
+            present: _row.year_II_count - _row.todayabsentcount_year_II,
+            absent: _row.todayabsentcount_year_II
           }, {
             name: "III YR",
-            present: row.year_III_count - row.todayabsentcount_year_III,
-            absent: row.todayabsentcount_year_III
+            present: _row.year_III_count - _row.todayabsentcount_year_III,
+            absent: _row.todayabsentcount_year_III
           }, {
             name: "IV YR",
-            present: row.year_IV_count - row.todayabsentcount_year_IV,
-            absent: row.todayabsentcount_year_IV
+            present: _row.year_IV_count - _row.todayabsentcount_year_IV,
+            absent: _row.todayabsentcount_year_IV
           }, {
             name: 'Staff',
-            present: row.staff_count - row.todayabsentcount_staff,
-            absent: row.todayabsentcount_staff
+            present: _row.staff_count - _row.todayabsentcount_staff,
+            absent: _row.todayabsentcount_staff
           }];
           res.json(data);
           _context7.next = 18;
@@ -685,7 +686,8 @@ router.post('/attendance-summary', function _callee6(req, res) {
   }, null, null, [[3, 14]]);
 });
 router.post('/attendance-count-summary', function _callee7(req, res) {
-  var department, results, row, total_student, absent_student, total_staff, absent_staff, data;
+  var department, results, _row2, total_student, absent_student, total_staff, absent_staff, data;
+
   return regeneratorRuntime.async(function _callee7$(_context8) {
     while (1) {
       switch (_context8.prev = _context8.next) {
@@ -719,11 +721,11 @@ router.post('/attendance-count-summary', function _callee7(req, res) {
           }));
 
         case 9:
-          row = results[0];
-          total_student = row.year_I_count + row.year_II_count + row.year_III_count + row.year_IV_count;
-          absent_student = row.todayabsentcount_year_I + row.todayabsentcount_year_II + row.todayabsentcount_year_III + row.todayabsentcount_year_IV;
-          total_staff = row.staff_count;
-          absent_staff = row.todayabsentcount_staff;
+          _row2 = results[0];
+          total_student = _row2.year_I_count + _row2.year_II_count + _row2.year_III_count + _row2.year_IV_count;
+          absent_student = _row2.todayabsentcount_year_I + _row2.todayabsentcount_year_II + _row2.todayabsentcount_year_III + _row2.todayabsentcount_year_IV;
+          total_staff = _row2.staff_count;
+          absent_staff = _row2.todayabsentcount_staff;
           data = {
             Total_students: total_student,
             Student_Present: total_student - absent_student,
@@ -752,7 +754,7 @@ router.post('/attendance-count-summary', function _callee7(req, res) {
   }, null, null, [[3, 18]]);
 });
 router.post('/attendance-graph', function _callee8(req, res) {
-  var _req$body3, user, department, column, results, formattedResults;
+  var _req$body3, user, department, column, results, date, formattedDate, formattedResults;
 
   return regeneratorRuntime.async(function _callee8$(_context9) {
     while (1) {
@@ -786,15 +788,18 @@ router.post('/attendance-graph', function _callee8(req, res) {
           console.log('Query results:', results);
 
           if (!(results.length === 0)) {
-            _context9.next = 12;
+            _context9.next = 14;
             break;
           }
 
-          return _context9.abrupt("return", res.status(404).json({
-            error: 'No attendance records found for this department and user type'
+          date = new Date(row.date);
+          formattedDate = "".concat(date.getDate(), "/").concat(date.getMonth() + 1);
+          return _context9.abrupt("return", res.json({
+            name: formattedDate,
+            absent: 0
           }));
 
-        case 12:
+        case 14:
           formattedResults = results.map(function (row) {
             var date = new Date(row.date);
             var formattedDate = "".concat(date.getDate(), "/").concat(date.getMonth() + 1);
@@ -804,22 +809,246 @@ router.post('/attendance-graph', function _callee8(req, res) {
             };
           });
           res.json(formattedResults);
-          _context9.next = 20;
+          _context9.next = 22;
           break;
 
-        case 16:
-          _context9.prev = 16;
+        case 18:
+          _context9.prev = 18;
           _context9.t0 = _context9["catch"](5);
           console.error('Error fetching attendance summary:', _context9.t0);
           res.status(500).json({
             error: 'Internal Server Error'
           });
 
-        case 20:
+        case 22:
         case "end":
           return _context9.stop();
       }
     }
-  }, null, null, [[5, 16]]);
+  }, null, null, [[5, 18]]);
+});
+router.post('/admin-attendance-summary', function _callee9(req, res) {
+  var user, queryStr, presentField, absentField, results, data;
+  return regeneratorRuntime.async(function _callee9$(_context10) {
+    while (1) {
+      switch (_context10.prev = _context10.next) {
+        case 0:
+          user = req.body.user;
+
+          if (user) {
+            _context10.next = 3;
+            break;
+          }
+
+          return _context10.abrupt("return", res.status(400).json({
+            error: 'User type is required'
+          }));
+
+        case 3:
+          if (!(user.toLowerCase() === 'student')) {
+            _context10.next = 9;
+            break;
+          }
+
+          queryStr = "\n            SELECT \n                department_name, \n                (SUM(year_I_count) + SUM(year_II_count) + SUM(year_III_count) + SUM(year_IV_count)) AS total_students, \n                (SUM(todayabsentcount_year_I) + SUM(todayabsentcount_year_II) + SUM(todayabsentcount_year_III) + SUM(todayabsentcount_year_IV)) AS total_absent_students\n            FROM membercount \n            GROUP BY department_name\n        ";
+          presentField = 'total_students';
+          absentField = 'total_absent_students';
+          _context10.next = 16;
+          break;
+
+        case 9:
+          if (!(user.toLowerCase() === 'faculty')) {
+            _context10.next = 15;
+            break;
+          }
+
+          queryStr = "\n            SELECT \n                department_name, \n                SUM(staff_count) AS total_staff, \n                SUM(todayabsentcount_staff) AS total_absent_staff\n            FROM membercount \n            GROUP BY department_name\n        ";
+          presentField = 'total_staff';
+          absentField = 'total_absent_staff';
+          _context10.next = 16;
+          break;
+
+        case 15:
+          return _context10.abrupt("return", res.status(400).json({
+            error: 'Invalid user type'
+          }));
+
+        case 16:
+          _context10.prev = 16;
+          _context10.next = 19;
+          return regeneratorRuntime.awrap(query(queryStr));
+
+        case 19:
+          results = _context10.sent;
+
+          if (!(results.length === 0)) {
+            _context10.next = 22;
+            break;
+          }
+
+          return _context10.abrupt("return", res.status(404).json({
+            error: 'No departments found'
+          }));
+
+        case 22:
+          data = results.map(function (row) {
+            return {
+              name: row.department_name,
+              present: row[presentField] - row[absentField],
+              absent: row[absentField]
+            };
+          });
+          res.json(data);
+          _context10.next = 30;
+          break;
+
+        case 26:
+          _context10.prev = 26;
+          _context10.t0 = _context10["catch"](16);
+          console.error('Error fetching attendance summary:', _context10.t0);
+          res.status(500).json({
+            error: 'Internal Server Error'
+          });
+
+        case 30:
+        case "end":
+          return _context10.stop();
+      }
+    }
+  }, null, null, [[16, 26]]);
+});
+router.post('/admin-attendance-count-summary', function _callee10(req, res) {
+  var results, total_student, absent_student, total_staff, absent_staff, data;
+  return regeneratorRuntime.async(function _callee10$(_context11) {
+    while (1) {
+      switch (_context11.prev = _context11.next) {
+        case 0:
+          _context11.prev = 0;
+          console.log("INNN");
+          _context11.next = 4;
+          return regeneratorRuntime.awrap(query('SELECT * FROM membercount'));
+
+        case 4:
+          results = _context11.sent;
+
+          if (!(results.length === 0)) {
+            _context11.next = 7;
+            break;
+          }
+
+          return _context11.abrupt("return", res.status(404).json({
+            error: 'No departments found'
+          }));
+
+        case 7:
+          total_student = 0;
+          absent_student = 0;
+          total_staff = 0;
+          absent_staff = 0;
+          results.forEach(function (row) {
+            total_student += row.year_I_count + row.year_II_count + row.year_III_count + row.year_IV_count;
+            absent_student += row.todayabsentcount_year_I + row.todayabsentcount_year_II + row.todayabsentcount_year_III + row.todayabsentcount_year_IV;
+            total_staff += row.staff_count;
+            absent_staff += row.todayabsentcount_staff;
+          });
+          data = {
+            Total_students: total_student,
+            Student_Present: total_student - absent_student,
+            Student_Absent: absent_student,
+            Total_staff: total_staff,
+            Staff_Present: total_staff - absent_staff,
+            Staff_Absent: absent_staff
+          };
+          res.json(data);
+          _context11.next = 20;
+          break;
+
+        case 16:
+          _context11.prev = 16;
+          _context11.t0 = _context11["catch"](0);
+          console.error('Error fetching attendance summary:', _context11.t0);
+          res.status(500).json({
+            error: 'Internal Server Error'
+          });
+
+        case 20:
+        case "end":
+          return _context11.stop();
+      }
+    }
+  }, null, null, [[0, 16]]);
+});
+router.post('/admin-attendance-graph', function _callee11(req, res) {
+  var user, column, results, date, formattedDate, formattedResults;
+  return regeneratorRuntime.async(function _callee11$(_context12) {
+    while (1) {
+      switch (_context12.prev = _context12.next) {
+        case 0:
+          user = req.body.user;
+          console.log(req.body);
+
+          if (user) {
+            _context12.next = 4;
+            break;
+          }
+
+          return _context12.abrupt("return", res.status(400).json({
+            error: 'User type is required'
+          }));
+
+        case 4:
+          if (user === 'Student') {
+            column = "student_id";
+          } else {
+            column = "staff_id";
+          }
+
+          _context12.prev = 5;
+          _context12.next = 8;
+          return regeneratorRuntime.awrap(query("SELECT attendance_date as date, count(*) as total FROM absent_attendance_records WHERE ".concat(column, " IS NOT NULL GROUP BY date LIMIT 7")));
+
+        case 8:
+          results = _context12.sent;
+          console.log('Query results:', results);
+
+          if (!(results.length === 0)) {
+            _context12.next = 14;
+            break;
+          }
+
+          date = new Date(row.date);
+          formattedDate = "".concat(date.getDate(), "/").concat(date.getMonth() + 1);
+          return _context12.abrupt("return", res.json({
+            name: formattedDate,
+            absent: 0
+          }));
+
+        case 14:
+          formattedResults = results.map(function (row) {
+            var date = new Date(row.date);
+            var formattedDate = "".concat(date.getDate(), "/").concat(date.getMonth() + 1);
+            return {
+              name: formattedDate,
+              absent: row.total
+            };
+          });
+          res.json(formattedResults);
+          _context12.next = 22;
+          break;
+
+        case 18:
+          _context12.prev = 18;
+          _context12.t0 = _context12["catch"](5);
+          console.error('Error fetching attendance summary:', _context12.t0);
+          res.status(500).json({
+            error: 'Internal Server Error'
+          });
+
+        case 22:
+        case "end":
+          return _context12.stop();
+      }
+    }
+  }, null, null, [[5, 18]]);
 });
 module.exports = router;
