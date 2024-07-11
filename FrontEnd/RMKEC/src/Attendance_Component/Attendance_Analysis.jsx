@@ -6,6 +6,7 @@ import 'bootstrap/dist/css/bootstrap.min.css';
 import 'react-toastify/dist/ReactToastify.css';
 import './Todays_List.css';
 import './Attendance_Analysis.css';
+import withAuthorization from '../Components/WithAuthorization';
 
 const UserGroupSelector = ({ setSelectedUserGroup }) => {
   const handleUserGroupChange = (event) => {
@@ -117,4 +118,4 @@ const Attendance_Analysis = () => {
   );
 };
 
-export default Attendance_Analysis;
+export default withAuthorization(['hod','Principal','VC','Dean','Attendance Manager'])(Attendance_Analysis);

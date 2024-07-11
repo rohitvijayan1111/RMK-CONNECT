@@ -43,7 +43,7 @@ function App() {
       <Router>
         <Routes>
           <Route path="/" element={<LoginPage />} />
-          <Route path="/" element={<Invalidpage/>}/>
+          <Route path="/invalidpage" element={<Invalidpage/>}/>
           <Route path="/signup" element={<SignPage />} />
           <Route path="/dashboard/*" element={<Layout />}>
             <Route index element={<DashBoard/>} />

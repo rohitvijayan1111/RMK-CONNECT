@@ -3,6 +3,7 @@ import axios from 'axios';
 import { ToastContainer, toast, Zoom } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
 import './Edit_Entry.css';
+import withAuthorization from '../Components/WithAuthorization';
 
 const UserGroupSelector = ({ setSelectedUserGroup }) => {
   const handleUserGroupChange = (event) => {
@@ -89,8 +90,9 @@ const Edit_Entry = () => {
       }
     } catch (error) {
       if (error.response && error.response.status === 404) {
-        notifyfailure('Person is already marked as present');
-      } else {
+        notifyfailure('Record not found');
+      }
+       else {
         notifyfailure('Error removing record: ' + error.message);
       }
     }
@@ -119,4 +121,4 @@ const Edit_Entry = () => {
   );
 }
 
-export default Edit_Entry;
+export default withAuthorization(['Attendance Manager'])(Edit_Entry);

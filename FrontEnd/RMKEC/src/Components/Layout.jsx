@@ -10,7 +10,7 @@ import HallBooking_SideBar from "../HallBooking_Component/HallBooking_SideBar";
 
 const Layout = () => {
     const navigate = useNavigate();
-
+    const user= window.localStorage.getItem("userType");
     useEffect(() => {
         const isLoggedIn = window.localStorage.getItem('loggedIn');
         if (isLoggedIn === 'false') {
@@ -21,11 +21,11 @@ const Layout = () => {
     return (
         <div>
             <NavBar/>
-            
-
             <div className="er">
                 <aside>
-                <Attendance_SideBar/>
+      {user=== 'Attendance Manager' && <Attendance_SideBar/>}
+      {user === 'Event Coordinator' && <HallBooking_SideBar/>}
+      {user !== 'Event Coordinator' && user!== 'Attendance Manager' && <SideBar/>}
                 </aside>
                 <div className="pr">
                 <Navigation/>
@@ -33,7 +33,6 @@ const Layout = () => {
                     <Outlet/>
                     </div>
                 </div>
-               
             </div>
         </div>
     );

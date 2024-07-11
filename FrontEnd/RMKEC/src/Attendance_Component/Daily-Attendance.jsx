@@ -3,6 +3,7 @@ import axios from 'axios';
 import { ToastContainer, toast, Zoom } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
 import './Daily-Attendance.css';
+import withAuthorization from '../Components/WithAuthorization';
 
 const LeaveTypeDropdown = ({ onLeaveTypeSelect }) => {
   const handleLeaveTypeChange = (event) => {
@@ -47,7 +48,6 @@ const Daily_Attendance = () => {
 
   const [selectedLeaveType, setSelectedLeaveType] = useState('');
   const [selectedUserGroup, setSelectedUserGroup] = useState('');
-
   const [rollNumber, setRollNumber] = useState('');
   const [reason, setReason] = useState('');
 
@@ -66,7 +66,14 @@ const Daily_Attendance = () => {
   };
 
   const notifyfailure = (error) => {
-    toast.error(error, {
+    let errorMessage = 'Error inserting record';
+    if (error.response && error.response.data && error.response.data.error) {
+      errorMessage += ': ' + error.response.data.error;
+    } else if (error.message) {
+      errorMessage += ': ' + error.message;
+    }
+
+    toast.error(errorMessage, {
       position: "top-center",
       autoClose: 5000,
       hideProgressBar: false,
@@ -81,29 +88,29 @@ const Daily_Attendance = () => {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    if (!selectedLeaveType || !selectedUserGroup || !rollNumber || !reason) {
+    if (!selectedLeaveType ||!selectedUserGroup ||!rollNumber ||!reason) {
       notifyfailure("Select User Group, Leave Type, provide Roll/Enrollment Number, and Reason");
       return;
     }
-
+  
     let payload = {
       reason: reason,
       leave_type: selectedLeaveType,
       attendance_date: formattedDate,
       department_name: window.localStorage.getItem('department')
     };
-
+  
     if (selectedUserGroup === 'Student') {
       payload.student_id = rollNumber;
     } else {
       payload.staff_id = rollNumber;
     }
-
+  
     try {
       const response = await axios.post("http://localhost:3000/attendance/addabsent", payload);
       console.log(response.data);
       if (response.data.error) {
-        notifyfailure(response.data.error);
+        notifyfailure(response.data.error); 
       } else {
         notifysuccess(response.data.message);
         setRollNumber('');
@@ -126,6 +133,7 @@ const Daily_Attendance = () => {
       }
     }
   };
+  
 
   return (
     <div>
@@ -155,4 +163,4 @@ const Daily_Attendance = () => {
   );
 };
 
-export default Daily_Attendance;
+export default withAuthorization(['Attendance Manager'])(Daily_Attendance);

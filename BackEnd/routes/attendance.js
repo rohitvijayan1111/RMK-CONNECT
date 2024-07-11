@@ -73,7 +73,6 @@ router.post('/addabsent', async (req, res) => {
             console.log('Executing query:', updateQuery);
             await query(updateQuery, [data.department_name]);
 
-            // Check if the record already exists
             existingRecord = await query('SELECT * FROM absent_attendance_records WHERE student_id = ? AND attendance_date = ?', [data.student_id, data.attendance_date]);
       
         } else if (data.staff_id) {
@@ -125,6 +124,13 @@ router.post('/removeabsent', async (req, res) => {
     const column = userGroup === 'Student' ? 'student_id' : 'staff_id';
 
     try {
+        // Check if the attendance record exists
+        const checkQuery = `SELECT * FROM absent_attendance_records WHERE attendance_date=? AND ${column}=?`;
+        const records = await query(checkQuery, [date, rollnumber]);
+        if (records.length === 0) {
+            return res.status(404).json({ error: 'Attendance record not found' });
+        }
+
         if (userGroup === 'Student') {
             const studentYear = await getStudentYear(rollnumber);
             if (!studentYear) {
@@ -136,19 +142,22 @@ router.post('/removeabsent', async (req, res) => {
                 UPDATE MemberCount 
                 SET ${updateField} = ${updateField} - 1 
                 WHERE department_name = ?`;
-            await query(decrementQuery, [department_name]);
+            console.log(`Executing query: ${decrementQuery} with department_name: ${department_name}`);
+            const result = await query(decrementQuery, [department_name]);
+            console.log(`Update result: ${JSON.stringify(result)}`);
 
         } else if (userGroup === 'Staff') {
             const decrementQuery = `
                 UPDATE MemberCount 
                 SET todayabsentcount_staff = todayabsentcount_staff - 1 
                 WHERE department_name = ?`;
-            await query(decrementQuery, [department_name]);
+            console.log(`Executing query: ${decrementQuery} with department_name: ${department_name}`);
+            const result = await query(decrementQuery, [department_name]);
+            console.log(`Update result: ${JSON.stringify(result)}`);
         }
 
-        const result = await query(`DELETE FROM absent_attendance_records WHERE attendance_date=? AND ${column}=?`, [date, rollnumber]);
-
-        if (result.affectedRows === 0) {
+        const deleteResult = await query(`DELETE FROM absent_attendance_records WHERE attendance_date=? AND ${column}=?`, [date, rollnumber]);
+        if (deleteResult.affectedRows === 0) {
             return res.status(404).json({ error: 'Record not found' });
         }
 
@@ -158,6 +167,7 @@ router.post('/removeabsent', async (req, res) => {
         res.status(500).json({ error: 'Error removing record' });
     }
 });
+
 router.post('/getindividual', async (req, res) => {
     const { rollnumber, userGroup } = req.body;
   
