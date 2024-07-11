@@ -456,13 +456,14 @@ router.post('/attendance-graph', async (req, res) => {
         console.log('Query results:', results);
 
         if (results.length === 0) {
-            const date = new Date(row.date);
-            const formattedDate = `${date.getDate()}/${date.getMonth() + 1}`;
+            const currentDate = new Date();
+            const formattedDate = `${currentDate.getDate()}/${currentDate.getMonth() + 1}`;
             return res.json({
                 name: formattedDate,
                 absent: 0
             });
         }
+        
 
         const formattedResults = results.map(row => {
             const date = new Date(row.date);
@@ -591,13 +592,14 @@ router.post('/admin-attendance-graph', async (req, res) => {
         console.log('Query results:', results);
 
         if (results.length === 0) {
-            const date = new Date(row.date);
-            const formattedDate = `${date.getDate()}/${date.getMonth() + 1}`;
+            const currentDate = new Date();
+            const formattedDate = `${currentDate.getDate()}/${currentDate.getMonth() + 1}`;
             return res.json({
                 name: formattedDate,
                 absent: 0
             });
         }
+        
 
         const formattedResults = results.map(row => {
             const date = new Date(row.date);

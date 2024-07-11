@@ -609,8 +609,7 @@ router.post('/fetchdatedata', function _callee5(req, res) {
   }, null, null, [[35, 44]]);
 });
 router.post('/attendance-summary', function _callee6(req, res) {
-  var department, results, _row, data;
-
+  var department, results, row, data;
   return regeneratorRuntime.async(function _callee6$(_context7) {
     while (1) {
       switch (_context7.prev = _context7.next) {
@@ -644,27 +643,27 @@ router.post('/attendance-summary', function _callee6(req, res) {
           }));
 
         case 9:
-          _row = results[0];
+          row = results[0];
           data = [{
             name: "I YR",
-            present: _row.year_I_count - _row.todayabsentcount_year_I,
-            absent: _row.todayabsentcount_year_I
+            present: row.year_I_count - row.todayabsentcount_year_I,
+            absent: row.todayabsentcount_year_I
           }, {
             name: "II YR",
-            present: _row.year_II_count - _row.todayabsentcount_year_II,
-            absent: _row.todayabsentcount_year_II
+            present: row.year_II_count - row.todayabsentcount_year_II,
+            absent: row.todayabsentcount_year_II
           }, {
             name: "III YR",
-            present: _row.year_III_count - _row.todayabsentcount_year_III,
-            absent: _row.todayabsentcount_year_III
+            present: row.year_III_count - row.todayabsentcount_year_III,
+            absent: row.todayabsentcount_year_III
           }, {
             name: "IV YR",
-            present: _row.year_IV_count - _row.todayabsentcount_year_IV,
-            absent: _row.todayabsentcount_year_IV
+            present: row.year_IV_count - row.todayabsentcount_year_IV,
+            absent: row.todayabsentcount_year_IV
           }, {
             name: 'Staff',
-            present: _row.staff_count - _row.todayabsentcount_staff,
-            absent: _row.todayabsentcount_staff
+            present: row.staff_count - row.todayabsentcount_staff,
+            absent: row.todayabsentcount_staff
           }];
           res.json(data);
           _context7.next = 18;
@@ -686,8 +685,7 @@ router.post('/attendance-summary', function _callee6(req, res) {
   }, null, null, [[3, 14]]);
 });
 router.post('/attendance-count-summary', function _callee7(req, res) {
-  var department, results, _row2, total_student, absent_student, total_staff, absent_staff, data;
-
+  var department, results, row, total_student, absent_student, total_staff, absent_staff, data;
   return regeneratorRuntime.async(function _callee7$(_context8) {
     while (1) {
       switch (_context8.prev = _context8.next) {
@@ -721,11 +719,11 @@ router.post('/attendance-count-summary', function _callee7(req, res) {
           }));
 
         case 9:
-          _row2 = results[0];
-          total_student = _row2.year_I_count + _row2.year_II_count + _row2.year_III_count + _row2.year_IV_count;
-          absent_student = _row2.todayabsentcount_year_I + _row2.todayabsentcount_year_II + _row2.todayabsentcount_year_III + _row2.todayabsentcount_year_IV;
-          total_staff = _row2.staff_count;
-          absent_staff = _row2.todayabsentcount_staff;
+          row = results[0];
+          total_student = row.year_I_count + row.year_II_count + row.year_III_count + row.year_IV_count;
+          absent_student = row.todayabsentcount_year_I + row.todayabsentcount_year_II + row.todayabsentcount_year_III + row.todayabsentcount_year_IV;
+          total_staff = row.staff_count;
+          absent_staff = row.todayabsentcount_staff;
           data = {
             Total_students: total_student,
             Student_Present: total_student - absent_student,
@@ -754,7 +752,7 @@ router.post('/attendance-count-summary', function _callee7(req, res) {
   }, null, null, [[3, 18]]);
 });
 router.post('/attendance-graph', function _callee8(req, res) {
-  var _req$body3, user, department, column, results, date, formattedDate, formattedResults;
+  var _req$body3, user, department, column, results, currentDate, formattedDate, formattedResults;
 
   return regeneratorRuntime.async(function _callee8$(_context9) {
     while (1) {
@@ -792,8 +790,8 @@ router.post('/attendance-graph', function _callee8(req, res) {
             break;
           }
 
-          date = new Date(row.date);
-          formattedDate = "".concat(date.getDate(), "/").concat(date.getMonth() + 1);
+          currentDate = new Date();
+          formattedDate = "".concat(currentDate.getDate(), "/").concat(currentDate.getMonth() + 1);
           return _context9.abrupt("return", res.json({
             name: formattedDate,
             absent: 0
@@ -979,7 +977,7 @@ router.post('/admin-attendance-count-summary', function _callee10(req, res) {
   }, null, null, [[0, 16]]);
 });
 router.post('/admin-attendance-graph', function _callee11(req, res) {
-  var user, column, results, date, formattedDate, formattedResults;
+  var user, column, results, currentDate, formattedDate, formattedResults;
   return regeneratorRuntime.async(function _callee11$(_context12) {
     while (1) {
       switch (_context12.prev = _context12.next) {
@@ -1016,8 +1014,8 @@ router.post('/admin-attendance-graph', function _callee11(req, res) {
             break;
           }
 
-          date = new Date(row.date);
-          formattedDate = "".concat(date.getDate(), "/").concat(date.getMonth() + 1);
+          currentDate = new Date();
+          formattedDate = "".concat(currentDate.getDate(), "/").concat(currentDate.getMonth() + 1);
           return _context12.abrupt("return", res.json({
             name: formattedDate,
             absent: 0
