@@ -25,7 +25,7 @@ const Layout = () => {
 
             <div className="er">
                 <aside>
-                <HallBooking_SideBar/>
+                <Attendance_SideBar/>
                 </aside>
                 <div className="pr">
                 <Navigation/>

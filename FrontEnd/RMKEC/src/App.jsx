@@ -34,6 +34,8 @@ import Request_Status from "./HallBooking_Component/Request_Status";
 import Past_Events from "./HallBooking_Component/Past_Events";
 import Available_Halls from "./HallBooking_Component/Available_Halls";
 import DashBoard_Hall from "./HallBooking_Component/DashBoard_Hall";
+import Attendance_Dashboard from "./Attendance_Component/Attendance_DB_Dept";
+import Invalidpage from "./Pages/Invalidpage";
 function App() {
   return (
     <LocalizationProvider dateAdapter={AdapterDateFns}>
@@ -41,6 +43,7 @@ function App() {
       <Router>
         <Routes>
           <Route path="/" element={<LoginPage />} />
+          <Route path="/" element={<Invalidpage/>}/>
           <Route path="/signup" element={<SignPage />} />
           <Route path="/dashboard/*" element={<Layout />}>
             <Route index element={<DashBoard/>} />
@@ -65,7 +68,7 @@ function App() {
             <Route path="Attendance-Log" element={<Attendance_Log/>} />  
             <Route path="Todays-List" element={<Todays_List/>} />  
             <Route path="Attendance-Analysis" element={<Attendance_Analysis/>} />  
-            <Route path="Attendance_DB_Dept" element={<Attendance_DB_Dept/>} />  
+            <Route path="Attendance_DB_Dept" element={<Attendance_Dashboard/>} />  
             <Route path="Hall-Request" element={<Hall_Request/>} />  
             <Route path="Request-Status" element={<Request_Status/>} />  
             <Route path="Past-Events" element={<Past_Events/>} />  
