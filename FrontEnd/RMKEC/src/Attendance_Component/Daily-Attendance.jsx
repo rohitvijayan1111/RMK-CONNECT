@@ -48,6 +48,9 @@ const Daily_Attendance = () => {
   const [selectedLeaveType, setSelectedLeaveType] = useState('');
   const [selectedUserGroup, setSelectedUserGroup] = useState('');
 
+  const [rollNumber, setRollNumber] = useState('');
+  const [reason, setReason] = useState('');
+
   const notifysuccess = (message) => {
     toast.success(message, {
       position: "top-center",
@@ -78,18 +81,16 @@ const Daily_Attendance = () => {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    if (!selectedLeaveType || !selectedUserGroup) {
-      notifyfailure("Select Both User Group Type and Leave Type");
+    if (!selectedLeaveType || !selectedUserGroup || !rollNumber || !reason) {
+      notifyfailure("Select User Group, Leave Type, provide Roll/Enrollment Number, and Reason");
       return;
     }
-
-    const rollNumber = e.target.elements.rollNumber.value;
-    const reason = e.target.elements.reason.value;
 
     let payload = {
       reason: reason,
       leave_type: selectedLeaveType,
-      attendance_date: formattedDate
+      attendance_date: formattedDate,
+      department_name: window.localStorage.getItem('department')
     };
 
     if (selectedUserGroup === 'Student') {
@@ -105,6 +106,8 @@ const Daily_Attendance = () => {
         notifyfailure(response.data.error);
       } else {
         notifysuccess(response.data.message);
+        setRollNumber('');
+        setReason('');
       }
     } catch (error) {
       notifyfailure('Error inserting record: ' + error.message);
@@ -121,10 +124,10 @@ const Daily_Attendance = () => {
 
         <form>
           <label>{(selectedUserGroup === 'Student') ? "Roll Number" : "Enrollment Number"}</label>
-          <input type='number' name='rollNumber' required />
+          <input type='number' name='rollNumber' value={rollNumber} onChange={(e) => setRollNumber(e.target.value)} required />
           
           <label>Reason</label>
-          <input type='text' name='reason' required />
+          <input type='text' name='reason' value={reason} onChange={(e) => setReason(e.target.value)} required />
 
           <LeaveTypeDropdown onLeaveTypeSelect={setSelectedLeaveType} />
 

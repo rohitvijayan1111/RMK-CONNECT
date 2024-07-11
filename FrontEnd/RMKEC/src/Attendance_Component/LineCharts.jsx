@@ -11,43 +11,6 @@ import {
   ResponsiveContainer,
 } from "recharts";
 
-const data = [
-  {
-    name: "A",
-    pv: 2400,
-    amt: 2400,
-  },
-  {
-    name: "B",
-    pv: 1398,
-    amt: 2210,
-  },
-  {
-    name: "C",
-    pv: 9800,
-    amt: 2290,
-  },
-  {
-    name: "D",
-    pv: 3908,
-    amt: 2000,
-  },
-  {
-    name: "E",
-    pv: 4800,
-    amt: 2181,
-  },
-  {
-    name: "F",
-    pv: 3800,
-    amt: 2500,
-  },
-  {
-    name: "G",
-    pv: 4300,
-    amt: 2100,
-  },
-];
 const CustomTooltip = ({ active, payload, label }) => {
   if (active && payload && payload.length) {
     return (
@@ -66,7 +29,7 @@ const CustomTooltip = ({ active, payload, label }) => {
   return null;
 };
 
-export default function LineCharts() {
+export default function LineCharts({data}) {
   return (
     <ResponsiveContainer>
     <LineChart width={500} height={300} data={data}>
@@ -77,7 +40,7 @@ export default function LineCharts() {
       <Legend />
       <Line
         type="monotone"
-        dataKey="pv"
+        dataKey="absent"
         stroke="#8884d8"
         activeDot={{ r: 8 }}
         animationBegin={0} animationDuration={1400}
