@@ -28,7 +28,7 @@ import ViewOtherForms from "./Pages/ViewOtherForms";
 import AddOtherForm from "./Pages/AddOtherForm";
 import AddNewRecord from "./Pages/AddNewRecord";
 import { ViewOtherFormRecord, EditOtherFormRecord } from "./Pages/ViewOtherFormRecord";
-import Attendance_DB_Dept from "./Attendance_Component/Attendance_DB_Dept";
+import Attendance_Dashboard from "./Attendance_Component/Attendance_DB_Dept";
 import Hall_Request from "./HallBooking_Component/Hall_Request";
 import Request_Status from "./HallBooking_Component/Request_Status";
 import Past_Events from "./HallBooking_Component/Past_Events";
