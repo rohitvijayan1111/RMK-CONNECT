@@ -6,15 +6,17 @@ import './Edit_Entry.css';
 import withAuthorization from '../Components/WithAuthorization';
 
 const UserGroupSelector = ({ setSelectedUserGroup }) => {
+  const [selectedUserGroup, setSelectedUserGroupState] = useState('Student');
+
   const handleUserGroupChange = (event) => {
     const userGroup = event.target.value;
+    setSelectedUserGroupState(userGroup);
     setSelectedUserGroup(userGroup);
   };
 
   return (
     <div>
-      <select id="userGroupSelect" className='status-yr' onChange={handleUserGroupChange} required defaultValue="">
-        <option value="">Select User Group</option>
+      <select id="userGroupSelect" className='status-yr' onChange={handleUserGroupChange} value={selectedUserGroup} required>
         <option value="Student">Student</option>
         <option value="Staff">Staff</option>
       </select>
@@ -29,7 +31,7 @@ const Edit_Entry = () => {
   const year = currentDate.getFullYear();
   const formattedDate = `${year}-${month}-${day}`;
 
-  const [selectedUserGroup, setSelectedUserGroup] = useState('');
+  const [selectedUserGroup, setSelectedUserGroup] = useState('Student');
   const [rollNumber, setRollNumber] = useState('');
 
   const notifysuccess = (message) => {
@@ -75,7 +77,7 @@ const Edit_Entry = () => {
     let payload = {
       date: formattedDate,
       rollnumber: rollNumber,
-      department_name :window.localStorage.getItem('department'),
+      department_name: window.localStorage.getItem('department'),
       userGroup: selectedUserGroup
     };
 
@@ -90,8 +92,7 @@ const Edit_Entry = () => {
     } catch (error) {
       if (error.response && error.response.status === 404) {
         notifyfailure('Record not found');
-      }
-       else {
+      } else {
         notifyfailure('Error removing record: ' + error.message);
       }
     }
@@ -118,6 +119,6 @@ const Edit_Entry = () => {
       <ToastContainer />
     </div>
   );
-}
+};
 
 export default withAuthorization(['Attendance Manager'])(Edit_Entry);

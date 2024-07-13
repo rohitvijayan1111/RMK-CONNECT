@@ -9,7 +9,7 @@ import Attendance_BC_Admin from '../Components/Admin-Component/Attendance_BC_Adm
 import withAuthorization from '../Components/WithAuthorization';
 
 const BatchSelector = ({ onBatchSelect }) => {
-  const [selectedBatch, setSelectedBatch] = useState('Student');
+  const [selectedBatch, setSelectedBatch] = useState('');
 
   const handleBatchChange = (event) => {
     const batch = event.target.value;

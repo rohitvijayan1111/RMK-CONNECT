@@ -7,7 +7,7 @@ const Available_Details = ({ hall }) => {
     <div className="hall-details">
       <img src={hall.image} alt={`${hall.name}`} className="hall-image" />
       <div className="hall-info">
-        <h4><FaHome /> {hall.name}</h4>
+        <h4><FaHome /> {hall.name}</h4>  
         <p><FaMapMarkerAlt /> {hall.location}</p>
         <p><FaUsers /> Capacity: {hall.capacity}</p>
         <p><FaCogs /> Facilities: {hall.facilities.join(', ')}</p>

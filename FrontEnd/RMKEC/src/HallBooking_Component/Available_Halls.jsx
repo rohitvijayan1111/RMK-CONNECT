@@ -18,12 +18,33 @@ const halls = [
     facilities: ['Video Conferencing', 'AC', 'Wi-Fi']
   },
   {
-    name: 'Seminar Room',
+    name: 'Semoom',
     image: hall,
     location: 'Building C, Ground Floor',
     capacity: 100,
     facilities: ['Whiteboard', 'Projector', 'Wi-Fi']
-  }
+  },
+  {
+    name: 'Semim',
+    image: hall,
+    location: 'Building C, Ground Floor',
+    capacity: 100,
+    facilities: ['Whiteboard', 'Projector', 'Wi-Fi']
+  },
+  {
+    name: 'Ser Room',
+    image: hall,
+    location: 'Building C, Ground Floor',
+    capacity: 100,
+    facilities: ['Whiteboard', 'Projector', 'Wi-Fi']
+  },
+  {
+    name: 'Seminar  dsdsd sd',
+    image: hall,
+    location: 'Building C, Ground Floor',
+    capacity: 100,
+    facilities: ['Whiteboard', 'Projector', 'Wi-Fi']
+  },
 ];
 
 function Available_Halls() {

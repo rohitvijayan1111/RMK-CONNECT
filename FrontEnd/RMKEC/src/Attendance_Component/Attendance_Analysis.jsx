@@ -4,20 +4,23 @@ import { Table } from 'react-bootstrap';
 import { ToastContainer, toast, Zoom } from 'react-toastify';
 import 'bootstrap/dist/css/bootstrap.min.css';
 import 'react-toastify/dist/ReactToastify.css';
+import dayjs from 'dayjs';
 import './Todays_List.css';
 import './Attendance_Analysis.css';
 import withAuthorization from '../Components/WithAuthorization';
 
 const UserGroupSelector = ({ setSelectedUserGroup }) => {
+  const [selectedUserGroup, setSelectedUserGroupState] = useState('Student');
+
   const handleUserGroupChange = (event) => {
     const userGroup = event.target.value;
+    setSelectedUserGroupState(userGroup);
     setSelectedUserGroup(userGroup);
   };
 
   return (
     <div>
-      <select id="userGroupSelect" className='status-yr' onChange={handleUserGroupChange} required>
-        <option value="">Select User Group</option>
+      <select id="userGroupSelect" className='status-yr' onChange={handleUserGroupChange} value={selectedUserGroup} required>
         <option value="Student">Student</option>
         <option value="Staff">Staff</option>
       </select>
@@ -26,7 +29,7 @@ const UserGroupSelector = ({ setSelectedUserGroup }) => {
 };
 
 const Attendance_Analysis = () => {
-  const [selectedUserGroup, setSelectedUserGroup] = useState('');
+  const [selectedUserGroup, setSelectedUserGroup] = useState('Student');
   const [data, setData] = useState([]);
   const [attributeNames, setAttributeNames] = useState([]);
   const [rollNumber, setRollNumber] = useState('');
@@ -76,9 +79,12 @@ const Attendance_Analysis = () => {
     setRollNumber(event.target.value);
   };
 
+  const formatDate = (dateString) => {
+    return dayjs(dateString).format('DD/MM/YYYY');
+  };
+
   return (
-    <div className='container'>
-      <h1>Attendance Analysis</h1>
+    <div>
       <UserGroupSelector setSelectedUserGroup={setSelectedUserGroup} />
       <div className='bb'>
         <form className='aa'>
@@ -106,7 +112,11 @@ const Attendance_Analysis = () => {
               <tr key={index}>
                 <td>{index + 1}</td>
                 {attributeNames.map((attribute, idx) => (
-                  <td key={idx}>{item[attribute]}</td>
+                  <td key={idx}>
+                    {attribute.toLowerCase().includes('date')
+                      ? formatDate(item[attribute])
+                      : item[attribute]}
+                  </td>
                 ))}
               </tr>
             ))}
@@ -118,4 +128,4 @@ const Attendance_Analysis = () => {
   );
 };
 
-export default withAuthorization(['hod','Principal','VC','Dean','Attendance Manager'])(Attendance_Analysis);
+export default withAuthorization(['hod', 'Principal', 'VC', 'Dean', 'Attendance Manager'])(Attendance_Analysis);

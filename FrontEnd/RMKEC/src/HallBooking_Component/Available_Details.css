@@ -35,7 +35,7 @@
     flex-direction: column;
   }
   
-  .hall-info h2 {
+  .hall-info h4 {
     display: flex;
     align-items: center;
     font-size: 1.5em;
@@ -44,7 +44,7 @@
     font-weight: 600;
   }
   
-  .hall-info h2 svg {
+  .hall-info h4 svg {
     margin-right: 10px;
   }
   
@@ -52,6 +52,13 @@
     display: flex;
     align-items: center;
     font-size: 1em;
+    color: #333;
+    margin: 5px 0;
+  }
+  .hall-info h4 {
+    display: flex;
+    align-items: center;
+    font-size: 1.5em;
     color: #333;
     margin: 5px 0;
   }
@@ -69,4 +76,3 @@
   .hall-info p:nth-child(4) {
     font-weight: 400;
   }
-  
