@@ -9,7 +9,7 @@ const DashBoard = () => {
   const role = window.localStorage.getItem('userType');
   
   if (!role) {
-    return null; // or some kind of loading indicator or redirect
+    return null;
   }
 
   return (

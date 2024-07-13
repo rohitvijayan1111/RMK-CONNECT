@@ -68,7 +68,7 @@ function App() {
             <Route path="Attendance-Log" element={<Attendance_Log/>} />  
             <Route path="Todays-List" element={<Todays_List/>} />  
             <Route path="Attendance-Analysis" element={<Attendance_Analysis/>} />  
-            <Route path="Attendance_DB_Dept" element={<Attendance_Dashboard/>} />  
+            <Route path="Attendance_DB_De pt" element={<Attendance_Dashboard/>} />  
             <Route path="Hall-Request" element={<Hall_Request/>} />  
             <Route path="Request-Status" element={<Request_Status/>} />  
             <Route path="Past-Events" element={<Past_Events/>} />  

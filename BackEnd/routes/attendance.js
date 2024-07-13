@@ -109,7 +109,6 @@ router.post('/addabsent', async (req, res) => {
     }
 });
 
-
 async function getStudentYear(student_id) {
     const result = await query('SELECT year FROM students WHERE id = ?', [student_id]);
     return result.length > 0 ? result[0].year : null;
@@ -117,23 +116,31 @@ async function getStudentYear(student_id) {
 
 router.post('/removeabsent', async (req, res) => {
     const { date, rollnumber, userGroup, department_name } = req.body;
+
+    // Validate input
     if (!date || !rollnumber || !userGroup || !department_name) {
         return res.status(400).json({ error: 'Date, Roll Number, User Group, and Department Name are required' });
     }
-    console.log(userGroup);
+
     const column = userGroup === 'Student' ? 'student_id' : 'staff_id';
 
     try {
         // Check if the attendance record exists
         const checkQuery = `SELECT * FROM absent_attendance_records WHERE attendance_date=? AND ${column}=?`;
         const records = await query(checkQuery, [date, rollnumber]);
+        
         if (records.length === 0) {
             return res.status(404).json({ error: 'Attendance record not found' });
         }
 
+        // Begin transaction
+        await query('START TRANSACTION');
+
+        // Decrement count in MemberCount table
         if (userGroup === 'Student') {
             const studentYear = await getStudentYear(rollnumber);
             if (!studentYear) {
+                await query('ROLLBACK');
                 return res.status(404).json({ error: 'Student year not found' });
             }
 
@@ -142,28 +149,31 @@ router.post('/removeabsent', async (req, res) => {
                 UPDATE MemberCount 
                 SET ${updateField} = ${updateField} - 1 
                 WHERE department_name = ?`;
-            console.log(`Executing query: ${decrementQuery} with department_name: ${department_name}`);
-            const result = await query(decrementQuery, [department_name]);
-            console.log(`Update result: ${JSON.stringify(result)}`);
+            await query(decrementQuery, [department_name]);
 
         } else if (userGroup === 'Staff') {
             const decrementQuery = `
                 UPDATE MemberCount 
                 SET todayabsentcount_staff = todayabsentcount_staff - 1 
                 WHERE department_name = ?`;
-            console.log(`Executing query: ${decrementQuery} with department_name: ${department_name}`);
-            const result = await query(decrementQuery, [department_name]);
-            console.log(`Update result: ${JSON.stringify(result)}`);
+            await query(decrementQuery, [department_name]);
         }
 
+        // Delete record from absent_attendance_records
         const deleteResult = await query(`DELETE FROM absent_attendance_records WHERE attendance_date=? AND ${column}=?`, [date, rollnumber]);
         if (deleteResult.affectedRows === 0) {
+            await query('ROLLBACK');
             return res.status(404).json({ error: 'Record not found' });
         }
 
+        // Commit transaction
+        await query('COMMIT');
+
         res.json({ message: 'Record removed successfully' });
+
     } catch (error) {
         console.error('Error removing record:', error);
+        await query('ROLLBACK');
         res.status(500).json({ error: 'Error removing record' });
     }
 });
@@ -287,13 +297,14 @@ router.post('/fetchtoday', async (req, res) => {
 router.post('/fetchdatedata', async (req, res) => {
     console.log('Received request body:', req.body);
     const userGroup = req.body.selectedUserGroup;
-    const currentDate = req.body.date;
+    const currentdate = req.body.date;
     console.log('Received request body:', req.body);
     const department = req.body.department;
-    const formattedDate = currentDate;
+    const formattedDate = currentdate;
+    console.log("THE FORMATTED DATE IS "+formattedDate);
 
     if (!userGroup || !department) {
-        return res.status(400).json({ error: 'User Group and Department are required' });
+        return res.status(400).json({ error: 'User Group is required' });
     }
 
     let queryStr, params;

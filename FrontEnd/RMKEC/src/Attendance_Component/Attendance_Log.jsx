@@ -77,9 +77,10 @@ const Attendance_Log = () => {
   const fetchData = async () => {
     try {
       const formattedDate = selectedDate ? selectedDate.format('YYYY-MM-DD') : null;
+      console.log(formattedDate);
       const departmentToFetch = (user === 'hod' || user==="Attendance Manager")? window.localStorage.getItem('department') : selectedDepartment;
       console.log('Fetching data with department:', departmentToFetch);
-      const response = await axios.post('http://localhost:3000/attendance/fetchtoday', {
+      const response = await axios.post('http://localhost:3000/attendance/fetchdatedata', {
         selectedUserGroup,
         date:formattedDate,
         department: departmentToFetch

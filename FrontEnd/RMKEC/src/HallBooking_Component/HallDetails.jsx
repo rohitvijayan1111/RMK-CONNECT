@@ -3,24 +3,6 @@ import './EventDetails.css';
 import { FaUser, FaCalendarAlt, FaClock, FaMapMarkerAlt, FaUsers, FaChalkboardTeacher, FaTools, FaCheckCircle } from 'react-icons/fa';
 
 const EventDetail = () => {
-  const eventData = {
-    name: 'Tech Innovation Seminar',
-    speaker: 'Dr. Jane Smith',
-    speakerDescription: 'Dr. Jane Smith is a leading expert in AI and machine learning with over 20 years of experience.',
-    date: '2024-07-20',
-    from: '10:00 AM',
-    to: '12:00 PM',
-    hallName: 'Auditorium Hall A',
-    participants: 'Students and Faculty',
-    inchargeFaculty: 'Prof. John Doe',
-    facilityNeeded: 'Projector, Sound System',
-    approvals: {
-      hod: true,
-      vicePrincipal: true,
-      principal: true
-    }
-  };
-
   return (
     <div className="event-detail">
       <h2>{eventData.name}</h2>

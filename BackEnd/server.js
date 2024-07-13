@@ -28,6 +28,7 @@ app.use('/tables', tablesRoutes);
 app.use('/graphs', graphRoutes);
 app.use('/forms', formRoutes);
 app.use('/attendance',attendanceRoutes);
+app.use('/hall',hallBookingsRoutes);
 
 app.listen(PORT, () => {
   console.log(`Server running on port ${PORT}`);

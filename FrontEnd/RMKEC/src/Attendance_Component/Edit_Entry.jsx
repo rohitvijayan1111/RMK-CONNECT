@@ -86,6 +86,7 @@ const Edit_Entry = () => {
         notifyfailure(response.data.error);
       } else {
         notifysuccess(response.data.message);
+        setRollNumber('')
       }
     } catch (error) {
       if (error.response && error.response.status === 404) {

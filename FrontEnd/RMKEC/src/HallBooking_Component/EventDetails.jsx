@@ -2,25 +2,8 @@ import React from 'react';
 import './EventDetails.css';
 import { FaUser, FaCalendarAlt, FaClock, FaMapMarkerAlt, FaUsers, FaChalkboardTeacher, FaTools, FaCheckCircle } from 'react-icons/fa';
 
-const EventDetails = () => {
-  const eventData = {
-    name: 'Tech Innovation Seminar',
-    speaker: 'Dr. Jane Smith',
-    speakerDescription: 'Dr. Jane Smith is a leading expert in AI and machine learning with over 20 years of experience.',
-    date: '2024-07-20',
-    from: '10:00 AM',
-    to: '12:00 PM',
-    hallName: 'Auditorium Hall A',
-    participants: 'Students and Faculty',
-    inchargeFaculty: 'Prof. John Doe',
-    facilityNeeded: 'Projector, Sound System',
-    approvals: {
-      hod: true,
-      vicePrincipal: false,
-      principal: false
-    }
-  };
-
+const EventDetails = ({eventData}) => {
+  const user=window.localStorage.getItem("userType");
   return (
     <div className="event-detail">
       <h2>{eventData.name}</h2>
@@ -94,6 +77,9 @@ const EventDetails = () => {
           {eventData.approvals.principal && <FaCheckCircle className="approval-icon" />}
         </div>
       </div>
+      { (user!=="hod" && user!=="Event Coordinator") && <div style={{alignItems:'center'}}>
+          <button>Approve</button>
+      </div>}
     </div>
   );
 };

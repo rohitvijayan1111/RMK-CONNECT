@@ -16,8 +16,8 @@ function Attendance_SideBar() {
   return (
     <div className="sidebar">
       <ul>
-        <li className={isActive('/dashboard/Attendance_DB_Dept')}>
-          <Link to="/dashboard/Attendance_DB_Dept">
+        <li className={isActive('/dashboard')}>
+          <Link to="/dashboard">
           <img src={dashboard} width="40px" height="40px" alt="Dashboard" />
             Dashboard
           </Link>

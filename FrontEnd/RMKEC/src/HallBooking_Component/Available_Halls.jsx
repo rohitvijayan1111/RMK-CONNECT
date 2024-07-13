@@ -1,41 +1,33 @@
-import React from 'react';
-import './Available_Details.css'
-import hall from '../assets/hall.jpeg'
+import React, { useEffect, useState } from 'react';
+import './Available_Details.css';
+import axios from 'axios';
 import Available_Details from './Available_Details';
-const halls = [
-  {
-    name: 'Auditorium',
-    image: hall,
-    location: 'Building A, 1st Floor',
-    capacity: 500,
-    facilities: ['Projector', 'Sound System', 'Wi-Fi']
-  },
-  {
-    name: 'Conference Hall',
-    image: hall,
-    location: 'Building B, 2nd Floor',
-    capacity: 200,
-    facilities: ['Video Conferencing', 'AC', 'Wi-Fi']
-  },
-  {
-    name: 'Seminar Room',
-    image: hall,
-    location: 'Building C, Ground Floor',
-    capacity: 100,
-    facilities: ['Whiteboard', 'Projector', 'Wi-Fi']
-  }
-];
+import hallimage from '../assets/hall.jpeg';
 
 function Available_Halls() {
+  const [halls, setHalls] = useState([]);
+
+  useEffect(() => {
+    fetchHalls(); 
+  }, []);
+
+  const fetchHalls = async () => {
+    try {
+      const response = await axios.get('http://localhost:3000/hall/availablehalls');
+      console.log(response.data); 
+      setHalls(response.data); 
+    } catch (error) {
+      console.error('Error fetching halls:', error);
+    }
+  };
+
   return (
-    <div>
     <div className="krt">
       <div className="hall-details-container">
-        {halls.map(hall => (
-          <Available_Details key={hall.name} hall={hall} />
+        {halls.map((hall) => (
+          <Available_Details key={hall.id} hall={hall} image={hallimage} />
         ))}
       </div>
-    </div>
     </div>
   );
 }
