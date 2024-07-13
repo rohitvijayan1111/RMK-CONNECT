@@ -4,28 +4,31 @@ import { Table } from 'react-bootstrap';
 import { ToastContainer, toast, Zoom } from 'react-toastify';
 import 'bootstrap/dist/css/bootstrap.min.css';
 import 'react-toastify/dist/ReactToastify.css';
-import './Todays_List.css';
+import './Attendance_Log.css';
 import { DatePicker, LocalizationProvider } from '@mui/x-date-pickers';
 import { AdapterDayjs } from '@mui/x-date-pickers/AdapterDayjs';
 import TextField from '@mui/material/TextField';
 import withAuthorization from '../Components/WithAuthorization';
 
 const UserGroupSelector = ({ setSelectedUserGroup }) => {
+  const [selectedUserGroup, setSelectedUserGroupState] = useState('Student');
+
   const handleUserGroupChange = (event) => {
     const userGroup = event.target.value;
+    setSelectedUserGroupState(userGroup);
     setSelectedUserGroup(userGroup);
   };
 
   return (
     <div>
-      <select id="userGroupSelect" className='status-yr' onChange={handleUserGroupChange} required>
-        <option value="">Select User Group</option>
+      <select id="userGroupSelect" className='status-yr' onChange={handleUserGroupChange} value={selectedUserGroup} required>
         <option value="Student">Student</option>
         <option value="Staff">Staff</option>
       </select>
     </div>
   );
 };
+
 const DepartmentSelector = ({ setSelectedDepartment }) => {
   const handleDepartmentChange = (event) => {
     const department = event.target.value;
@@ -53,12 +56,13 @@ const DepartmentSelector = ({ setSelectedDepartment }) => {
 };
 
 const Attendance_Log = () => {
-  const [selectedUserGroup, setSelectedUserGroup] = useState('');
+  const [selectedUserGroup, setSelectedUserGroup] = useState('Student');
   const [data, setData] = useState([]);
   const [attributeNames, setAttributeNames] = useState([]);
   const [selectedDate, setSelectedDate] = useState(null);
   const [selectedDepartment, setSelectedDepartment] = useState('');
-  const user=window.localStorage.getItem('userType');
+  const user = window.localStorage.getItem('userType');
+
   const notifyFailure = (error) => {
     const errorMessage = error.response?.data?.error || 'Error fetching data';
     toast.error(errorMessage, {
@@ -77,14 +81,15 @@ const Attendance_Log = () => {
   const fetchData = async () => {
     try {
       const formattedDate = selectedDate ? selectedDate.format('YYYY-MM-DD') : null;
-      console.log(formattedDate);
-      const departmentToFetch = (user === 'hod' || user==="Attendance Manager")? window.localStorage.getItem('department') : selectedDepartment;
+      const departmentToFetch = (user === 'hod' || user === 'Attendance Manager') ? window.localStorage.getItem('department') : selectedDepartment;
       console.log('Fetching data with department:', departmentToFetch);
-      const response = await axios.post('http://localhost:3000/attendance/fetchdatedata', {
+
+      const response = await axios.post('http://localhost:3000/attendance/fetchtoday', {
         selectedUserGroup,
-        date:formattedDate,
+        date: formattedDate,
         department: departmentToFetch
-      });console.log('Response data:', response.data);
+      });
+      console.log('Response data:', response.data);
       setData(response.data.data);
       if (response.data.data && response.data.data.length > 0) {
         const keys = extractAttributeNames(response.data.data[0]);
@@ -112,7 +117,7 @@ const Attendance_Log = () => {
     <div className='hon'>
       <div>
         <UserGroupSelector setSelectedUserGroup={setSelectedUserGroup} />
-        {(user!=='hod' && user!=="Attendance Manager")&& <DepartmentSelector setSelectedDepartment={setSelectedDepartment} />}
+        {(user !== 'hod' && user !== 'Attendance Manager') && <DepartmentSelector setSelectedDepartment={setSelectedDepartment} />}
       </div>
       <div className='conte'>
         <LocalizationProvider dateAdapter={AdapterDayjs}>
@@ -152,4 +157,4 @@ const Attendance_Log = () => {
   );
 };
 
-export default withAuthorization(['hod','Principal','VC','Dean','Attendance Manager'])(Attendance_Log);
+export default withAuthorization(['hod', 'Principal', 'VC', 'Dean', 'Attendance Manager'])(Attendance_Log);

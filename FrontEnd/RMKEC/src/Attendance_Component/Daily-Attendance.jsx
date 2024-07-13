@@ -5,6 +5,8 @@ import 'react-toastify/dist/ReactToastify.css';
 import './Daily-Attendance.css';
 import withAuthorization from '../Components/WithAuthorization';
 
+
+
 const LeaveTypeDropdown = ({ onLeaveTypeSelect }) => {
   const handleLeaveTypeChange = (event) => {
     const leaveType = event.target.value;
@@ -13,25 +15,26 @@ const LeaveTypeDropdown = ({ onLeaveTypeSelect }) => {
 
   return (
     <div>
-      <select id="leaveTypeSelect" className='status' onChange={handleLeaveTypeChange} required>
-        <option value="" default>Leave Type</option>
+      <select id="leaveTypeSelect" className='status' onChange={handleLeaveTypeChange} required defaultValue="Informed">
         <option value="Informed">Informed</option>
         <option value="Un-Informed">Un-Informed</option>
       </select>
     </div>
   );
-};
+}; 
 
 const UserGroupSelector = ({ setSelectedUserGroup }) => {
+  const [selectedUserGroup, setSelectedUserGroupState] = useState('Student');
+
   const handleUserGroupChange = (event) => {
     const userGroup = event.target.value;
+    setSelectedUserGroupState(userGroup);
     setSelectedUserGroup(userGroup);
   };
 
   return (
     <div>
-      <select id="userGroupSelect" className='status-yr' onChange={handleUserGroupChange} required>
-        <option value="" default>Select User Group</option>
+      <select id="userGroupSelect" className='status-yr' onChange={handleUserGroupChange} value={selectedUserGroup} required>
         <option value="Student">Student</option>
         <option value="Staff">Staff</option>
       </select>
@@ -42,13 +45,12 @@ const UserGroupSelector = ({ setSelectedUserGroup }) => {
 const Daily_Attendance = () => {
   const currentDate = new Date();
   const day = String(currentDate.getDate()).padStart(2, '0');
-  const month = String(currentDate.getMonth() + 1).padStart(2, '0'); 
+  const month = String(currentDate.getMonth() + 1).padStart(2, '0');
   const year = currentDate.getFullYear();
   const formattedDate = `${year}-${month}-${day}`;
 
-  const [selectedLeaveType, setSelectedLeaveType] = useState('');
-  const [selectedUserGroup, setSelectedUserGroup] = useState('');
-
+  const [selectedLeaveType, setSelectedLeaveType] = useState('Informed');
+  const [selectedUserGroup, setSelectedUserGroup] = useState('Student');
   const [rollNumber, setRollNumber] = useState('');
   const [reason, setReason] = useState('');
 
@@ -158,6 +160,5 @@ const Daily_Attendance = () => {
     </div>
   );
 };
-
 
 export default withAuthorization(['Attendance Manager'])(Daily_Attendance);

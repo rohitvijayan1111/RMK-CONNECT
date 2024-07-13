@@ -38,14 +38,14 @@ function SideBar() {
             Course Coverage
           </Link>
         </li>
-        <li className={isActive('/dashboard/achievements')}>
-          <Link to="/dashboard/achievements">
+        <li className={isActive('/dashboard/iv')}>
+          <Link to="/dashboard/iv">
             <img src={IV} width="40px" height="40px" alt="I V" />
             I V
           </Link>
         </li>
-        <li className={isActive('/dashboard/achievements')}>
-          <Link to="/dashboard/achievements">
+        <li className={isActive('/dashboard/mail')}>
+          <Link to="/dashboard/mail">
             <img src={mail} width="40px" height="40px" alt="Mail" />
             Mail
           </Link>
@@ -64,7 +64,7 @@ function SideBar() {
           </Link>
         </li>
         <li className={isActive('/mail')}>
-          <Link to="/dashboard/mail">
+          <Link to="/dashboard/sports">
             <img src={sports} width="40px" height="40px" alt="Sports" />
             Sports
           </Link>
