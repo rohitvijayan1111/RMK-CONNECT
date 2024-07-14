@@ -4,6 +4,7 @@ import axios from 'axios';
 import PrincipalFPC from '../Components/Admin-Component/PrincipalFPC';
 import './Dashboard_admin.css';
 import PrincipalSPC from '../Components/Admin-Component/PrincipalSPC';
+import DepartmentList from '../Components/Admin-Component/DepartmentList';
 
 const Dashboard_admin = () => {
   const [adminacademicYears, setadminAcademicYears] = useState([]);
@@ -61,14 +62,14 @@ const Dashboard_admin = () => {
     }
   };
   const departmentMapping = {
-    'Artificial Intelligence and Data Science': 'AI',
+    'Artificial Intelligence and Data Science': 'AD',
+    'Computer Science and Business Systems': 'CB',
+    'Computer Science and Design': 'CD',
     'Civil Engineering': 'CE',
-    'Computer Science and Business Systems': 'CSB',
-    'Computer Science and Design': 'CSD',
-    'Computer Science and Engineering': 'CSE',
+    'Computer Science and Engineering': 'CS',
+    'Electronics and Communication Engineering': 'EC',
     'Electrical and Electronics Engineering': 'EE',
-    'Electronics and Communication Engineering': 'ECE',
-    'Electronics and Instrumentation Engineering': 'EIE',
+    'Electronics and Instrumentation Engineering': 'EI',
     'Information Technology': 'IT',
     'Mechanical Engineering': 'ME',
   };
@@ -146,6 +147,7 @@ const Dashboard_admin = () => {
           </GridItem>
         </div>
       </div>
+      <DepartmentList/>
     </div>
   );
 };

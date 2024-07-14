@@ -14,6 +14,7 @@ import {
 
 
 function PrincipalBC({data}) {
+  console.log(data);
   return (
     <>
     <ResponsiveContainer>
@@ -29,7 +30,7 @@ function PrincipalBC({data}) {
         }}
       >
         <CartesianGrid stroke="white" strokeDasharray="3 3" />
-        <XAxis dataKey="name" />
+        <XAxis dataKey="name" tick={{ fontSize: 12 }} />
         <YAxis />
         <Tooltip content={<CustomTooltip />}/>
         <Legend />
