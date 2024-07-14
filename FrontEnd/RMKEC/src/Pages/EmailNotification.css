@@ -65,7 +65,7 @@
   textarea::-webkit-scrollbar{
     width: 0px;
   }
-  .checkbox-wrapper-2 .ikxBAC {
+  .sc-gJwTLC .ikxBAC {
     appearance: none;
     background-color: #dfe1e4;
     border-radius: 72px;
@@ -77,7 +77,7 @@
     width: 30px;
   }
 
-  .checkbox-wrapper-2 .ikxBAC::before {
+  .sc-gJwTLC .ikxBAC::before {
     bottom: -6px;
     content: "";
     left: -6px;
@@ -86,12 +86,12 @@
     top: -6px;
   }
 
-  .checkbox-wrapper-2 .ikxBAC,
-  .checkbox-wrapper-2 .ikxBAC::after {
+  .sc-gJwTLC .ikxBAC,
+  .sc-gJwTLC .ikxBAC::after {
     transition: all 100ms ease-out;
   }
 
-  .checkbox-wrapper-2 .ikxBAC::after {
+  .sc-gJwTLC .ikxBAC::after {
     background-color: #fff;
     border-radius: 50%;
     content: "";
@@ -102,28 +102,28 @@
     width: 14px;
   }
 
-  .checkbox-wrapper-2 input[type=checkbox] {
+  .sc-gJwTLC input[type=checkbox] {
     cursor: default;
   }
 
-  .checkbox-wrapper-2 .ikxBAC:hover {
+  .sc-gJwTLC .ikxBAC:hover {
     background-color: #c9cbcd;
     transition-duration: 0s;
   }
 
-  .checkbox-wrapper-2 .ikxBAC:checked {
+  .sc-gJwTLC .ikxBAC:checked {
     background-color: #6e79d6;
   }
 
-  .checkbox-wrapper-2 .ikxBAC:checked::after {
+  .sc-gJwTLC .ikxBAC:checked::after {
     background-color: #fff;
     left: 13px;
   }
 
-  .checkbox-wrapper-2 :focus:not(.focus-visible) {
+  .sc-gJwTLC :focus:not(.focus-visible) {
     outline: 0;
   }
 
-  .checkbox-wrapper-2 .ikxBAC:checked:hover {
+  .sc-gJwTLC .ikxBAC:checked:hover {
     background-color: #535db3;
   }

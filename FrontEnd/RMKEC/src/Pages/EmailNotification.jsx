@@ -3,6 +3,9 @@ import axios from 'axios';
 import './EmailNotification.css';
 import { ToastContainer, toast,Zoom,Bounce } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
+import Checkbox from '@mui/material/Checkbox';
+import FormControlLabel from '@mui/material/FormControlLabel'; 
+import { styled } from '@mui/material/styles';
 const EmailNotification = () => {
   const [to, setTo] = useState('');
   const [subject, setSubject] = useState('');
@@ -92,6 +95,20 @@ const EmailNotification = () => {
     }
     setSenderList(initialSenderList);
   };
+  const CustomCheckbox = styled(Checkbox)(({ theme }) => ({
+    color: theme.palette.primary.main, 
+    '&.Mui-checked': {
+      color: theme.palette.primary.dark, 
+    },
+    '&:hover': {
+      backgroundColor: 'transparent', 
+    },
+    '& .MuiSvgIcon-root': {
+      width: 15, 
+      height: 15,
+
+    },
+  }));
 
   return (
     <div className="email-notification">
@@ -101,18 +118,15 @@ const EmailNotification = () => {
       <textarea  style={{resize:'none',minHeight: '90px'}} ref={textAreaRef} placeholder="Email Body" value={text} onChange={(e) => setText(e.target.value)} required />
       <h3>Recipient Emails:</h3>
       <ul>
-        {senderlist.map(item => (
-          <li key={item.id}>
-            <label>
-              
-              <input type="checkbox" class="sc-gJwTLC ikxBAC" checked={item.checked}
-                onChange={() => handleCheck(item.id)} />
-
-              {item.text}
-            </label>
-          </li>
-        ))}
-      </ul>
+  {senderlist.map(item => (
+    <li key={item.id}>
+      <FormControlLabel
+        control={<CustomCheckbox checked={item.checked} onChange={() => handleCheck(item.id)} />}
+        label={item.text}
+      />
+    </li>
+  ))}
+</ul>
       <input type="email" placeholder="Other Recipient Emails (comma-separated)" value={to} onChange={(e) => setTo(e.target.value)}/>
       <div className="send-button-container">
       <button onClick={handleSendEmail}>Send Email</button>
