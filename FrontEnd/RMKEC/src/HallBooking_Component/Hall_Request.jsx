@@ -53,7 +53,7 @@ const Hall_Request = () => {
       end_time: formattedEndTime
     };
 
-    console.log(requestData); // Optional: log the formatted data
+    console.log(requestData); 
 
     axios.post('http://localhost:3000/hall/hall-request', requestData)
       .then(response => alert(response.data))

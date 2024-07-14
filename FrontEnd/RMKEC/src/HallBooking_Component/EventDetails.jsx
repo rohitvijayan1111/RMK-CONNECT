@@ -4,8 +4,9 @@ import { FaUser, FaCalendarAlt, FaClock, FaMapMarkerAlt, FaUsers, FaChalkboardTe
 import axios from 'axios';
 import dayjs from 'dayjs';
 
-const EventDetails = ({ eventData, needbutton, checkall, onApprove }) => {
+const EventDetails = ({ eventData, needbutton,checkall}) => {
   const user = window.localStorage.getItem("userType");
+  console.log(eventData);
 
   // State to manage approvals
   const [approvals, setApprovals] = useState({
@@ -16,7 +17,11 @@ const EventDetails = ({ eventData, needbutton, checkall, onApprove }) => {
 
   const handleApprove = async () => {
     try {
-      await onApprove(); // Call the approval handler passed from parent component
+      await axios.put('http://localhost:3000/hall/approveEvent', {
+        eventId: eventData.id,
+        userType: user
+      });
+
       const updatedApprovals = { ...approvals, [user]: true };
       setApprovals(updatedApprovals);
 
@@ -105,7 +110,7 @@ const EventDetails = ({ eventData, needbutton, checkall, onApprove }) => {
           </div>
         </div>
       </div>
-      <div className="approvals">
+      <div className="approvals">   
         <div className="approval-item">
           <span>HoD</span>
           {(approvals.hod || checkall) && <FaCheckCircle className="approval-icon" />}
@@ -116,7 +121,7 @@ const EventDetails = ({ eventData, needbutton, checkall, onApprove }) => {
         </div>
         <div className="approval-item">
           <span>Principal</span>
-          {(approvals.Principal || checkall) && <FaCheckCircle className="approval-icon" />}
+          {(approvals.Principal || checkall ) && <FaCheckCircle className="approval-icon" />}
         </div>
       </div>
       {(needbutton && user !== "Event Coordinator" && !approvals[user]) && (
