@@ -209,10 +209,7 @@ router.post('/hall_requests_status', function (req, res) {
         id: event.id,
         name: event.name,
         speaker: event.speaker,
-        speakerDescription: event.speaker_description,
-        date: event.event_date,
-        from: event.start_time,
-        to: event.end_time,
+        speaker_description: event.speaker_description,
         event_date: event.event_date,
         start_time: event.start_time,
         end_time: event.end_time,
@@ -239,10 +236,10 @@ router.post('/past-events', function _callee4(req, res) {
       switch (_context4.prev = _context4.next) {
         case 0:
           _req$body3 = req.body, department = _req$body3.department, role = _req$body3.role;
-          sql = "\n    SELECT ha.*, hr.name, hr.speaker, hr.speaker_description, hr.participants, hr.incharge_faculty, hr.facility_needed, hr.hod_approval, hr.academic_coordinator_approval, hr.principal_approval\n    FROM hall_allotment ha\n    JOIN hall_request hr ON ha.request_id = hr.id\n    WHERE ha.event_date < CURDATE() ORDER BY hr.event_date\n  ";
+          sql = "\n    SELECT *\n    FROM hall_allotment\n    WHERE event_date < CURDATE()\n      OR (event_date = CURDATE() AND end_time < CURTIME())\n  ";
 
           if (role === 'hod' || role === 'Event Coordinator') {
-            sql += ' AND hr.department = ?';
+            sql += ' AND department = ?';
           }
 
           _context4.prev = 3;
@@ -267,10 +264,7 @@ router.post('/past-events', function _callee4(req, res) {
               id: event.id,
               name: event.name,
               speaker: event.speaker,
-              speakerDescription: event.speaker_description,
-              date: event.event_date,
-              from: event.start_time,
-              to: event.end_time,
+              speaker_description: event.speaker_description,
               event_date: event.event_date,
               start_time: event.start_time,
               end_time: event.end_time,
@@ -311,7 +305,7 @@ router.get('/upcoming-events', function _callee5(req, res) {
     while (1) {
       switch (_context5.prev = _context5.next) {
         case 0:
-          sql = "\n      SELECT ha.*, hr.name, hr.speaker, hr.speaker_description, hr.participants, hr.incharge_faculty, hr.facility_needed, hr.hod_approval, hr.academic_coordinator_approval, hr.principal_approval\n      FROM hall_allotment ha\n      JOIN hall_request hr ON ha.request_id = hr.id\n      WHERE ha.event_date >= CURDATE() ORDER BY hr.event_date;\n    ";
+          sql = "\n    SELECT *\n    FROM hall_allotment\n    WHERE \n      (\n        event_date > CURDATE()\n        OR (event_date = CURDATE() AND start_time > CURTIME())  -- Include events not started yet today\n        OR (event_date = CURDATE() AND end_time >= CURTIME() AND start_time <= CURTIME())  -- Include ongoing events today\n      )\n    ORDER BY event_date, start_time;\n  ";
           _context5.prev = 1;
           _context5.next = 4;
           return regeneratorRuntime.awrap(query(sql));
@@ -334,7 +328,7 @@ router.get('/upcoming-events', function _callee5(req, res) {
               id: event.id,
               name: event.name,
               speaker: event.speaker,
-              speakerDescription: event.speaker_description,
+              speaker_description: event.speaker_description,
               date: event.event_date,
               from: event.start_time,
               to: event.end_time,
@@ -411,8 +405,9 @@ router.post('/addToHallAllotment', function _callee7(req, res) {
         case 0:
           console.log("THE REQUESTEDD BODY IS " + req.body);
           data = req.body;
+          delete data.approvals;
           sql = "INSERT INTO hall_allotment SET ?";
-          _context7.next = 5;
+          _context7.next = 6;
           return regeneratorRuntime.awrap(query(sql, [data], function (err, result) {
             if (err) {
               console.error('Error adding to hall allotment:', err);
@@ -427,11 +422,35 @@ router.post('/addToHallAllotment', function _callee7(req, res) {
             }
           }));
 
-        case 5:
+        case 6:
         case "end":
           return _context7.stop();
       }
     }
+  });
+});
+router["delete"]('/deletehallrequest/:id', function (req, res) {
+  var id = req.params.id;
+  var query = 'DELETE FROM hall_request WHERE id = ?';
+  db.query(query, [id], function (error, results) {
+    if (error) {
+      console.error('Error deleting hall request:', error);
+      res.status(500).json({
+        error: 'Internal Server Error'
+      });
+      return;
+    }
+
+    if (results.affectedRows === 0) {
+      res.status(404).json({
+        message: 'Hall request not found'
+      });
+      return;
+    }
+
+    res.status(200).json({
+      message: 'Hall request deleted successfully'
+    });
   });
 });
 module.exports = router;

@@ -4,9 +4,8 @@ import { FaUser, FaCalendarAlt, FaClock, FaMapMarkerAlt, FaUsers, FaChalkboardTe
 import axios from 'axios';
 import dayjs from 'dayjs';
 
-const EventDetails = ({ eventData, needbutton }) => {
+const EventDetails = ({ eventData, needbutton, checkall, onApprove }) => {
   const user = window.localStorage.getItem("userType");
-  console.log(eventData);
 
   // State to manage approvals
   const [approvals, setApprovals] = useState({
@@ -17,11 +16,7 @@ const EventDetails = ({ eventData, needbutton }) => {
 
   const handleApprove = async () => {
     try {
-      await axios.put('http://localhost:3000/hall/approveEvent', {
-        eventId: eventData.id,
-        userType: user
-      });
-
+      await onApprove(); // Call the approval handler passed from parent component
       const updatedApprovals = { ...approvals, [user]: true };
       setApprovals(updatedApprovals);
 
@@ -35,16 +30,14 @@ const EventDetails = ({ eventData, needbutton }) => {
 
   const addHallAllotment = async () => {
     try {
-      const formattedDate = dayjs(eventData.event_date).format('YYYY-MM-DD');
-      
-      await axios.post('http://localhost:3000/hall/addToHallAllotment', {
-        hall_name: eventData.hall_name,
-        event_date: formattedDate,
-        start_time: eventData.start_time,
-        end_time: eventData.end_time,
-        request_id: eventData.id,
-        department: eventData.department
-      });
+      const { id, ...rest } = eventData;
+      const eventDataWithoutApprovals = {
+        ...rest,
+        event_date: dayjs(eventData.event_date).format('YYYY-MM-DD')
+      };
+
+      await axios.post('http://localhost:3000/hall/addToHallAllotment', eventDataWithoutApprovals);
+      await axios.delete(`http://localhost:3000/hall/deletehallrequest/${id}`);
       console.log('Event added to hall allotment');
     } catch (error) {
       console.error('Error adding to hall allotment:', error);
@@ -52,7 +45,7 @@ const EventDetails = ({ eventData, needbutton }) => {
   };
 
   const formattedDate = dayjs(eventData.event_date).format('MMMM DD, YYYY');
-  
+
   return (
     <div className="event-detail">
       <h2>{eventData.name}</h2>
@@ -115,15 +108,15 @@ const EventDetails = ({ eventData, needbutton }) => {
       <div className="approvals">
         <div className="approval-item">
           <span>HoD</span>
-          {approvals.hod && <FaCheckCircle className="approval-icon" />}
+          {(approvals.hod || checkall) && <FaCheckCircle className="approval-icon" />}
         </div>
         <div className="approval-item">
           <span>Academic Coordinator</span>
-          {approvals.academic_coordinator && <FaCheckCircle className="approval-icon" />}
+          {(approvals.academic_coordinator || checkall) && <FaCheckCircle className="approval-icon" />}
         </div>
         <div className="approval-item">
           <span>Principal</span>
-          {approvals.Principal && <FaCheckCircle className="approval-icon" />}
+          {(approvals.Principal || checkall) && <FaCheckCircle className="approval-icon" />}
         </div>
       </div>
       {(needbutton && user !== "Event Coordinator" && !approvals[user]) && (

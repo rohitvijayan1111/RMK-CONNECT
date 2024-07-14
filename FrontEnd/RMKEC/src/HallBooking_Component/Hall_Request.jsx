@@ -8,11 +8,12 @@ import { LocalizationProvider } from '@mui/x-date-pickers/LocalizationProvider';
 import { DatePicker } from '@mui/x-date-pickers/DatePicker';
 import { TextField } from '@mui/material';
 import { TimePicker } from '@mui/x-date-pickers/TimePicker';
-
+import { useNavigate} from 'react-router-dom';
 const Hall_Request = () => {
   const [halls, setHalls] = useState([]);
   const [fvalue, setFvalue] = useState(null); 
   const [tvalue, setTvalue] = useState(null);
+  const navigate=useNavigate();
   const [formData, setFormData] = useState({
     name: '',
     speaker: '',
@@ -57,6 +58,7 @@ const Hall_Request = () => {
     axios.post('http://localhost:3000/hall/hall-request', requestData)
       .then(response => alert(response.data))
       .catch(error => alert(error.response.data.error));
+    navigate("/dashboard");
   };
 
   return (
@@ -112,6 +114,8 @@ const Hall_Request = () => {
       <input type='text' name='incharge_faculty' value={formData.incharge_faculty} onChange={handleChange} />
       <h5>Facility Needed</h5>
       <textarea style={{resize:'none'}} name='facility_needed' value={formData.facility_needed} onChange={handleChange}></textarea>
+      <h5>Event Co-Ordinator Mail ID</h5>
+      <input type='text' name='mail' value={formData.mailID} onChange={handleChange} />
       <div className="send-button-container">
         <button onClick={handleSubmit}>Request Hall</button>
       </div>
