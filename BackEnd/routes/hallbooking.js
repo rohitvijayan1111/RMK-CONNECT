@@ -70,7 +70,7 @@ router.get('/halls', async (req, res) => {
 router.post('/hall-request', async (req, res) => {
     const {
         name, speaker, speaker_description, event_date, start_time,
-        end_time, hall_name, participants, incharge_faculty, facility_needed,department
+        end_time, hall_name, participants, incharge_faculty, facility_needed,department,emails
     } = req.body;
 
     const checkQuery = `SELECT * FROM hall_allotment WHERE hall_name = ? AND event_date = ? AND (
@@ -84,10 +84,10 @@ router.post('/hall-request', async (req, res) => {
             return res.status(400).json({ error: 'Hall is not available for the requested time and date.' });
         }
 
-        const insertRequestQuery = `INSERT INTO hall_request (name, speaker, speaker_description, event_date, start_time, end_time, hall_name, participants, incharge_faculty, facility_needed,department)
-                                    VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?,?)`;
+        const insertRequestQuery = `INSERT INTO hall_request (name, speaker, speaker_description, event_date, start_time, end_time, hall_name, participants, incharge_faculty, facility_needed,department,emails)
+                                    VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?,?,?)`;
 
-        await query(insertRequestQuery, [name, speaker, speaker_description, event_date, start_time, end_time, hall_name, participants, incharge_faculty, facility_needed,department]);
+        await query(insertRequestQuery, [name, speaker, speaker_description, event_date, start_time, end_time, hall_name, participants, incharge_faculty, facility_needed,department,emails]);
         res.send('Hall request submitted');
     } catch (err) {
         console.error('Error processing hall request:', err);
@@ -121,6 +121,7 @@ router.post('/hall_requests_status', (req, res) => {
         end_time:event.end_time,
         department:event.department,
         hall_name: event.hall_name,
+        emails:event.emails,
         participants: event.participants,
         incharge_faculty: event.incharge_faculty,
         facility_needed: event.facility_needed,
