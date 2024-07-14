@@ -17,7 +17,7 @@ function HallBooking_SideBar() {
   };
 
   return (
-    <div className="sidebar">
+    <div className="sidebarhb">
       <ul>
         <li className={isActive('/dashboard/Attendance_DB_Dept')}>
           <Link to="/dashboard/DashBoard-Hall">

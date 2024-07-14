@@ -106,6 +106,8 @@ router.post('/adminstudentsgraph', (req, res) => {
       academic_year = ?
     GROUP BY 
       department
+    ORDER By
+      department
   `;
 
   db.query(query, [academic_year], (err, results) => {
