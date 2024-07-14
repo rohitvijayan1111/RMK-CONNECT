@@ -2,7 +2,6 @@ const express = require('express');
 const nodemailer = require('nodemailer');
 const router = express.Router();
 
-// Mapping object for HOD emails based on department
 const hodEmailMapping = {
   "Artificial Intelligence and Data Science": "rohitvijayan1111@gmail.com",
   "Civil Engineering": "rohitvijayan1111@gmail.com",
@@ -15,8 +14,6 @@ const hodEmailMapping = {
   "Information Technology": "rohitvijayan1111@gmail.com",
   "Mechanical Engineering": "rohitvijayan1111@gmail.com"
 };
-
-// Nodemailer transporter setup
 const transporter = nodemailer.createTransport({
   host: 'smtp.gmail.com',
   port: 587,
@@ -45,7 +42,6 @@ router.post('/send', async (req, res) => {
   }
 });
 
-// Endpoint for HOD to notify Academic Coordinator
 router.post('/approveEventByHOD', async (req, res) => {
   const { formSubject,department, emails } = req.body;
   const emailList = Array.isArray(emails) ? emails : [emails];
@@ -54,14 +50,13 @@ router.post('/approveEventByHOD', async (req, res) => {
   console.log(emailList)
   const mailOptions = {
     from: { name: 'RMKEC HALL UPDATES', address: 'rohitvijayandrive@gmail.com' },
-    to: ['broh22012.it@rmkec.ac.in'], // Should be an array
+    to: ['broh22012.it@rmkec.ac.in'], 
     subject: `Notification: New Hall Booking Form Submitted by ${department} HOD`,
     text: `${formSubject}`,
-    cc: emailList // Should be an array
+    cc: emailList 
   };
 
   try {
-    // Send email
     await transporter.sendMail(mailOptions);
     res.status(200).send('Notification email sent to Academic Coordinator');
   } catch (error) {
@@ -70,7 +65,6 @@ router.post('/approveEventByHOD', async (req, res) => {
   }
 });
 
-// Endpoint for Academic Coordinator to notify Principal and HOD
 router.post('/approveEventByAcademicCoordinator', async (req, res) => {
   const { formSubject, department, emails } = req.body;
   const emailList = Array.isArray(emails) ? emails : [emails];
@@ -78,13 +72,12 @@ router.post('/approveEventByAcademicCoordinator', async (req, res) => {
   const mailOptions = {
     from: { name: 'RMKEC HALL UPDATES', address: 'rohitvijayandrive@gmail.com' },
     to: 'like22050.it@rmkec.ac.in',
-    cc: emailList, // CC the HOD
+    cc: emailList,
     subject: `Notification: Hall Booking Form Approved by Academic Coordinator`,
     text: `The hall booking form "${formSubject}" has been approved by Academic Coordinator.`
   };
 
   try {
-    // Send email to Principal
     await transporter.sendMail(mailOptions);
     res.status(200).send('Notification email sent to Principal and HOD');
   } catch (error) {

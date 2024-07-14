@@ -4,8 +4,7 @@ var express = require('express');
 
 var nodemailer = require('nodemailer');
 
-var router = express.Router(); // Mapping object for HOD emails based on department
-
+var router = express.Router();
 var hodEmailMapping = {
   "Artificial Intelligence and Data Science": "rohitvijayan1111@gmail.com",
   "Civil Engineering": "rohitvijayan1111@gmail.com",
@@ -17,8 +16,7 @@ var hodEmailMapping = {
   "Electronics and Instrumentation Engineering": "rohitvijayan1111@gmail.com",
   "Information Technology": "rohitvijayan1111@gmail.com",
   "Mechanical Engineering": "rohitvijayan1111@gmail.com"
-}; // Nodemailer transporter setup
-
+};
 var transporter = nodemailer.createTransport({
   host: 'smtp.gmail.com',
   port: 587,
@@ -66,8 +64,7 @@ router.post('/send', function _callee(req, res) {
       }
     }
   }, null, null, [[2, 8]]);
-}); // Endpoint for HOD to notify Academic Coordinator
-
+});
 router.post('/approveEventByHOD', function _callee2(req, res) {
   var _req$body2, formSubject, department, emails, emailList, mailOptions;
 
@@ -86,11 +83,9 @@ router.post('/approveEventByHOD', function _callee2(req, res) {
               address: 'rohitvijayandrive@gmail.com'
             },
             to: ['broh22012.it@rmkec.ac.in'],
-            // Should be an array
             subject: "Notification: New Hall Booking Form Submitted by ".concat(department, " HOD"),
             text: "".concat(formSubject),
-            cc: emailList // Should be an array
-
+            cc: emailList
           };
           _context2.prev = 6;
           _context2.next = 9;
@@ -113,8 +108,7 @@ router.post('/approveEventByHOD', function _callee2(req, res) {
       }
     }
   }, null, null, [[6, 12]]);
-}); // Endpoint for Academic Coordinator to notify Principal and HOD
-
+});
 router.post('/approveEventByAcademicCoordinator', function _callee3(req, res) {
   var _req$body3, formSubject, department, emails, emailList, mailOptions;
 
@@ -132,7 +126,6 @@ router.post('/approveEventByAcademicCoordinator', function _callee3(req, res) {
             },
             to: 'like22050.it@rmkec.ac.in',
             cc: emailList,
-            // CC the HOD
             subject: "Notification: Hall Booking Form Approved by Academic Coordinator",
             text: "The hall booking form \"".concat(formSubject, "\" has been approved by Academic Coordinator.")
           };

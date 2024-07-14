@@ -7,7 +7,6 @@ import dayjs from 'dayjs';
 const EventDetails = ({ eventData, needbutton, checkall }) => {
   const user = window.localStorage.getItem("userType");
   console.log(eventData.department);
-  // State to manage approvals
   const [approvals, setApprovals] = useState({
     hod: eventData.approvals.hod,
     academic_coordinator: eventData.approvals.academic_coordinator,
@@ -27,38 +26,28 @@ const EventDetails = ({ eventData, needbutton, checkall }) => {
     }
   };
   function capitalizeEachWord(str) {
-    // Split the string into words
     let words = str.split(' ');
   
-    // Capitalize each word
     let capitalizedWords = words.map(word => {
       return word.charAt(0).toUpperCase() + word.slice(1).toLowerCase();
     });
   
-    // Join the capitalized words back into a single string
     return capitalizedWords.join(' ');
   }
   const handleApprove = async () => {
     try {
-      // Update approval status in backend
       await axios.put('http://localhost:3000/hall/approveEvent', {
         eventId: eventData.id,
         userType: user
       });
 
-      // Update local approval state
       const updatedApprovals = { ...approvals, [user]: true };
       setApprovals(updatedApprovals);
 
-      // If all approvals are granted, proceed to add to hall allotment
       if (updatedApprovals.hod && updatedApprovals.academic_coordinator && updatedApprovals.Principal) {
         await addHallAllotment();
       }
-
-      // Determine endpoint based on user type
       const endpoint = determineEndpoint(user);
-
-      // Prepare email content for approval notification
       const formattedDate = dayjs(eventData.event_date).format('MMMM DD, YYYY');
       const formContent = `
 You have a new hall booking approval request for the event "${eventData.name}" scheduled on ${formattedDate} from ${eventData.start_time} to ${eventData.end_time} at ${eventData.hall_name}.
@@ -72,7 +61,6 @@ In-charge Faculty: ${eventData.incharge_faculty}
 Facilities Needed: ${eventData.facility_needed}
 `;
 
-      // Send email notification
       await axios.post(`http://localhost:3000/mail/${endpoint}`, {
         formSubject: formContent,
         department: capitalizeEachWord(eventData.department),
@@ -85,17 +73,15 @@ Facilities Needed: ${eventData.facility_needed}
 
   const addHallAllotment = async () => {
     try {
-      // Prepare data for adding to hall allotment
+      
       const { id, ...rest } = eventData;
       const eventDataWithoutApprovals = {
         ...rest,
         event_date: dayjs(eventData.event_date).format('YYYY-MM-DD')
       };
 
-      // Add to hall allotment in backend
       await axios.post('http://localhost:3000/hall/addToHallAllotment', eventDataWithoutApprovals);
 
-      // Delete hall request after approval
       await axios.delete(`http://localhost:3000/hall/deletehallrequest/${id}`);
       
       console.log('Event added to hall allotment');
@@ -104,7 +90,6 @@ Facilities Needed: ${eventData.facility_needed}
     }
   };
 
-  // Format date for display
   const formattedDate = dayjs(eventData.event_date).format('MMMM DD, YYYY');
 
   return (
