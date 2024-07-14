@@ -92,7 +92,7 @@
   .approve-button {
     display: flex;
     justify-content: center;
-    margin-top: 10px; /* Adjust margin as needed */
+    margin-top: 10px;
   }
   
   .approve-button button {
@@ -107,4 +107,9 @@
   
   .approve-button button:hover {
     background-color: #0056b3;
+  }
+
+  .delete-icon{
+    margin-left: 650px;
+    cursor: pointer;
   }

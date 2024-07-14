@@ -1,13 +1,34 @@
 import React, { useState } from 'react';
 import './EventDetails.css';
-import { FaUser, FaCalendarAlt, FaClock, FaMapMarkerAlt, FaUsers, FaChalkboardTeacher, FaTools, FaCheckCircle } from 'react-icons/fa';
+import { FaUser, FaCalendarAlt, FaClock, FaMapMarkerAlt, FaUsers, FaChalkboardTeacher, FaTools, FaCheckCircle, FaTimes } from 'react-icons/fa';
 import axios from 'axios';
 import dayjs from 'dayjs';
+import Swal from 'sweetalert2';
 
-const EventDetails = ({ eventData, needbutton, checkall, onApprove }) => {
+const EventDetails = ({ eventData, needbutton, checkall, onApprove, onDelete }) => {
   const user = window.localStorage.getItem("userType");
 
-  // State to manage approvals
+  const handleDelete = () => {
+    Swal.fire({
+      title: "Are you sure?",
+      text: "You won't be able to revert this!",
+      icon: "warning",
+      showCancelButton: true,
+      confirmButtonColor: "#3085d6",
+      cancelButtonColor: "#d33",
+      confirmButtonText: "Yes, delete it!"
+    }).then((result) => {
+      if (result.isConfirmed) {
+        onDelete(eventData.id);
+        Swal.fire({
+          title: "Deleted!",
+          text: "Your file has been deleted.",
+          icon: "success"
+        });
+      }
+    });
+  };
+
   const [approvals, setApprovals] = useState({
     hod: eventData.approvals.hod,
     academic_coordinator: eventData.approvals.academic_coordinator,
@@ -16,7 +37,7 @@ const EventDetails = ({ eventData, needbutton, checkall, onApprove }) => {
 
   const handleApprove = async () => {
     try {
-      await onApprove(); // Call the approval handler passed from parent component
+      await onApprove(); 
       const updatedApprovals = { ...approvals, [user]: true };
       setApprovals(updatedApprovals);
 
@@ -48,7 +69,12 @@ const EventDetails = ({ eventData, needbutton, checkall, onApprove }) => {
 
   return (
     <div className="event-detail">
-      <h2>{eventData.name}</h2>
+      <div className="event-header">
+        {(user==="hod" || user==="Event Coordinator") &&
+          <FaTimes className="delete-icon" onClick={handleDelete}  />
+        }
+        <h2>{eventData.name}</h2>
+      </div>
       <div className="event-content">
         <div className="event-row">
           <div className="event-item">

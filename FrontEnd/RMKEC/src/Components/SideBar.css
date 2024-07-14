@@ -35,6 +35,22 @@
   font-weight: 200;
   transition: background-color 0.3s ease-in-out;
 }
+.sidebar li p {
+  font-size: 10px;
+  text-align: center;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  flex-direction: column;
+  padding: 10px 5px;
+  border-radius: 5px;
+  text-decoration: none;
+  color: black;
+  font-weight: 200;
+  transition: background-color 0.3s ease-in-out;
+}
+
+
 
 .sidebar li a img {
   margin-bottom: 5px;
@@ -47,6 +63,17 @@
 li.active a {
   background-color: #D0E8F0;
 }
+.sidebar li p img {
+  margin-bottom: 5px;
+}
+
+.sidebar p:hover {
+  background-color: #D0E8F0;
+}
+
+li.active p {
+  background-color: #D0E8F0;
+}
 
 .more-button {
   cursor: pointer;
@@ -57,6 +84,10 @@ li.active a {
   align-items: center;
   border-radius: 5px;
   transition: background-color 0.3s ease-in-out;
+  padding: 0px;
+}
+.attendance_icon {
+  cursor: pointer;
 }
 
 .more-button:hover {
@@ -64,6 +95,15 @@ li.active a {
 }
 
 .more-button.active {
+  background-color: #D0E8F0;
+}
+
+
+.attendance_icon:hover {
+  background-color: #D0E8F0;
+}
+
+.attendance_icon.active {
   background-color: #D0E8F0;
 }
 
@@ -75,7 +115,8 @@ li.active a {
   box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
   padding: 10px;
   border-radius: 5px;
-  z-index: 75;
+  z-index: 10;
+  min-width: 100px;
 }
 
 .extra-links-container ul {
