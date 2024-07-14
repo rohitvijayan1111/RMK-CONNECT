@@ -89,7 +89,7 @@
     color: green;
     font-size: 1rem;
   }
-  approve-button {
+  .approve-button {
     display: flex;
     justify-content: center;
     margin-top: 10px; /* Adjust margin as needed */

@@ -22,4 +22,4 @@ const DashBoard = () => {
   );
 }
 
-export default withAuthorization(['hod', 'Principal', 'VC', 'Dean', 'Attendance Manager','Event Coordinator'])(DashBoard);
+export default withAuthorization(['hod', 'Principal', 'VC', 'Dean', 'Attendance Manager','Event Coordinator',"academic_coordinator"])(DashBoard);

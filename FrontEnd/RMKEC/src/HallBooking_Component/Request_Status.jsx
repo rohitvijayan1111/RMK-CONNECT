@@ -7,7 +7,8 @@ import './Request_Status.css';
 
 const Request_Status = () => {
   const [eventData, setEventData] = useState([]);
-  
+  const role = window.localStorage.getItem("userType");
+
   const notifyFailure = (error) => {
     toast.error(error, {
       position: "top-center",
@@ -25,7 +26,10 @@ const Request_Status = () => {
   useEffect(() => {
     const fetchEventData = async () => {
       try {
-        const response = await axios.get('http://localhost:3000/hall/hall_requests_status');
+        const response = await axios.post('http://localhost:3000/hall/hall_requests_status', {
+          department: window.localStorage.getItem("department"),
+          role: role
+        });
         setEventData(response.data);
       } catch (error) {
         console.error('Error fetching data', error);
@@ -38,17 +42,18 @@ const Request_Status = () => {
     };
 
     fetchEventData();
-  }, []);
-
-  if (eventData.length === 0) {
-    return <div>Loading...</div>;
-  }
-
+  }, [role]);   
+  
+  console.log(eventData);
   return (
     <div>
       {eventData.map((event, index) => (
         <div className='event-container' key={index}>
-          <EventDetails eventData={event} />
+          {((role === 'hod' || role === 'Event Coordinator') ||
+            (role === 'academic_coordinator' && event.approvals.hod) ||
+            (role === 'Principal' && event.approvals.hod && event.approvals.academic_coordinator)) && (
+              <EventDetails needbutton={true} eventData={event} />
+            )}
         </div>
       ))}
       <ToastContainer />
