@@ -56,7 +56,7 @@ function Past_Events() {
       {events.length === 0 && <p>NO DATA</p>}
       {events.map((event, index) => (
         <div className="event-container" key={index}>
-          <EventDetails needbutton={false} eventData={event} />
+          <EventDetails needbutton={false} eventData={event} checkall={true} />
         </div>
       ))}
       <ToastContainer />

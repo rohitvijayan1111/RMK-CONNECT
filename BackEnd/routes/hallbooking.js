@@ -112,59 +112,10 @@ router.post('/hall_requests_status', (req, res) => {
           return res.status(404).json({ error: "No Records found" });
       }
       const formattedEvents = results.map(event => ({
-          id: event.id,
-          name: event.name,
-          speaker: event.speaker,
-          speakerDescription: event.speaker_description,
-          date: event.event_date,
-          from: event.start_time,
-          to: event.end_time,
-          event_date:event.event_date,
-          start_time:event.start_time,
-          end_time:event.end_time,
-          department:event.department,
-          hall_name: event.hall_name,
-          participants: event.participants,
-          incharge_faculty: event.incharge_faculty,
-          facility_needed: event.facility_needed,
-          approvals: {
-              hod: event.hod_approval === 1,
-              academic_coordinator: event.academic_coordinator_approval === 1,
-              principal: event.principal_approval === 1
-          }
-      }));
-
-      res.json(formattedEvents);
-  });
-});
-
-
-router.post('/past-events', async (req, res) => {
-  const { department, role } = req.body;
-  let sql = `
-    SELECT ha.*, hr.name, hr.speaker, hr.speaker_description, hr.participants, hr.incharge_faculty, hr.facility_needed, hr.hod_approval, hr.academic_coordinator_approval, hr.principal_approval
-    FROM hall_allotment ha
-    JOIN hall_request hr ON ha.request_id = hr.id
-    WHERE ha.event_date < CURDATE() ORDER BY hr.event_date
-  `;
-
-  if (role === 'hod' || role === 'Event Coordinator') {
-      sql += ' AND hr.department = ?';
-  }
-
-  try {
-      const results = await query(sql, [department]);
-      if (results.length === 0) {
-          return res.status(404).json({ error: "No records found" });
-      }
-      const formattedEvents = results.map(event => ({
         id: event.id,
         name: event.name,
         speaker: event.speaker,
-        speakerDescription: event.speaker_description,
-        date: event.event_date,
-        from: event.start_time,
-        to: event.end_time,
+        speaker_description: event.speaker_description,
         event_date:event.event_date,
         start_time:event.start_time,
         end_time:event.end_time,
@@ -179,20 +130,69 @@ router.post('/past-events', async (req, res) => {
             principal: event.principal_approval === 1
         }
       }));
+
       res.json(formattedEvents);
+  });
+});
+
+
+router.post('/past-events', async (req, res) => {
+  const { department, role } = req.body;
+  let sql = `
+    SELECT *
+    FROM hall_allotment
+    WHERE event_date < CURDATE()
+      OR (event_date = CURDATE() AND end_time < CURTIME())
+  `;
+
+  if (role === 'hod' || role === 'Event Coordinator') {
+    sql += ' AND department = ?';
+  }
+
+  try {
+    const results = await query(sql, [department]);
+    if (results.length === 0) {
+      return res.status(404).json({ error: "No records found" });
+    }
+    const formattedEvents = results.map(event => ({
+      id: event.id,
+      name: event.name,
+      speaker: event.speaker,
+      speaker_description: event.speaker_description,
+      event_date: event.event_date,
+      start_time: event.start_time,
+      end_time: event.end_time,
+      department: event.department,
+      hall_name: event.hall_name,
+      participants: event.participants,
+      incharge_faculty: event.incharge_faculty,
+      facility_needed: event.facility_needed,
+      approvals: {
+        hod: event.hod_approval === 1,
+        academic_coordinator: event.academic_coordinator_approval === 1,
+        principal: event.principal_approval === 1
+      }
+    }));
+    res.json(formattedEvents);
   } catch (err) {
-      console.error('Error fetching past events:', err);
-      res.status(500).json({ error: 'Server error occurred' });
+    console.error('Error fetching past events:', err);
+    res.status(500).json({ error: 'Server error occurred' });
   }
 });
 
   router.get('/upcoming-events', async (req, res) => {
     const sql = `
-      SELECT ha.*, hr.name, hr.speaker, hr.speaker_description, hr.participants, hr.incharge_faculty, hr.facility_needed, hr.hod_approval, hr.academic_coordinator_approval, hr.principal_approval
-      FROM hall_allotment ha
-      JOIN hall_request hr ON ha.request_id = hr.id
-      WHERE ha.event_date >= CURDATE() ORDER BY hr.event_date;
-    `;
+    SELECT *
+    FROM hall_allotment
+    WHERE 
+      (
+        event_date > CURDATE()
+        OR (event_date = CURDATE() AND start_time > CURTIME())  -- Include events not started yet today
+        OR (event_date = CURDATE() AND end_time >= CURTIME() AND start_time <= CURTIME())  -- Include ongoing events today
+      )
+    ORDER BY event_date, start_time;
+  `;
+  
     try {
       const results = await query(sql);
       if (results.length === 0) {
@@ -202,7 +202,7 @@ router.post('/past-events', async (req, res) => {
         id: event.id,
           name: event.name,
           speaker: event.speaker,
-          speakerDescription: event.speaker_description,
+          speaker_description: event.speaker_description,
           date: event.event_date,
           from: event.start_time,
           to: event.end_time,
@@ -245,7 +245,7 @@ router.post('/past-events', async (req, res) => {
   router.post('/addToHallAllotment', async (req, res) => {
     console.log("THE REQUESTEDD BODY IS "+ req.body);
     const data = req.body;
-  
+    delete data.approvals;
     const sql = `INSERT INTO hall_allotment SET ?`;
     await query(sql, [data], (err, result) => {
       if (err) {
@@ -255,6 +255,27 @@ router.post('/past-events', async (req, res) => {
         console.log('Event added to hall allotment');
         res.status(200).json({ message: 'Event added to hall allotment successfully' });
       }
+    });
+  });
+
+  router.delete('/deletehallrequest/:id', (req, res) => {
+    const id = req.params.id;
+  
+    const query = 'DELETE FROM hall_request WHERE id = ?';
+  
+    db.query(query, [id], (error, results) => {
+      if (error) {
+        console.error('Error deleting hall request:', error);
+        res.status(500).json({ error: 'Internal Server Error' });
+        return;
+      }
+  
+      if (results.affectedRows === 0) {
+        res.status(404).json({ message: 'Hall request not found' });
+        return;
+      }
+  
+      res.status(200).json({ message: 'Hall request deleted successfully' });
     });
   });
     
