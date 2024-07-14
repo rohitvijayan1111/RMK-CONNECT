@@ -129,13 +129,13 @@ router.get('/halls', function _callee2(req, res) {
   }, null, null, [[1, 8]]);
 });
 router.post('/hall-request', function _callee3(req, res) {
-  var _req$body, name, speaker, speaker_description, event_date, start_time, end_time, hall_name, participants, incharge_faculty, facility_needed, checkQuery, results, insertRequestQuery;
+  var _req$body, name, speaker, speaker_description, event_date, start_time, end_time, hall_name, participants, incharge_faculty, facility_needed, department, checkQuery, results, insertRequestQuery;
 
   return regeneratorRuntime.async(function _callee3$(_context3) {
     while (1) {
       switch (_context3.prev = _context3.next) {
         case 0:
-          _req$body = req.body, name = _req$body.name, speaker = _req$body.speaker, speaker_description = _req$body.speaker_description, event_date = _req$body.event_date, start_time = _req$body.start_time, end_time = _req$body.end_time, hall_name = _req$body.hall_name, participants = _req$body.participants, incharge_faculty = _req$body.incharge_faculty, facility_needed = _req$body.facility_needed;
+          _req$body = req.body, name = _req$body.name, speaker = _req$body.speaker, speaker_description = _req$body.speaker_description, event_date = _req$body.event_date, start_time = _req$body.start_time, end_time = _req$body.end_time, hall_name = _req$body.hall_name, participants = _req$body.participants, incharge_faculty = _req$body.incharge_faculty, facility_needed = _req$body.facility_needed, department = _req$body.department;
           checkQuery = "SELECT * FROM hall_allotment WHERE hall_name = ? AND event_date = ? AND (\n                        (start_time < ? AND end_time > ?) OR\n                        (start_time < ? AND end_time > ?) OR\n                        (start_time >= ? AND end_time <= ?))";
           _context3.prev = 2;
           _context3.next = 5;
@@ -154,9 +154,9 @@ router.post('/hall-request', function _callee3(req, res) {
           }));
 
         case 8:
-          insertRequestQuery = "INSERT INTO hall_request (name, speaker, speaker_description, event_date, start_time, end_time, hall_name, participants, incharge_faculty, facility_needed)\n                                    VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)";
+          insertRequestQuery = "INSERT INTO hall_request (name, speaker, speaker_description, event_date, start_time, end_time, hall_name, participants, incharge_faculty, facility_needed,department)\n                                    VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?,?)";
           _context3.next = 11;
-          return regeneratorRuntime.awrap(query(insertRequestQuery, [name, speaker, speaker_description, event_date, start_time, end_time, hall_name, participants, incharge_faculty, facility_needed]));
+          return regeneratorRuntime.awrap(query(insertRequestQuery, [name, speaker, speaker_description, event_date, start_time, end_time, hall_name, participants, incharge_faculty, facility_needed, department]));
 
         case 11:
           res.send('Hall request submitted');
@@ -178,9 +178,18 @@ router.post('/hall-request', function _callee3(req, res) {
     }
   }, null, null, [[2, 14]]);
 });
-router.get('/hall_requests_status', function (req, res) {
+router.post('/hall_requests_status', function (req, res) {
+  var _req$body2 = req.body,
+      department = _req$body2.department,
+      role = _req$body2.role;
   var query = 'SELECT * FROM hall_request';
-  db.query(query, function (err, results) {
+
+  if (role === 'hod' || role === 'Event Coordinator') {
+    query += ' WHERE department = ?';
+  }
+
+  console.log(query);
+  db.query(query, [department], function (err, results) {
     if (err) {
       console.error('Error fetching data:', err);
       res.status(500).send({
@@ -197,19 +206,24 @@ router.get('/hall_requests_status', function (req, res) {
 
     var formattedEvents = results.map(function (event) {
       return {
+        id: event.id,
         name: event.name,
         speaker: event.speaker,
         speakerDescription: event.speaker_description,
         date: event.event_date,
         from: event.start_time,
         to: event.end_time,
-        hallName: event.hall_name,
+        event_date: event.event_date,
+        start_time: event.start_time,
+        end_time: event.end_time,
+        department: event.department,
+        hall_name: event.hall_name,
         participants: event.participants,
-        inchargeFaculty: event.incharge_faculty,
-        facilityNeeded: event.facility_needed,
+        incharge_faculty: event.incharge_faculty,
+        facility_needed: event.facility_needed,
         approvals: {
           hod: event.hod_approval === 1,
-          vicePrincipal: event.vice_principal_approval === 1,
+          academic_coordinator: event.academic_coordinator_approval === 1,
           principal: event.principal_approval === 1
         }
       };
@@ -217,22 +231,29 @@ router.get('/hall_requests_status', function (req, res) {
     res.json(formattedEvents);
   });
 });
-router.get('/past-events', function _callee4(req, res) {
-  var sql, results, formattedEvents;
+router.post('/past-events', function _callee4(req, res) {
+  var _req$body3, department, role, sql, results, formattedEvents;
+
   return regeneratorRuntime.async(function _callee4$(_context4) {
     while (1) {
       switch (_context4.prev = _context4.next) {
         case 0:
-          sql = "\n      SELECT ha.*, hr.name, hr.speaker, hr.speaker_description, hr.participants, hr.incharge_faculty, hr.facility_needed, hr.hod_approval, hr.vice_principal_approval, hr.principal_approval\n      FROM hall_allotment ha\n      JOIN hall_request hr ON ha.request_id = hr.id\n      WHERE ha.event_date < CURDATE();\n    ";
-          _context4.prev = 1;
-          _context4.next = 4;
-          return regeneratorRuntime.awrap(query(sql));
+          _req$body3 = req.body, department = _req$body3.department, role = _req$body3.role;
+          sql = "\n    SELECT ha.*, hr.name, hr.speaker, hr.speaker_description, hr.participants, hr.incharge_faculty, hr.facility_needed, hr.hod_approval, hr.academic_coordinator_approval, hr.principal_approval\n    FROM hall_allotment ha\n    JOIN hall_request hr ON ha.request_id = hr.id\n    WHERE ha.event_date < CURDATE() ORDER BY hr.event_date\n  ";
 
-        case 4:
+          if (role === 'hod' || role === 'Event Coordinator') {
+            sql += ' AND hr.department = ?';
+          }
+
+          _context4.prev = 3;
+          _context4.next = 6;
+          return regeneratorRuntime.awrap(query(sql, [department]));
+
+        case 6:
           results = _context4.sent;
 
           if (!(results.length === 0)) {
-            _context4.next = 7;
+            _context4.next = 9;
             break;
           }
 
@@ -240,44 +261,49 @@ router.get('/past-events', function _callee4(req, res) {
             error: "No records found"
           }));
 
-        case 7:
+        case 9:
           formattedEvents = results.map(function (event) {
             return {
+              id: event.id,
               name: event.name,
               speaker: event.speaker,
               speakerDescription: event.speaker_description,
               date: event.event_date,
               from: event.start_time,
               to: event.end_time,
-              hallName: event.hall_name,
+              event_date: event.event_date,
+              start_time: event.start_time,
+              end_time: event.end_time,
+              department: event.department,
+              hall_name: event.hall_name,
               participants: event.participants,
-              inchargeFaculty: event.incharge_faculty,
-              facilityNeeded: event.facility_needed,
+              incharge_faculty: event.incharge_faculty,
+              facility_needed: event.facility_needed,
               approvals: {
                 hod: event.hod_approval === 1,
-                vicePrincipal: event.vice_principal_approval === 1,
+                academic_coordinator: event.academic_coordinator_approval === 1,
                 principal: event.principal_approval === 1
               }
             };
           });
           res.json(formattedEvents);
-          _context4.next = 15;
+          _context4.next = 17;
           break;
 
-        case 11:
-          _context4.prev = 11;
-          _context4.t0 = _context4["catch"](1);
+        case 13:
+          _context4.prev = 13;
+          _context4.t0 = _context4["catch"](3);
           console.error('Error fetching past events:', _context4.t0);
           res.status(500).json({
             error: 'Server error occurred'
           });
 
-        case 15:
+        case 17:
         case "end":
           return _context4.stop();
       }
     }
-  }, null, null, [[1, 11]]);
+  }, null, null, [[3, 13]]);
 });
 router.get('/upcoming-events', function _callee5(req, res) {
   var sql, results, formattedEvents;
@@ -285,7 +311,7 @@ router.get('/upcoming-events', function _callee5(req, res) {
     while (1) {
       switch (_context5.prev = _context5.next) {
         case 0:
-          sql = "\n      SELECT ha.*, hr.name, hr.speaker, hr.speaker_description, hr.participants, hr.incharge_faculty, hr.facility_needed, hr.hod_approval, hr.vice_principal_approval, hr.principal_approval\n      FROM hall_allotment ha\n      JOIN hall_request hr ON ha.request_id = hr.id\n      WHERE ha.event_date >= CURDATE();\n    ";
+          sql = "\n      SELECT ha.*, hr.name, hr.speaker, hr.speaker_description, hr.participants, hr.incharge_faculty, hr.facility_needed, hr.hod_approval, hr.academic_coordinator_approval, hr.principal_approval\n      FROM hall_allotment ha\n      JOIN hall_request hr ON ha.request_id = hr.id\n      WHERE ha.event_date >= CURDATE() ORDER BY hr.event_date;\n    ";
           _context5.prev = 1;
           _context5.next = 4;
           return regeneratorRuntime.awrap(query(sql));
@@ -305,19 +331,24 @@ router.get('/upcoming-events', function _callee5(req, res) {
         case 7:
           formattedEvents = results.map(function (event) {
             return {
+              id: event.id,
               name: event.name,
               speaker: event.speaker,
               speakerDescription: event.speaker_description,
               date: event.event_date,
               from: event.start_time,
               to: event.end_time,
-              hallName: event.hall_name,
+              event_date: event.event_date,
+              start_time: event.start_time,
+              end_time: event.end_time,
+              department: event.department,
+              hall_name: event.hall_name,
               participants: event.participants,
-              inchargeFaculty: event.incharge_faculty,
-              facilityNeeded: event.facility_needed,
+              incharge_faculty: event.incharge_faculty,
+              facility_needed: event.facility_needed,
               approvals: {
                 hod: event.hod_approval === 1,
-                vicePrincipal: event.vice_principal_approval === 1,
+                academic_coordinator: event.academic_coordinator_approval === 1,
                 principal: event.principal_approval === 1
               }
             };
@@ -340,5 +371,67 @@ router.get('/upcoming-events', function _callee5(req, res) {
       }
     }
   }, null, null, [[1, 11]]);
+});
+router.put('/approveEvent', function _callee6(req, res) {
+  var _req$body4, eventId, userType, sql;
+
+  return regeneratorRuntime.async(function _callee6$(_context6) {
+    while (1) {
+      switch (_context6.prev = _context6.next) {
+        case 0:
+          _req$body4 = req.body, eventId = _req$body4.eventId, userType = _req$body4.userType;
+          sql = "UPDATE hall_request SET `".concat(userType, "_approval` = 1 WHERE id = ?");
+          _context6.next = 4;
+          return regeneratorRuntime.awrap(query(sql, [eventId], function (err, result) {
+            if (err) {
+              console.error('Error updating approval:', err);
+              res.status(500).json({
+                error: 'Error updating approval'
+              });
+            } else {
+              console.log("".concat(userType, " approval updated for event ID ").concat(eventId));
+              res.status(200).json({
+                message: 'Approval updated successfully'
+              });
+            }
+          }));
+
+        case 4:
+        case "end":
+          return _context6.stop();
+      }
+    }
+  });
+});
+router.post('/addToHallAllotment', function _callee7(req, res) {
+  var data, sql;
+  return regeneratorRuntime.async(function _callee7$(_context7) {
+    while (1) {
+      switch (_context7.prev = _context7.next) {
+        case 0:
+          console.log("THE REQUESTEDD BODY IS " + req.body);
+          data = req.body;
+          sql = "INSERT INTO hall_allotment SET ?";
+          _context7.next = 5;
+          return regeneratorRuntime.awrap(query(sql, [data], function (err, result) {
+            if (err) {
+              console.error('Error adding to hall allotment:', err);
+              res.status(500).json({
+                error: 'Error adding to hall allotment'
+              });
+            } else {
+              console.log('Event added to hall allotment');
+              res.status(200).json({
+                message: 'Event added to hall allotment successfully'
+              });
+            }
+          }));
+
+        case 5:
+        case "end":
+          return _context7.stop();
+      }
+    }
+  });
 });
 module.exports = router;

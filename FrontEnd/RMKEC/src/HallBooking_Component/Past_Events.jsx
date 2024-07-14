@@ -26,7 +26,10 @@ function Past_Events() {
   useEffect(() => {
     async function fetchPastEvents() {
       try {
-        const response = await axios.get('http://localhost:3000/hall/past-events');
+        const response = await axios.post('http://localhost:3000/hall/past-events', {
+              department:window.localStorage.getItem("department"),
+              role: window.localStorage.getItem("userType")
+      });
         setEvents(response.data);
         setLoading(false); 
       } catch (error) {
@@ -53,7 +56,7 @@ function Past_Events() {
       {events.length === 0 && <p>NO DATA</p>}
       {events.map((event, index) => (
         <div className="event-container" key={index}>
-          <EventDetails eventData={event} />
+          <EventDetails needbutton={false} eventData={event} />
         </div>
       ))}
       <ToastContainer />

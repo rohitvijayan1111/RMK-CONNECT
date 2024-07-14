@@ -20,11 +20,11 @@ const Hall_Request = () => {
     event_date: null,
     start_time: null,
     end_time: null,
-    hall_name: '',
+    hall_name: 'Hall A', // Default value
     participants: '',
     incharge_faculty: '',
     facility_needed: '',
-    department:window.localStorage.getItem("department")
+    department: window.localStorage.getItem("department") || ''
   });
 
   useEffect(() => {
@@ -62,11 +62,11 @@ const Hall_Request = () => {
   return (
     <form className="Attendance_request">
       <h5>Name Of the Event</h5>
-      <input type='text' name='name' onChange={handleChange} />
+      <input type='text' name='name' value={formData.name} onChange={handleChange} />
       <h5>Speaker</h5>
-      <input type='text' name='speaker' onChange={handleChange} />
+      <input type='text' name='speaker' value={formData.speaker} onChange={handleChange} />
       <h5>Description of the Speaker</h5>
-      <textarea style={{resize:'none'}} name='speaker_description' onChange={handleChange}></textarea>
+      <textarea style={{resize:'none'}} name='speaker_description' value={formData.speaker_description} onChange={handleChange}></textarea>
       <h5>Date</h5>
       <LocalizationProvider dateAdapter={AdapterDayjs}>
         <DemoContainer components={['DatePicker']}>
@@ -100,17 +100,18 @@ const Hall_Request = () => {
         </DemoContainer>
       </LocalizationProvider>
       <h5>Hall Name</h5>
-      <select className='status' name="hall_name" onChange={handleChange} required>
+      <select className='status' name="hall_name" value={formData.hall_name} onChange={handleChange} required>
+        <option value="" disabled>Select a hall</option>
         {halls.map(hall => (
           <option key={hall.hall_name} value={hall.hall_name}>{hall.hall_name}</option>
         ))}
       </select>
       <h5>Participants</h5>
-      <input type='text' name='participants' onChange={handleChange} />
+      <input type='text' name='participants' value={formData.participants} onChange={handleChange} />
       <h5>Incharge Faculty</h5>
-      <input type='text' name='incharge_faculty' onChange={handleChange} />
+      <input type='text' name='incharge_faculty' value={formData.incharge_faculty} onChange={handleChange} />
       <h5>Facility Needed</h5>
-      <textarea style={{resize:'none'}} name='facility_needed' onChange={handleChange}></textarea>
+      <textarea style={{resize:'none'}} name='facility_needed' value={formData.facility_needed} onChange={handleChange}></textarea>
       <div className="send-button-container">
         <button onClick={handleSubmit}>Request Hall</button>
       </div>

@@ -70,7 +70,7 @@ router.get('/halls', async (req, res) => {
 router.post('/hall-request', async (req, res) => {
     const {
         name, speaker, speaker_description, event_date, start_time,
-        end_time, hall_name, participants, incharge_faculty, facility_needed
+        end_time, hall_name, participants, incharge_faculty, facility_needed,department
     } = req.body;
 
     const checkQuery = `SELECT * FROM hall_allotment WHERE hall_name = ? AND event_date = ? AND (
@@ -84,93 +84,114 @@ router.post('/hall-request', async (req, res) => {
             return res.status(400).json({ error: 'Hall is not available for the requested time and date.' });
         }
 
-        const insertRequestQuery = `INSERT INTO hall_request (name, speaker, speaker_description, event_date, start_time, end_time, hall_name, participants, incharge_faculty, facility_needed)
-                                    VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`;
+        const insertRequestQuery = `INSERT INTO hall_request (name, speaker, speaker_description, event_date, start_time, end_time, hall_name, participants, incharge_faculty, facility_needed,department)
+                                    VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?,?)`;
 
-        await query(insertRequestQuery, [name, speaker, speaker_description, event_date, start_time, end_time, hall_name, participants, incharge_faculty, facility_needed]);
+        await query(insertRequestQuery, [name, speaker, speaker_description, event_date, start_time, end_time, hall_name, participants, incharge_faculty, facility_needed,department]);
         res.send('Hall request submitted');
     } catch (err) {
         console.error('Error processing hall request:', err);
         res.status(500).json({ error: getFriendlyErrorMessage(err)});
     }
 });
+router.post('/hall_requests_status', (req, res) => {
+  const { department, role } = req.body;
+  let query = 'SELECT * FROM hall_request';
 
-router.get('/hall_requests_status', (req, res) => {
-    const query = 'SELECT * FROM hall_request';
-    db.query(query, (err, results) => {
+  if (role === 'hod' || role === 'Event Coordinator') {
+      query += ' WHERE department = ?';
+  }
+  console.log(query);
+  db.query(query, [department], (err, results) => {
       if (err) {
-        console.error('Error fetching data:', err);
-        res.status(500).send({error:getFriendlyErrorMessage(err)});
-        return;
+          console.error('Error fetching data:', err);
+          res.status(500).send({ error: getFriendlyErrorMessage(err) });
+          return;
       }
-      if(results.length==0)
-        {
-          return res.status(404).json({error:"No Records found"});
-        }
+      if (results.length == 0) {
+          return res.status(404).json({ error: "No Records found" });
+      }
       const formattedEvents = results.map(event => ({
-        name: event.name,
-        speaker: event.speaker,
-        speakerDescription: event.speaker_description,
-        date: event.event_date,
-        from: event.start_time,
-        to: event.end_time,
-        hallName: event.hall_name,
-        participants: event.participants,
-        inchargeFaculty: event.incharge_faculty,
-        facilityNeeded: event.facility_needed,
-        approvals: {
-          hod: event.hod_approval === 1,
-          vicePrincipal: event.vice_principal_approval === 1,
-          principal: event.principal_approval === 1
-        }
+          id: event.id,
+          name: event.name,
+          speaker: event.speaker,
+          speakerDescription: event.speaker_description,
+          date: event.event_date,
+          from: event.start_time,
+          to: event.end_time,
+          event_date:event.event_date,
+          start_time:event.start_time,
+          end_time:event.end_time,
+          department:event.department,
+          hall_name: event.hall_name,
+          participants: event.participants,
+          incharge_faculty: event.incharge_faculty,
+          facility_needed: event.facility_needed,
+          approvals: {
+              hod: event.hod_approval === 1,
+              academic_coordinator: event.academic_coordinator_approval === 1,
+              principal: event.principal_approval === 1
+          }
       }));
-  
-      res.json(formattedEvents);
-    });
-  });
 
-  router.get('/past-events', async (req, res) => {
-    const sql = `
-      SELECT ha.*, hr.name, hr.speaker, hr.speaker_description, hr.participants, hr.incharge_faculty, hr.facility_needed, hr.hod_approval, hr.vice_principal_approval, hr.principal_approval
-      FROM hall_allotment ha
-      JOIN hall_request hr ON ha.request_id = hr.id
-      WHERE ha.event_date < CURDATE();
-    `;
-    try {
-      const results = await query(sql);
+      res.json(formattedEvents);
+  });
+});
+
+
+router.post('/past-events', async (req, res) => {
+  const { department, role } = req.body;
+  let sql = `
+    SELECT ha.*, hr.name, hr.speaker, hr.speaker_description, hr.participants, hr.incharge_faculty, hr.facility_needed, hr.hod_approval, hr.academic_coordinator_approval, hr.principal_approval
+    FROM hall_allotment ha
+    JOIN hall_request hr ON ha.request_id = hr.id
+    WHERE ha.event_date < CURDATE() ORDER BY hr.event_date
+  `;
+
+  if (role === 'hod' || role === 'Event Coordinator') {
+      sql += ' AND hr.department = ?';
+  }
+
+  try {
+      const results = await query(sql, [department]);
       if (results.length === 0) {
-        return res.status(404).json({ error: "No records found" });
+          return res.status(404).json({ error: "No records found" });
       }
       const formattedEvents = results.map(event => ({
+        id: event.id,
         name: event.name,
         speaker: event.speaker,
         speakerDescription: event.speaker_description,
         date: event.event_date,
         from: event.start_time,
         to: event.end_time,
-        hallName: event.hall_name,
+        event_date:event.event_date,
+        start_time:event.start_time,
+        end_time:event.end_time,
+        department:event.department,
+        hall_name: event.hall_name,
         participants: event.participants,
-        inchargeFaculty: event.incharge_faculty,
-        facilityNeeded: event.facility_needed,
+        incharge_faculty: event.incharge_faculty,
+        facility_needed: event.facility_needed,
         approvals: {
-          hod: event.hod_approval === 1,
-          vicePrincipal: event.vice_principal_approval === 1,
-          principal: event.principal_approval === 1
+            hod: event.hod_approval === 1,
+            academic_coordinator: event.academic_coordinator_approval === 1,
+            principal: event.principal_approval === 1
         }
       }));
       res.json(formattedEvents);
-    } catch (err) {
+  } catch (err) {
       console.error('Error fetching past events:', err);
       res.status(500).json({ error: 'Server error occurred' });
-    }
-  });
-  
+  }
+});
+
   router.get('/upcoming-events', async (req, res) => {
     const sql = `
-      SELECT ha.*, hr.name, hr.speaker, hr.speaker_description, hr.participants, hr.incharge_faculty, hr.facility_needed, hr.hod_approval, hr.vice_principal_approval, hr.principal_approval
+      SELECT ha.*, hr.name, hr.speaker, hr.speaker_description, hr.participants, hr.incharge_faculty, hr.facility_needed, hr.hod_approval, hr.academic_coordinator_approval, hr.principal_approval
       FROM hall_allotment ha
       JOIN hall_request hr ON ha.request_id = hr.id
-      WHERE ha.event_date >= CURDATE();
+      WHERE ha.event_date >= CURDATE() ORDER BY hr.event_date;
     `;
     try {
       const results = await query(sql);
@@ -178,21 +199,26 @@ router.get('/hall_requests_status', (req, res) => {
         return res.status(404).json({ error: "No upcoming events found" });
       }
       const formattedEvents = results.map(event => ({
-        name: event.name,
-        speaker: event.speaker,
-        speakerDescription: event.speaker_description,
-        date: event.event_date,
-        from: event.start_time,
-        to: event.end_time,
-        hallName: event.hall_name,
-        participants: event.participants,
-        inchargeFaculty: event.incharge_faculty,
-        facilityNeeded: event.facility_needed,
-        approvals: {
-          hod: event.hod_approval === 1,
-          vicePrincipal: event.vice_principal_approval === 1,
-          principal: event.principal_approval === 1
-        }
+        id: event.id,
+          name: event.name,
+          speaker: event.speaker,
+          speakerDescription: event.speaker_description,
+          date: event.event_date,
+          from: event.start_time,
+          to: event.end_time,
+          event_date:event.event_date,
+          start_time:event.start_time,
+          end_time:event.end_time,
+          department:event.department,
+          hall_name: event.hall_name,
+          participants: event.participants,
+          incharge_faculty: event.incharge_faculty,
+          facility_needed: event.facility_needed,
+          approvals: {
+              hod: event.hod_approval === 1,
+              academic_coordinator: event.academic_coordinator_approval === 1,
+              principal: event.principal_approval === 1
+          }
       }));
       res.json(formattedEvents);
     } catch (err) {
@@ -201,4 +227,35 @@ router.get('/hall_requests_status', (req, res) => {
     }
   });
   
+  router.put('/approveEvent', async (req, res) => {
+    const { eventId, userType } = req.body;
+  
+    const sql = `UPDATE hall_request SET \`${userType}_approval\` = 1 WHERE id = ?`;
+    await query(sql, [eventId], (err, result) => {
+      if (err) {
+        console.error('Error updating approval:', err);
+        res.status(500).json({ error: 'Error updating approval' });
+      } else {
+        console.log(`${userType} approval updated for event ID ${eventId}`);
+        res.status(200).json({ message: 'Approval updated successfully' });
+      }
+    });
+  });
+  
+  router.post('/addToHallAllotment', async (req, res) => {
+    console.log("THE REQUESTEDD BODY IS "+ req.body);
+    const data = req.body;
+  
+    const sql = `INSERT INTO hall_allotment SET ?`;
+    await query(sql, [data], (err, result) => {
+      if (err) {
+        console.error('Error adding to hall allotment:', err);
+        res.status(500).json({ error: 'Error adding to hall allotment' });
+      } else {
+        console.log('Event added to hall allotment');
+        res.status(200).json({ message: 'Event added to hall allotment successfully' });
+      }
+    });
+  });
+    
 module.exports = router;
