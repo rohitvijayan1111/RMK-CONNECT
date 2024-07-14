@@ -25,6 +25,7 @@ const Hall_Request = () => {
     participants: '',
     incharge_faculty: '',
     facility_needed: '',
+    emails:'',
     department: window.localStorage.getItem("department") || ''
   });
 
@@ -53,7 +54,7 @@ const Hall_Request = () => {
       end_time: formattedEndTime
     };
 
-    console.log(requestData); // Optional: log the formatted data
+    console.log(requestData); 
 
     axios.post('http://localhost:3000/hall/hall-request', requestData)
       .then(response => alert(response.data))
@@ -115,7 +116,7 @@ const Hall_Request = () => {
       <h5>Facility Needed</h5>
       <textarea style={{resize:'none'}} name='facility_needed' value={formData.facility_needed} onChange={handleChange}></textarea>
       <h5>Event Co-Ordinator Mail ID</h5>
-      <input type='text' name='mail' value={formData.mailID} onChange={handleChange} />
+      <input type='text' name='emails' value={formData.emails} onChange={handleChange} />
       <div className="send-button-container">
         <button onClick={handleSubmit}>Request Hall</button>
       </div>

@@ -7,7 +7,6 @@ import './Request_Status.css';
 
 const Request_Status = () => {
   const [eventData, setEventData] = useState([]);
-  const [approvedEvents, setApprovedEvents] = useState([]);
   const role = window.localStorage.getItem("userType");
 
   const notifyFailure = (error) => {
@@ -43,22 +42,9 @@ const Request_Status = () => {
     };
 
     fetchEventData();
-  }, [role]); // Fetch data when role changes
-
-  const handleEventApproval = async (eventId) => {
-    try {
-      await axios.put('http://localhost:3000/hall/approveEvent', {
-        eventId,
-        userType: role
-      });
-
-      // Update approved events state
-      setApprovedEvents([...approvedEvents, eventId]);
-    } catch (error) {
-      console.error('Error updating approval:', error);
-    }
-  };
-
+  }, []);   
+  
+  console.log(eventData);
   return (
     <div>
       {eventData.map((event, index) => (
@@ -66,12 +52,7 @@ const Request_Status = () => {
           {((role === 'hod' || role === 'Event Coordinator') ||
             (role === 'academic_coordinator' && event.approvals.hod) ||
             (role === 'Principal' && event.approvals.hod && event.approvals.academic_coordinator)) && (
-              <EventDetails
-                needbutton={true}
-                checkall={approvedEvents.includes(event.id)} // Pass whether event is approved
-                eventData={event}
-                onApprove={() => handleEventApproval(event.id)} // Pass approval handler
-              />
+              <EventDetails needbutton={true} checkall={false} eventData={event} />
             )}
         </div>
       ))}

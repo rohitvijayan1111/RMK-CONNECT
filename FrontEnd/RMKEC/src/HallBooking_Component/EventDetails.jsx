@@ -5,8 +5,14 @@ import axios from 'axios';
 import dayjs from 'dayjs';
 import Swal from 'sweetalert2';
 
-const EventDetails = ({ eventData, needbutton, checkall, onApprove, onDelete }) => {
+const EventDetails = ({ eventData, needbutton, checkall }) => {
   const user = window.localStorage.getItem("userType");
+  console.log(eventData.department);
+  const [approvals, setApprovals] = useState({
+    hod: eventData.approvals.hod,
+    academic_coordinator: eventData.approvals.academic_coordinator,
+    Principal: eventData.approvals.principal
+  });
 
   const handleDelete = () => {
     Swal.fire({
@@ -29,21 +35,59 @@ const EventDetails = ({ eventData, needbutton, checkall, onApprove, onDelete }) 
     });
   };
 
-  const [approvals, setApprovals] = useState({
-    hod: eventData.approvals.hod,
-    academic_coordinator: eventData.approvals.academic_coordinator,
-    Principal: eventData.approvals.principal
-  });
-
+  const determineEndpoint = (userType) => {
+    switch (userType) {
+      case 'hod':
+        return 'approveEventByHOD';
+      case 'academic_coordinator':
+        return 'approveEventByAcademicCoordinator';
+      case 'Principal':
+        return 'approveEventByPrincipal';
+      default:
+        throw new Error('Invalid user type');
+    }
+  };
+  function capitalizeEachWord(str) {
+    let words = str.split(' ');
+  
+    let capitalizedWords = words.map(word => {
+      return word.charAt(0).toUpperCase() + word.slice(1).toLowerCase();
+    });
+  
+    return capitalizedWords.join(' ');
+  }
   const handleApprove = async () => {
     try {
-      await onApprove(); 
+      await axios.put('http://localhost:3000/hall/approveEvent', {
+        eventId: eventData.id,
+        userType: user
+      });
+
       const updatedApprovals = { ...approvals, [user]: true };
       setApprovals(updatedApprovals);
 
       if (updatedApprovals.hod && updatedApprovals.academic_coordinator && updatedApprovals.Principal) {
         await addHallAllotment();
       }
+      const endpoint = determineEndpoint(user);
+      const formattedDate = dayjs(eventData.event_date).format('MMMM DD, YYYY');
+      const formContent = `
+You have a new hall booking approval request for the event "${eventData.name}" scheduled on ${formattedDate} from ${eventData.start_time} to ${eventData.end_time} at ${eventData.hall_name}.
+
+Event Name: ${eventData.name}
+Speaker: ${eventData.speaker}
+Speaker Description: ${eventData.speaker_description}
+Department: ${eventData.department}
+Participants: ${eventData.participants}
+In-charge Faculty: ${eventData.incharge_faculty}
+Facilities Needed: ${eventData.facility_needed}
+`;
+
+      await axios.post(`http://localhost:3000/mail/${endpoint}`, {
+        formSubject: formContent,
+        department: capitalizeEachWord(eventData.department),
+        emails: eventData.emails
+      });
     } catch (error) {
       console.error('Error updating approval:', error);
     }
@@ -51,6 +95,7 @@ const EventDetails = ({ eventData, needbutton, checkall, onApprove, onDelete }) 
 
   const addHallAllotment = async () => {
     try {
+      
       const { id, ...rest } = eventData;
       const eventDataWithoutApprovals = {
         ...rest,
@@ -58,7 +103,9 @@ const EventDetails = ({ eventData, needbutton, checkall, onApprove, onDelete }) 
       };
 
       await axios.post('http://localhost:3000/hall/addToHallAllotment', eventDataWithoutApprovals);
+
       await axios.delete(`http://localhost:3000/hall/deletehallrequest/${id}`);
+      
       console.log('Event added to hall allotment');
     } catch (error) {
       console.error('Error adding to hall allotment:', error);
@@ -131,7 +178,7 @@ const EventDetails = ({ eventData, needbutton, checkall, onApprove, onDelete }) 
           </div>
         </div>
       </div>
-      <div className="approvals">
+      <div className="approvals">   
         <div className="approval-item">
           <span>HoD</span>
           {(approvals.hod || checkall) && <FaCheckCircle className="approval-icon" />}
@@ -142,7 +189,7 @@ const EventDetails = ({ eventData, needbutton, checkall, onApprove, onDelete }) 
         </div>
         <div className="approval-item">
           <span>Principal</span>
-          {(approvals.Principal || checkall) && <FaCheckCircle className="approval-icon" />}
+          {(approvals.Principal || checkall ) && <FaCheckCircle className="approval-icon" />}
         </div>
       </div>
       {(needbutton && user !== "Event Coordinator" && !approvals[user]) && (

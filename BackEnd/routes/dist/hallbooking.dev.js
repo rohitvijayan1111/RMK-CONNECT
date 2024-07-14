@@ -129,13 +129,13 @@ router.get('/halls', function _callee2(req, res) {
   }, null, null, [[1, 8]]);
 });
 router.post('/hall-request', function _callee3(req, res) {
-  var _req$body, name, speaker, speaker_description, event_date, start_time, end_time, hall_name, participants, incharge_faculty, facility_needed, department, checkQuery, results, insertRequestQuery;
+  var _req$body, name, speaker, speaker_description, event_date, start_time, end_time, hall_name, participants, incharge_faculty, facility_needed, department, emails, checkQuery, results, insertRequestQuery;
 
   return regeneratorRuntime.async(function _callee3$(_context3) {
     while (1) {
       switch (_context3.prev = _context3.next) {
         case 0:
-          _req$body = req.body, name = _req$body.name, speaker = _req$body.speaker, speaker_description = _req$body.speaker_description, event_date = _req$body.event_date, start_time = _req$body.start_time, end_time = _req$body.end_time, hall_name = _req$body.hall_name, participants = _req$body.participants, incharge_faculty = _req$body.incharge_faculty, facility_needed = _req$body.facility_needed, department = _req$body.department;
+          _req$body = req.body, name = _req$body.name, speaker = _req$body.speaker, speaker_description = _req$body.speaker_description, event_date = _req$body.event_date, start_time = _req$body.start_time, end_time = _req$body.end_time, hall_name = _req$body.hall_name, participants = _req$body.participants, incharge_faculty = _req$body.incharge_faculty, facility_needed = _req$body.facility_needed, department = _req$body.department, emails = _req$body.emails;
           checkQuery = "SELECT * FROM hall_allotment WHERE hall_name = ? AND event_date = ? AND (\n                        (start_time < ? AND end_time > ?) OR\n                        (start_time < ? AND end_time > ?) OR\n                        (start_time >= ? AND end_time <= ?))";
           _context3.prev = 2;
           _context3.next = 5;
@@ -154,9 +154,9 @@ router.post('/hall-request', function _callee3(req, res) {
           }));
 
         case 8:
-          insertRequestQuery = "INSERT INTO hall_request (name, speaker, speaker_description, event_date, start_time, end_time, hall_name, participants, incharge_faculty, facility_needed,department)\n                                    VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?,?)";
+          insertRequestQuery = "INSERT INTO hall_request (name, speaker, speaker_description, event_date, start_time, end_time, hall_name, participants, incharge_faculty, facility_needed,department,emails)\n                                    VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?,?,?)";
           _context3.next = 11;
-          return regeneratorRuntime.awrap(query(insertRequestQuery, [name, speaker, speaker_description, event_date, start_time, end_time, hall_name, participants, incharge_faculty, facility_needed, department]));
+          return regeneratorRuntime.awrap(query(insertRequestQuery, [name, speaker, speaker_description, event_date, start_time, end_time, hall_name, participants, incharge_faculty, facility_needed, department, emails]));
 
         case 11:
           res.send('Hall request submitted');
@@ -215,6 +215,7 @@ router.post('/hall_requests_status', function (req, res) {
         end_time: event.end_time,
         department: event.department,
         hall_name: event.hall_name,
+        emails: event.emails,
         participants: event.participants,
         incharge_faculty: event.incharge_faculty,
         facility_needed: event.facility_needed,
