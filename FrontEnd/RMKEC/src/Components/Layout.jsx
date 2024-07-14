@@ -25,7 +25,7 @@ const Layout = () => {
                 <aside>
       {user=== 'Attendance Manager' && <Attendance_SideBar/>}
       {user === 'Event Coordinator' && <HallBooking_SideBar/>}
-      {user !== 'Event Coordinator' && user!== 'Attendance Manager' && <SideBar/>}
+      {user !== 'Event Coordinator' && user!== 'Attendance Manager' && <HallBooking_SideBar/>}
                 </aside>
                 <div className="pr">
                 <Navigation/>

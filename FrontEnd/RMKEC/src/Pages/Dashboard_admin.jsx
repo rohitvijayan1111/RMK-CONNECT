@@ -5,7 +5,7 @@ import PrincipalFPC from '../Components/Admin-Component/PrincipalFPC';
 import './Dashboard_admin.css';
 import PrincipalSPC from '../Components/Admin-Component/PrincipalSPC';
 import DepartmentList from '../Components/Admin-Component/DepartmentList';
-
+import {Link} from 'react-router-dom'; 
 const Dashboard_admin = () => {
   const [adminacademicYears, setadminAcademicYears] = useState([]);
   const [adminselectedYear, setadminSelectedYear] = useState('');
@@ -140,7 +140,9 @@ const Dashboard_admin = () => {
           </GridItem>
           <GridItem title="Placement" >
             <PrincipalBC data={adminstudentDetails}/>
-            <button className="cute-button">View</button>
+            <Link to="/dashboard/placements">
+                <button className="cute-button">View</button>
+            </Link>
           </GridItem>
           <GridItem title="Student">
           <PrincipalSPC data={adminstudentYrsDetails}/>

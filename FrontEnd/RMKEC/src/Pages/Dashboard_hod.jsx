@@ -4,6 +4,7 @@ import './Dashboard_hod.css';
 import PieChartComponent from '../Components/Department-Component/FacultyCountPieChart';
 import StudentCountPieChart from '../Components/Department-Component/StudentsCountPieChart';
 import PlacementBarGraph from '../Components/Department-Component/PlacementBarGraph';
+import {Link} from 'react-router-dom'; 
 
 function DashBoard_hod() {
   const department = window.localStorage.getItem('department') || '';
@@ -108,7 +109,9 @@ function DashBoard_hod() {
           </GridItem>
           <GridItem title="Placement">
             <PlacementBarGraph Details={studentDetails} />
-            <button className="cute-button">View</button>
+            <Link to="/dashboard/placements">
+                <button className="cute-button">View</button>
+            </Link>
           </GridItem>
           <GridItem title="Student">
             <StudentCountPieChart data={studentYrsDetails} />
