@@ -93,7 +93,7 @@ router.post('/approveEventByPrincipal', async (req, res) => {
   const mailOptions = {
     from: { name: 'RMKEC HALL UPDATES', address: 'rohitvijayandrive@gmail.com' },
     to: emailList, 
-    cc: 'broh22012.it@rmkec.ac.in', 
+    cc: ['broh22012.it@rmkec.ac.in','like22050.it@rmkec.ac.in'], 
     subject: `Notification: Hall Booking Form Approved by Principal`,
     text: `The hall booking form "${formSubject}" has been approved by Principal.`
   };

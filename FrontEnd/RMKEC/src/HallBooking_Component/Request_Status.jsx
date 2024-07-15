@@ -43,7 +43,15 @@ const Request_Status = () => {
 
     fetchEventData();
   }, []);   
-  
+  const handleDelete = async (id) => {
+    try {
+      await axios.post('http://localhost:3000/hall/hall_requests_remove', { id: id });
+      setEventData(eventData.filter((event) => event.id !== id));
+    } catch (error) {
+      console.error('Error deleting event:', error);
+      notifyFailure('Error deleting event');
+    }
+  };
   console.log(eventData);
   return (
     <div>
@@ -52,7 +60,7 @@ const Request_Status = () => {
           {((role === 'hod' || role === 'Event Coordinator') ||
             (role === 'academic_coordinator' && event.approvals.hod) ||
             (role === 'Principal' && event.approvals.hod && event.approvals.academic_coordinator)) && (
-              <EventDetails needbutton={true} checkall={false} eventData={event} />
+              <EventDetails needbutton={true} checkall={false} eventData={event} showdelete={true} onDelete={() => handleDelete(event.id)}/>
             )}
         </div>
       ))}

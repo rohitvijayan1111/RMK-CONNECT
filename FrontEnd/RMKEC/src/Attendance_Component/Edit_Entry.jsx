@@ -30,7 +30,18 @@ const Edit_Entry = () => {
   const month = String(currentDate.getMonth() + 1).padStart(2, '0'); 
   const year = currentDate.getFullYear();
   const formattedDate = `${year}-${month}-${day}`;
-
+  
+  const capitalizeEachWord = (str) => {
+    if (typeof str !== 'string') {
+      return '';
+    }
+  
+    return str.split(' ').map(word => {
+      return word.charAt(0).toUpperCase() + word.slice(1).toLowerCase();
+    }).join(' ');
+  };
+  
+  const department = capitalizeEachWord(window.localStorage.getItem('department'));
   const [selectedUserGroup, setSelectedUserGroup] = useState('Student');
   const [rollNumber, setRollNumber] = useState('');
 
@@ -74,10 +85,12 @@ const Edit_Entry = () => {
       return;
     }
 
+    console.log('Capitalized Department Name:', department);
+
     let payload = {
       date: formattedDate,
       rollnumber: rollNumber,
-      department_name: window.localStorage.getItem('department'),
+      department_name: department,
       userGroup: selectedUserGroup
     };
 

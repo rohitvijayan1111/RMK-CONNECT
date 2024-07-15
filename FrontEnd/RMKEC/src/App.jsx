@@ -87,7 +87,9 @@ function App() {
               <Route path="Past-Events" element={<Past_Events />} />
               <Route path="Available-Halls" element={<Available_Halls />} />
               <Route path="DashBoard-Hall" element={<DashBoard_Hall />} />
+              <Route path="*" element={<Invalidpage />} />
             </Route>
+            <Route path="*" element={<Invalidpage />} />
           </Routes>
         </Router>
       </div>

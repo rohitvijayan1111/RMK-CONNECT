@@ -5,7 +5,7 @@ import axios from 'axios';
 import dayjs from 'dayjs';
 import Swal from 'sweetalert2';
 
-const EventDetails = ({ eventData, needbutton, checkall }) => {
+const EventDetails = ({ eventData, needbutton, checkall,onDelete,showdelete}) => {
   const user = window.localStorage.getItem("userType");
   console.log(eventData.department);
   const [approvals, setApprovals] = useState({
@@ -25,7 +25,7 @@ const EventDetails = ({ eventData, needbutton, checkall }) => {
       confirmButtonText: "Yes, delete it!"
     }).then((result) => {
       if (result.isConfirmed) {
-        onDelete(eventData.id);
+        onDelete();
         Swal.fire({
           title: "Deleted!",
           text: "Your file has been deleted.",
@@ -67,6 +67,7 @@ const EventDetails = ({ eventData, needbutton, checkall }) => {
       setApprovals(updatedApprovals);
 
       if (updatedApprovals.hod && updatedApprovals.academic_coordinator && updatedApprovals.Principal) {
+        console.log("APPOVAL SACTIONEEDDD INNNN");
         await addHallAllotment();
       }
       const endpoint = determineEndpoint(user);
@@ -117,7 +118,7 @@ Facilities Needed: ${eventData.facility_needed}
   return (
     <div className="event-detail">
       <div className="event-header">
-        {(user==="hod" || user==="Event Coordinator") &&
+        {showdelete && (user==="hod" || user==="Event Coordinator") &&
           <FaTimes className="delete-icon" onClick={handleDelete}  />
         }
         <h2>{eventData.name}</h2>

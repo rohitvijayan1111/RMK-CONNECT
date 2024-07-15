@@ -45,48 +45,13 @@ router.post('/addabsent', async (req, res) => {
 
     try {
         let existingRecord;
+
         if (data.student_id) {
             console.log('Processing student_id:', data.student_id);
-            const studentDetails = await query('SELECT year FROM students WHERE id = ?', [data.student_id]);
-      
-            console.log('Query executed for student_id:', data.student_id);
-            console.log('Student details:', studentDetails);
-      
-            if (!studentDetails || studentDetails.length === 0) {
-                console.error('Student not found or missing year information');
-                return res.status(404).json({ error: 'Student not found or missing year information' });
-            }
-            const year = studentDetails[0].year;
-            console.log('Year:', year);
-      
-            if (!year) {
-                console.error('Year information missing for the student');
-                return res.status(404).json({ error: 'Year information missing for the student' });
-            }
-      
-            const updateField = `todayabsentcount_year_${year}`;
-            console.log('Update field:', updateField);
-            const updateQuery = `
-                UPDATE MemberCount 
-                SET ${updateField} = ${updateField} + 1 
-                WHERE department_name = ?`;
-            console.log('Executing query:', updateQuery);
-            await query(updateQuery, [data.department_name]);
-
             existingRecord = await query('SELECT * FROM absent_attendance_records WHERE student_id = ? AND attendance_date = ?', [data.student_id, data.attendance_date]);
-      
         } else if (data.staff_id) {
             console.log('Processing staff_id:', data.staff_id);
-            const updateQuery = `
-                UPDATE MemberCount 
-                SET todayabsentcount_staff = todayabsentcount_staff + 1 
-                WHERE department_name = ?`;
-            console.log('Executing query:', updateQuery);
-            await query(updateQuery, [data.department_name]);
-
-            // Check if the record already exists
             existingRecord = await query('SELECT * FROM absent_attendance_records WHERE staff_id = ? AND attendance_date = ?', [data.staff_id, data.attendance_date]);
-      
         } else {
             console.error('Invalid data format');
             return res.status(400).json({ error: 'Invalid data format' });
@@ -97,14 +62,80 @@ router.post('/addabsent', async (req, res) => {
             return res.status(400).json({ error: 'Record already exists for this date and user' });
         }
 
-        console.log('Data to insert:', data);
-        const insertQuery = 'INSERT INTO absent_attendance_records SET ?';
-        console.log('Executing insert query:', insertQuery, data);
-        await query(insertQuery, data);
+        if (data.student_id) {
+            
+            const studentDetails = await query('SELECT year, department FROM students WHERE id = ?', [data.student_id]);
 
-        res.json({ message: 'Record inserted successfully' });
+            if (!studentDetails || studentDetails.length === 0) {
+                console.error('Student not found or missing year/department information');
+                return res.status(404).json({ error: 'Student not found or missing year/department information' });
+            }
+
+            const year = studentDetails[0].year;
+            const studentDepartment = studentDetails[0].department;
+
+            if (!year || !studentDepartment) {
+                console.error('Year or department information missing for the student');
+                return res.status(404).json({ error: 'Year or department information missing for the student' });
+            }
+
+            
+            if (studentDepartment !== data.department_name) {
+                console.error('Department mismatch for student');
+                return res.status(400).json({ error: 'Student is not part of Your Department' });
+            }
+
+            console.log('Data to insert:', data);
+            const insertQuery = 'INSERT INTO absent_attendance_records SET ?';
+            console.log('Executing insert query:', insertQuery, data);
+            await query(insertQuery, data);
+
+            const updateField = `todayabsentcount_year_${year}`;
+            const updateQuery = `
+                UPDATE MemberCount 
+                SET ${updateField} = ${updateField} + 1 
+                WHERE department_name = ?`;
+            console.log('Executing query:', updateQuery);
+            await query(updateQuery, [data.department_name]);
+
+        } else if (data.staff_id) {
+            
+            const staffDetails = await query('SELECT department FROM staff WHERE id = ?', [data.staff_id]);
+
+            if (!staffDetails || staffDetails.length === 0) {
+                console.error('Staff not found or missing department information');
+                return res.status(404).json({ error: 'Staff not found or missing department information' });
+            }
+
+            const staffDepartment = staffDetails[0].department;
+
+            if (!staffDepartment) {
+                console.error('Department information missing for the staff');
+                return res.status(404).json({ error: 'Staff is not part of Your Department' });
+            }
+
+            
+            if (staffDepartment !== data.department_name) {
+                console.error('Department mismatch for staff');
+                return res.status(400).json({ error: 'Department mismatch for staff' });
+            }
+
+            console.log('Data to insert:', data);
+            const insertQuery = 'INSERT INTO absent_attendance_records SET ?';
+            console.log('Executing insert query:', insertQuery, data);
+            await query(insertQuery, data);
+
+            const updateQuery = `
+                UPDATE MemberCount 
+                SET todayabsentcount_staff = todayabsentcount_staff + 1 
+                WHERE department_name = ?`;
+            console.log('Executing query:', updateQuery);
+            await query(updateQuery, [data.department_name]);
+        }
+
+        res.json({ message: 'Record inserted and count updated successfully' });
     } catch (error) {
-        console.error('Error inserting record:', error);
+        console.error('Error inserting record or updating count:', error);
         res.status(500).json({ error: 'Internal Server Error' });
     }
 });
@@ -117,15 +148,30 @@ async function getStudentYear(student_id) {
 router.post('/removeabsent', async (req, res) => {
     const { date, rollnumber, userGroup, department_name } = req.body;
 
-    // Validate input
     if (!date || !rollnumber || !userGroup || !department_name) {
         return res.status(400).json({ error: 'Date, Roll Number, User Group, and Department Name are required' });
+    }
+
+    if (isNaN(new Date(date).getTime())) {
+        return res.status(400).json({ error: 'Invalid date format' });
+    }
+
+    if (typeof rollnumber !== 'string' || rollnumber.trim() === '') {
+        return res.status(400).json({ error: 'Invalid roll number' });
+    }
+
+    if (!['Student', 'Staff'].includes(userGroup)) {
+        return res.status(400).json({ error: 'Invalid user group' });
+    }
+
+    if (typeof department_name !== 'string' || department_name.trim() === '') {
+        return res.status(400).json({ error: 'Invalid department name' });
     }
 
     const column = userGroup === 'Student' ? 'student_id' : 'staff_id';
 
     try {
-        // Check if the attendance record exists
+        
         const checkQuery = `SELECT * FROM absent_attendance_records WHERE attendance_date=? AND ${column}=?`;
         const records = await query(checkQuery, [date, rollnumber]);
         
@@ -133,10 +179,10 @@ router.post('/removeabsent', async (req, res) => {
             return res.status(404).json({ error: 'Attendance record not found' });
         }
 
-        // Begin transaction
+        
         await query('START TRANSACTION');
 
-        // Decrement count in MemberCount table
+        
         if (userGroup === 'Student') {
             const studentYear = await getStudentYear(rollnumber);
             if (!studentYear) {
@@ -159,14 +205,14 @@ router.post('/removeabsent', async (req, res) => {
             await query(decrementQuery, [department_name]);
         }
 
-        // Delete record from absent_attendance_records
+        
         const deleteResult = await query(`DELETE FROM absent_attendance_records WHERE attendance_date=? AND ${column}=?`, [date, rollnumber]);
         if (deleteResult.affectedRows === 0) {
             await query('ROLLBACK');
             return res.status(404).json({ error: 'Record not found' });
         }
 
-        // Commit transaction
+        
         await query('COMMIT');
 
         res.json({ message: 'Record removed successfully' });
