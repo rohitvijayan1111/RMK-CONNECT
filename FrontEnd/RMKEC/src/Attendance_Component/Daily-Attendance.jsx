@@ -5,8 +5,6 @@ import 'react-toastify/dist/ReactToastify.css';
 import './Daily-Attendance.css';
 import withAuthorization from '../Components/WithAuthorization';
 
-
-
 const LeaveTypeDropdown = ({ onLeaveTypeSelect }) => {
   const handleLeaveTypeChange = (event) => {
     const leaveType = event.target.value;
@@ -21,7 +19,7 @@ const LeaveTypeDropdown = ({ onLeaveTypeSelect }) => {
       </select>
     </div>
   );
-}; 
+};
 
 const UserGroupSelector = ({ setSelectedUserGroup }) => {
   const [selectedUserGroup, setSelectedUserGroupState] = useState('Student');
@@ -48,11 +46,22 @@ const Daily_Attendance = () => {
   const month = String(currentDate.getMonth() + 1).padStart(2, '0');
   const year = currentDate.getFullYear();
   const formattedDate = `${year}-${month}-${day}`;
-
   const [selectedLeaveType, setSelectedLeaveType] = useState('Informed');
   const [selectedUserGroup, setSelectedUserGroup] = useState('Student');
   const [rollNumber, setRollNumber] = useState('');
   const [reason, setReason] = useState('');
+
+  const capitalizeEachWord = (str) => {
+    if (typeof str !== 'string') {
+      return '';
+    }
+
+    return str.split(' ').map(word => {
+      return word.charAt(0).toUpperCase() + word.slice(1).toLowerCase();
+    }).join(' ');
+  };
+
+  const department = capitalizeEachWord(window.localStorage.getItem('department'));
 
   const notifysuccess = (message) => {
     toast.success(message, {
@@ -93,7 +102,7 @@ const Daily_Attendance = () => {
       reason: reason,
       leave_type: selectedLeaveType,
       attendance_date: formattedDate,
-      department_name: window.localStorage.getItem('department')
+      department_name: department
     };
 
     if (selectedUserGroup === 'Student') {
@@ -113,20 +122,16 @@ const Daily_Attendance = () => {
         setReason('');
       }
     } catch (error) {
-      // Enhanced error handling and logging
       console.error('Axios error:', error);
       if (error.response) {
-        // The request was made and the server responded with a status code outside of the range of 2xx
         console.error('Error response data:', error.response.data);
         console.error('Error response status:', error.response.status);
         console.error('Error response headers:', error.response.headers);
         notifyfailure('Error inserting record: ' + (error.response.data.error || error.response.data.message || error.message));
       } else if (error.request) {
-        // The request was made but no response was received
         console.error('Error request:', error.request);
         notifyfailure('No response received from server');
       } else {
-        // Something happened in setting up the request that triggered an Error
         console.error('Error message:', error.message);
         notifyfailure('Error inserting record: ' + error.message);
       }

@@ -52,7 +52,7 @@ var getFriendlyErrorMessage = function getFriendlyErrorMessage(errCode) {
 
 var query = util.promisify(db.query).bind(db);
 router.post('/addabsent', function _callee(req, res) {
-  var data, existingRecord, studentDetails, year, updateField, updateQuery, _updateQuery, insertQuery;
+  var data, existingRecord, studentDetails, year, studentDepartment, insertQuery, updateField, updateQuery, staffDetails, staffDepartment, _insertQuery, _updateQuery;
 
   return regeneratorRuntime.async(function _callee$(_context) {
     while (1) {
@@ -75,90 +75,43 @@ router.post('/addabsent', function _callee(req, res) {
           _context.prev = 5;
 
           if (!data.student_id) {
-            _context.next = 32;
+            _context.next = 13;
             break;
           }
 
           console.log('Processing student_id:', data.student_id);
           _context.next = 10;
-          return regeneratorRuntime.awrap(query('SELECT year FROM students WHERE id = ?', [data.student_id]));
-
-        case 10:
-          studentDetails = _context.sent;
-          console.log('Query executed for student_id:', data.student_id);
-          console.log('Student details:', studentDetails);
-
-          if (!(!studentDetails || studentDetails.length === 0)) {
-            _context.next = 16;
-            break;
-          }
-
-          console.error('Student not found or missing year information');
-          return _context.abrupt("return", res.status(404).json({
-            error: 'Student not found or missing year information'
-          }));
-
-        case 16:
-          year = studentDetails[0].year;
-          console.log('Year:', year);
-
-          if (year) {
-            _context.next = 21;
-            break;
-          }
-
-          console.error('Year information missing for the student');
-          return _context.abrupt("return", res.status(404).json({
-            error: 'Year information missing for the student'
-          }));
-
-        case 21:
-          updateField = "todayabsentcount_year_".concat(year);
-          console.log('Update field:', updateField);
-          updateQuery = "\n                UPDATE MemberCount \n                SET ".concat(updateField, " = ").concat(updateField, " + 1 \n                WHERE department_name = ?");
-          console.log('Executing query:', updateQuery);
-          _context.next = 27;
-          return regeneratorRuntime.awrap(query(updateQuery, [data.department_name]));
-
-        case 27:
-          _context.next = 29;
           return regeneratorRuntime.awrap(query('SELECT * FROM absent_attendance_records WHERE student_id = ? AND attendance_date = ?', [data.student_id, data.attendance_date]));
 
-        case 29:
+        case 10:
           existingRecord = _context.sent;
-          _context.next = 45;
+          _context.next = 22;
           break;
 
-        case 32:
+        case 13:
           if (!data.staff_id) {
-            _context.next = 43;
+            _context.next = 20;
             break;
           }
 
           console.log('Processing staff_id:', data.staff_id);
-          _updateQuery = "\n                UPDATE MemberCount \n                SET todayabsentcount_staff = todayabsentcount_staff + 1 \n                WHERE department_name = ?";
-          console.log('Executing query:', _updateQuery);
-          _context.next = 38;
-          return regeneratorRuntime.awrap(query(_updateQuery, [data.department_name]));
-
-        case 38:
-          _context.next = 40;
+          _context.next = 17;
           return regeneratorRuntime.awrap(query('SELECT * FROM absent_attendance_records WHERE staff_id = ? AND attendance_date = ?', [data.staff_id, data.attendance_date]));
 
-        case 40:
+        case 17:
           existingRecord = _context.sent;
-          _context.next = 45;
+          _context.next = 22;
           break;
 
-        case 43:
+        case 20:
           console.error('Invalid data format');
           return _context.abrupt("return", res.status(400).json({
             error: 'Invalid data format'
           }));
 
-        case 45:
+        case 22:
           if (!(existingRecord && existingRecord.length > 0)) {
-            _context.next = 48;
+            _context.next = 25;
             break;
           }
 
@@ -167,34 +120,151 @@ router.post('/addabsent', function _callee(req, res) {
             error: 'Record already exists for this date and user'
           }));
 
-        case 48:
+        case 25:
+          if (!data.student_id) {
+            _context.next = 52;
+            break;
+          }
+
+          _context.next = 28;
+          return regeneratorRuntime.awrap(query('SELECT year, department FROM students WHERE id = ?', [data.student_id]));
+
+        case 28:
+          studentDetails = _context.sent;
+
+          if (!(!studentDetails || studentDetails.length === 0)) {
+            _context.next = 32;
+            break;
+          }
+
+          console.error('Student not found or missing year/department information');
+          return _context.abrupt("return", res.status(404).json({
+            error: 'Student not found or missing year/department information'
+          }));
+
+        case 32:
+          year = studentDetails[0].year;
+          studentDepartment = studentDetails[0].department;
+
+          if (!(!year || !studentDepartment)) {
+            _context.next = 37;
+            break;
+          }
+
+          console.error('Year or department information missing for the student');
+          return _context.abrupt("return", res.status(404).json({
+            error: 'Year or department information missing for the student'
+          }));
+
+        case 37:
+          if (!(studentDepartment !== data.department_name)) {
+            _context.next = 40;
+            break;
+          }
+
+          console.error('Department mismatch for student');
+          return _context.abrupt("return", res.status(400).json({
+            error: 'Student is not part of Your Department'
+          }));
+
+        case 40:
           console.log('Data to insert:', data);
           insertQuery = 'INSERT INTO absent_attendance_records SET ?';
           console.log('Executing insert query:', insertQuery, data);
-          _context.next = 53;
+          _context.next = 45;
           return regeneratorRuntime.awrap(query(insertQuery, data));
 
-        case 53:
-          res.json({
-            message: 'Record inserted successfully'
-          });
-          _context.next = 60;
+        case 45:
+          updateField = "todayabsentcount_year_".concat(year);
+          updateQuery = "\n                UPDATE MemberCount \n                SET ".concat(updateField, " = ").concat(updateField, " + 1 \n                WHERE department_name = ?");
+          console.log('Executing query:', updateQuery);
+          _context.next = 50;
+          return regeneratorRuntime.awrap(query(updateQuery, [data.department_name]));
+
+        case 50:
+          _context.next = 75;
           break;
 
-        case 56:
-          _context.prev = 56;
+        case 52:
+          if (!data.staff_id) {
+            _context.next = 75;
+            break;
+          }
+
+          _context.next = 55;
+          return regeneratorRuntime.awrap(query('SELECT department FROM staff WHERE id = ?', [data.staff_id]));
+
+        case 55:
+          staffDetails = _context.sent;
+
+          if (!(!staffDetails || staffDetails.length === 0)) {
+            _context.next = 59;
+            break;
+          }
+
+          console.error('Staff not found or missing department information');
+          return _context.abrupt("return", res.status(404).json({
+            error: 'Staff not found or missing department information'
+          }));
+
+        case 59:
+          staffDepartment = staffDetails[0].department;
+
+          if (staffDepartment) {
+            _context.next = 63;
+            break;
+          }
+
+          console.error('Department information missing for the staff');
+          return _context.abrupt("return", res.status(404).json({
+            error: 'Staff is not part of Your Department'
+          }));
+
+        case 63:
+          if (!(staffDepartment !== data.department_name)) {
+            _context.next = 66;
+            break;
+          }
+
+          console.error('Department mismatch for staff');
+          return _context.abrupt("return", res.status(400).json({
+            error: 'Department mismatch for staff'
+          }));
+
+        case 66:
+          console.log('Data to insert:', data);
+          _insertQuery = 'INSERT INTO absent_attendance_records SET ?';
+          console.log('Executing insert query:', _insertQuery, data);
+          _context.next = 71;
+          return regeneratorRuntime.awrap(query(_insertQuery, data));
+
+        case 71:
+          _updateQuery = "\n                UPDATE MemberCount \n                SET todayabsentcount_staff = todayabsentcount_staff + 1 \n                WHERE department_name = ?";
+          console.log('Executing query:', _updateQuery);
+          _context.next = 75;
+          return regeneratorRuntime.awrap(query(_updateQuery, [data.department_name]));
+
+        case 75:
+          res.json({
+            message: 'Record inserted and count updated successfully'
+          });
+          _context.next = 82;
+          break;
+
+        case 78:
+          _context.prev = 78;
           _context.t0 = _context["catch"](5);
-          console.error('Error inserting record:', _context.t0);
+          console.error('Error inserting record or updating count:', _context.t0);
           res.status(500).json({
             error: 'Internal Server Error'
           });
 
-        case 60:
+        case 82:
         case "end":
           return _context.stop();
       }
     }
-  }, null, null, [[5, 56]]);
+  }, null, null, [[5, 78]]);
 });
 
 function getStudentYear(student_id) {
@@ -225,7 +295,7 @@ router.post('/removeabsent', function _callee2(req, res) {
     while (1) {
       switch (_context3.prev = _context3.next) {
         case 0:
-          _req$body = req.body, date = _req$body.date, rollnumber = _req$body.rollnumber, userGroup = _req$body.userGroup, department_name = _req$body.department_name; // Validate input
+          _req$body = req.body, date = _req$body.date, rollnumber = _req$body.rollnumber, userGroup = _req$body.userGroup, department_name = _req$body.department_name;
 
           if (!(!date || !rollnumber || !userGroup || !department_name)) {
             _context3.next = 3;
@@ -237,18 +307,57 @@ router.post('/removeabsent', function _callee2(req, res) {
           }));
 
         case 3:
+          if (!isNaN(new Date(date).getTime())) {
+            _context3.next = 5;
+            break;
+          }
+
+          return _context3.abrupt("return", res.status(400).json({
+            error: 'Invalid date format'
+          }));
+
+        case 5:
+          if (!(typeof rollnumber !== 'string' || rollnumber.trim() === '')) {
+            _context3.next = 7;
+            break;
+          }
+
+          return _context3.abrupt("return", res.status(400).json({
+            error: 'Invalid roll number'
+          }));
+
+        case 7:
+          if (['Student', 'Staff'].includes(userGroup)) {
+            _context3.next = 9;
+            break;
+          }
+
+          return _context3.abrupt("return", res.status(400).json({
+            error: 'Invalid user group'
+          }));
+
+        case 9:
+          if (!(typeof department_name !== 'string' || department_name.trim() === '')) {
+            _context3.next = 11;
+            break;
+          }
+
+          return _context3.abrupt("return", res.status(400).json({
+            error: 'Invalid department name'
+          }));
+
+        case 11:
           column = userGroup === 'Student' ? 'student_id' : 'staff_id';
-          _context3.prev = 4;
-          // Check if the attendance record exists
+          _context3.prev = 12;
           checkQuery = "SELECT * FROM absent_attendance_records WHERE attendance_date=? AND ".concat(column, "=?");
-          _context3.next = 8;
+          _context3.next = 16;
           return regeneratorRuntime.awrap(query(checkQuery, [date, rollnumber]));
 
-        case 8:
+        case 16:
           records = _context3.sent;
 
           if (!(records.length === 0)) {
-            _context3.next = 11;
+            _context3.next = 19;
             break;
           }
 
@@ -256,104 +365,104 @@ router.post('/removeabsent', function _callee2(req, res) {
             error: 'Attendance record not found'
           }));
 
-        case 11:
-          _context3.next = 13;
+        case 19:
+          _context3.next = 21;
           return regeneratorRuntime.awrap(query('START TRANSACTION'));
 
-        case 13:
+        case 21:
           if (!(userGroup === 'Student')) {
-            _context3.next = 27;
+            _context3.next = 35;
             break;
           }
 
-          _context3.next = 16;
+          _context3.next = 24;
           return regeneratorRuntime.awrap(getStudentYear(rollnumber));
 
-        case 16:
+        case 24:
           studentYear = _context3.sent;
 
           if (studentYear) {
-            _context3.next = 21;
+            _context3.next = 29;
             break;
           }
 
-          _context3.next = 20;
+          _context3.next = 28;
           return regeneratorRuntime.awrap(query('ROLLBACK'));
 
-        case 20:
+        case 28:
           return _context3.abrupt("return", res.status(404).json({
             error: 'Student year not found'
           }));
 
-        case 21:
+        case 29:
           updateField = "todayabsentcount_year_".concat(studentYear);
           decrementQuery = "\n                UPDATE MemberCount \n                SET ".concat(updateField, " = ").concat(updateField, " - 1 \n                WHERE department_name = ?");
-          _context3.next = 25;
+          _context3.next = 33;
           return regeneratorRuntime.awrap(query(decrementQuery, [department_name]));
 
-        case 25:
-          _context3.next = 31;
+        case 33:
+          _context3.next = 39;
           break;
 
-        case 27:
+        case 35:
           if (!(userGroup === 'Staff')) {
-            _context3.next = 31;
+            _context3.next = 39;
             break;
           }
 
           _decrementQuery = "\n                UPDATE MemberCount \n                SET todayabsentcount_staff = todayabsentcount_staff - 1 \n                WHERE department_name = ?";
-          _context3.next = 31;
+          _context3.next = 39;
           return regeneratorRuntime.awrap(query(_decrementQuery, [department_name]));
 
-        case 31:
-          _context3.next = 33;
+        case 39:
+          _context3.next = 41;
           return regeneratorRuntime.awrap(query("DELETE FROM absent_attendance_records WHERE attendance_date=? AND ".concat(column, "=?"), [date, rollnumber]));
 
-        case 33:
+        case 41:
           deleteResult = _context3.sent;
 
           if (!(deleteResult.affectedRows === 0)) {
-            _context3.next = 38;
+            _context3.next = 46;
             break;
           }
 
-          _context3.next = 37;
+          _context3.next = 45;
           return regeneratorRuntime.awrap(query('ROLLBACK'));
 
-        case 37:
+        case 45:
           return _context3.abrupt("return", res.status(404).json({
             error: 'Record not found'
           }));
 
-        case 38:
-          _context3.next = 40;
+        case 46:
+          _context3.next = 48;
           return regeneratorRuntime.awrap(query('COMMIT'));
 
-        case 40:
+        case 48:
           res.json({
             message: 'Record removed successfully'
           });
-          _context3.next = 49;
+          _context3.next = 57;
           break;
 
-        case 43:
-          _context3.prev = 43;
-          _context3.t0 = _context3["catch"](4);
+        case 51:
+          _context3.prev = 51;
+          _context3.t0 = _context3["catch"](12);
           console.error('Error removing record:', _context3.t0);
-          _context3.next = 48;
+          _context3.next = 56;
           return regeneratorRuntime.awrap(query('ROLLBACK'));
 
-        case 48:
+        case 56:
           res.status(500).json({
             error: 'Error removing record'
           });
 
-        case 49:
+        case 57:
         case "end":
           return _context3.stop();
       }
     }
-  }, null, null, [[4, 43]]);
+  }, null, null, [[12, 51]]);
 });
 router.post('/getindividual', function _callee3(req, res) {
   var _req$body2, rollnumber, userGroup, column, result;

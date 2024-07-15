@@ -56,7 +56,7 @@ function DashBoard_Hall() {
       ) : (
         upcomingEvents.map((event, index) => (
           <div className="event-container" key={index}>
-            <EventDetails checkall={true} eventData={event} />
+            <EventDetails checkall={true} showdelete={true} eventData={event} />
           </div>
         ))
       )}

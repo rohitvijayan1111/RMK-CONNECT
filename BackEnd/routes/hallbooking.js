@@ -35,7 +35,6 @@ const getFriendlyErrorMessage = (errCode) => {
 
 const query = util.promisify(db.query).bind(db);
 
-// Fetch all halls
 router.get('/availablehalls', async (req, res) => {
     const sql = 'SELECT * FROM halls';
     try {
@@ -55,7 +54,6 @@ router.get('/availablehalls', async (req, res) => {
     }
 });
 
-// Fetch hall names for dropdown
 router.get('/halls', async (req, res) => {
     const sql = 'SELECT hall_name FROM halls';
     try {
@@ -94,49 +92,71 @@ router.post('/hall-request', async (req, res) => {
         res.status(500).json({ error: getFriendlyErrorMessage(err)});
     }
 });
-router.post('/hall_requests_status', (req, res) => {
-  const { department, role } = req.body;
-  let query = 'SELECT * FROM hall_request';
+router.post('/hall_requests_remove', async (req, res) => {
+  const { id } = req.body;
+  const sql = 'DELETE FROM hall_request WHERE id = ?';
 
-  if (role === 'hod' || role === 'Event Coordinator') {
-      query += ' WHERE department = ?';
+  try {
+    const results = await query(sql, [id]);
+
+    if (results.affectedRows === 0) {
+      return res.status(404).json({ error: "No Records Removed" });
+    }
+
+    res.json({ message: "Removed Successfully" });
+  } catch (err) {
+    console.error('Error removing record:', err);
+    res.status(500).send({ error: getFriendlyErrorMessage(err) });
   }
-  console.log(query);
-  db.query(query, [department], (err, results) => {
-      if (err) {
-          console.error('Error fetching data:', err);
-          res.status(500).send({ error: getFriendlyErrorMessage(err) });
-          return;
-      }
-      if (results.length == 0) {
-          return res.status(404).json({ error: "No Records found" });
-      }
-      const formattedEvents = results.map(event => ({
-        id: event.id,
-        name: event.name,
-        speaker: event.speaker,
-        speaker_description: event.speaker_description,
-        event_date:event.event_date,
-        start_time:event.start_time,
-        end_time:event.end_time,
-        department:event.department,
-        hall_name: event.hall_name,
-        emails:event.emails,
-        participants: event.participants,
-        incharge_faculty: event.incharge_faculty,
-        facility_needed: event.facility_needed,
-        approvals: {
-            hod: event.hod_approval === 1,
-            academic_coordinator: event.academic_coordinator_approval === 1,
-            principal: event.principal_approval === 1
-        }
-      }));
-
-      res.json(formattedEvents);
-  });
 });
 
 
+router.post('/hall_requests_status', async (req, res) => {
+  const { department, role } = req.body;
+  let sql = 'SELECT * FROM hall_request';
+  let params = [];
+
+  if (role === 'hod' || role === 'Event Coordinator') {
+    sql += ' WHERE department = ?';
+    params.push(department);
+  }
+
+  console.log(sql);
+  
+  try {
+    const results = await query(sql, params);
+    
+    if (results.length === 0) {
+      return res.status(404).json({ error: "No Records found" });
+    }
+    
+    const formattedEvents = results.map(event => ({
+      id: event.id,
+      name: event.name,
+      speaker: event.speaker,
+      speaker_description: event.speaker_description,
+      event_date: event.event_date,
+      start_time: event.start_time,
+      end_time: event.end_time,
+      department: event.department,
+      hall_name: event.hall_name,
+      emails: event.emails,
+      participants: event.participants,
+      incharge_faculty: event.incharge_faculty,
+      facility_needed: event.facility_needed,
+      approvals: {
+        hod: event.hod_approval === 1,
+        academic_coordinator: event.academic_coordinator_approval === 1,
+        principal: event.principal_approval === 1
+      }
+    }));
+
+    res.json(formattedEvents);
+  } catch (err) {
+    console.error('Error fetching data:', err);
+    res.status(500).send({ error: getFriendlyErrorMessage(err) });
+  }
+});
 router.post('/past-events', async (req, res) => {
   const { department, role } = req.body;
   let sql = `
@@ -247,6 +267,7 @@ router.post('/past-events', async (req, res) => {
     console.log("THE REQUESTEDD BODY IS "+ req.body);
     const data = req.body;
     delete data.approvals;
+    delete data.emails;
     const sql = `INSERT INTO hall_allotment SET ?`;
     await query(sql, [data], (err, result) => {
       if (err) {
@@ -259,25 +280,22 @@ router.post('/past-events', async (req, res) => {
     });
   });
 
-  router.delete('/deletehallrequest/:id', (req, res) => {
+  router.delete('/deletehallrequest/:id', async (req, res) => {
     const id = req.params.id;
+    const sql = 'DELETE FROM hall_request WHERE id = ?';
   
-    const query = 'DELETE FROM hall_request WHERE id = ?';
-  
-    db.query(query, [id], (error, results) => {
-      if (error) {
-        console.error('Error deleting hall request:', error);
-        res.status(500).json({ error: 'Internal Server Error' });
-        return;
-      }
+    try {
+      const results = await query(sql, [id]);
   
       if (results.affectedRows === 0) {
-        res.status(404).json({ message: 'Hall request not found' });
-        return;
+        return res.status(404).json({ message: 'Hall request not found' });
       }
   
       res.status(200).json({ message: 'Hall request deleted successfully' });
-    });
+    } catch (error) {
+      console.error('Error deleting hall request:', error);
+      res.status(500).json({ error: 'Internal Server Error' });
+    }
   });
-    
+      
 module.exports = router;

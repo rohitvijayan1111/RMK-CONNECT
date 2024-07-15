@@ -51,8 +51,7 @@ var getFriendlyErrorMessage = function getFriendlyErrorMessage(errCode) {
   }
 };
 
-var query = util.promisify(db.query).bind(db); // Fetch all halls
-
+var query = util.promisify(db.query).bind(db);
 router.get('/availablehalls', function _callee(req, res) {
   var sql, result, transformedHalls;
   return regeneratorRuntime.async(function _callee$(_context) {
@@ -94,8 +93,7 @@ router.get('/availablehalls', function _callee(req, res) {
       }
     }
   }, null, null, [[1, 9]]);
-}); // Fetch hall names for dropdown
-
+});
 router.get('/halls', function _callee2(req, res) {
   var sql, results;
   return regeneratorRuntime.async(function _callee2$(_context2) {
@@ -178,63 +176,133 @@ router.post('/hall-request', function _callee3(req, res) {
     }
   }, null, null, [[2, 14]]);
 });
-router.post('/hall_requests_status', function (req, res) {
-  var _req$body2 = req.body,
-      department = _req$body2.department,
-      role = _req$body2.role;
-  var query = 'SELECT * FROM hall_request';
-
-  if (role === 'hod' || role === 'Event Coordinator') {
-    query += ' WHERE department = ?';
-  }
-
-  console.log(query);
-  db.query(query, [department], function (err, results) {
-    if (err) {
-      console.error('Error fetching data:', err);
-      res.status(500).send({
-        error: getFriendlyErrorMessage(err)
-      });
-      return;
-    }
-
-    if (results.length == 0) {
-      return res.status(404).json({
-        error: "No Records found"
-      });
-    }
-
-    var formattedEvents = results.map(function (event) {
-      return {
-        id: event.id,
-        name: event.name,
-        speaker: event.speaker,
-        speaker_description: event.speaker_description,
-        event_date: event.event_date,
-        start_time: event.start_time,
-        end_time: event.end_time,
-        department: event.department,
-        hall_name: event.hall_name,
-        emails: event.emails,
-        participants: event.participants,
-        incharge_faculty: event.incharge_faculty,
-        facility_needed: event.facility_needed,
-        approvals: {
-          hod: event.hod_approval === 1,
-          academic_coordinator: event.academic_coordinator_approval === 1,
-          principal: event.principal_approval === 1
-        }
-      };
-    });
-    res.json(formattedEvents);
-  });
-});
-router.post('/past-events', function _callee4(req, res) {
-  var _req$body3, department, role, sql, results, formattedEvents;
-
+router.post('/hall_requests_remove', function _callee4(req, res) {
+  var id, sql, results;
   return regeneratorRuntime.async(function _callee4$(_context4) {
     while (1) {
       switch (_context4.prev = _context4.next) {
+        case 0:
+          id = req.body.id;
+          sql = 'DELETE FROM hall_request WHERE id = ?';
+          _context4.prev = 2;
+          _context4.next = 5;
+          return regeneratorRuntime.awrap(query(sql, [id]));
+
+        case 5:
+          results = _context4.sent;
+
+          if (!(results.affectedRows === 0)) {
+            _context4.next = 8;
+            break;
+          }
+
+          return _context4.abrupt("return", res.status(404).json({
+            error: "No Records Removed"
+          }));
+
+        case 8:
+          res.json({
+            message: "Removed Successfully"
+          });
+          _context4.next = 15;
+          break;
+
+        case 11:
+          _context4.prev = 11;
+          _context4.t0 = _context4["catch"](2);
+          console.error('Error removing record:', _context4.t0);
+          res.status(500).send({
+            error: getFriendlyErrorMessage(_context4.t0)
+          });
+
+        case 15:
+        case "end":
+          return _context4.stop();
+      }
+    }
+  }, null, null, [[2, 11]]);
+});
+router.post('/hall_requests_status', function _callee5(req, res) {
+  var _req$body2, department, role, sql, params, results, formattedEvents;
+
+  return regeneratorRuntime.async(function _callee5$(_context5) {
+    while (1) {
+      switch (_context5.prev = _context5.next) {
+        case 0:
+          _req$body2 = req.body, department = _req$body2.department, role = _req$body2.role;
+          sql = 'SELECT * FROM hall_request';
+          params = [];
+
+          if (role === 'hod' || role === 'Event Coordinator') {
+            sql += ' WHERE department = ?';
+            params.push(department);
+          }
+
+          console.log(sql);
+          _context5.prev = 5;
+          _context5.next = 8;
+          return regeneratorRuntime.awrap(query(sql, params));
+
+        case 8:
+          results = _context5.sent;
+
+          if (!(results.length === 0)) {
+            _context5.next = 11;
+            break;
+          }
+
+          return _context5.abrupt("return", res.status(404).json({
+            error: "No Records found"
+          }));
+
+        case 11:
+          formattedEvents = results.map(function (event) {
+            return {
+              id: event.id,
+              name: event.name,
+              speaker: event.speaker,
+              speaker_description: event.speaker_description,
+              event_date: event.event_date,
+              start_time: event.start_time,
+              end_time: event.end_time,
+              department: event.department,
+              hall_name: event.hall_name,
+              emails: event.emails,
+              participants: event.participants,
+              incharge_faculty: event.incharge_faculty,
+              facility_needed: event.facility_needed,
+              approvals: {
+                hod: event.hod_approval === 1,
+                academic_coordinator: event.academic_coordinator_approval === 1,
+                principal: event.principal_approval === 1
+              }
+            };
+          });
+          res.json(formattedEvents);
+          _context5.next = 19;
+          break;
+
+        case 15:
+          _context5.prev = 15;
+          _context5.t0 = _context5["catch"](5);
+          console.error('Error fetching data:', _context5.t0);
+          res.status(500).send({
+            error: getFriendlyErrorMessage(_context5.t0)
+          });
+
+        case 19:
+        case "end":
+          return _context5.stop();
+      }
+    }
+  }, null, null, [[5, 15]]);
+});
+router.post('/past-events', function _callee6(req, res) {
+  var _req$body3, department, role, sql, results, formattedEvents;
+
+  return regeneratorRuntime.async(function _callee6$(_context6) {
+    while (1) {
+      switch (_context6.prev = _context6.next) {
         case 0:
           _req$body3 = req.body, department = _req$body3.department, role = _req$body3.role;
           sql = "\n    SELECT *\n    FROM hall_allotment\n    WHERE event_date < CURDATE()\n      OR (event_date = CURDATE() AND end_time < CURTIME())\n  ";
@@ -243,19 +311,19 @@ router.post('/past-events', function _callee4(req, res) {
             sql += ' AND department = ?';
           }
 
-          _context4.prev = 3;
-          _context4.next = 6;
+          _context6.prev = 3;
+          _context6.next = 6;
           return regeneratorRuntime.awrap(query(sql, [department]));
 
         case 6:
-          results = _context4.sent;
+          results = _context6.sent;
 
           if (!(results.length === 0)) {
-            _context4.next = 9;
+            _context6.next = 9;
             break;
           }
 
-          return _context4.abrupt("return", res.status(404).json({
+          return _context6.abrupt("return", res.status(404).json({
             error: "No records found"
           }));
 
@@ -282,44 +350,44 @@ router.post('/past-events', function _callee4(req, res) {
             };
           });
           res.json(formattedEvents);
-          _context4.next = 17;
+          _context6.next = 17;
           break;
 
         case 13:
-          _context4.prev = 13;
-          _context4.t0 = _context4["catch"](3);
-          console.error('Error fetching past events:', _context4.t0);
+          _context6.prev = 13;
+          _context6.t0 = _context6["catch"](3);
+          console.error('Error fetching past events:', _context6.t0);
           res.status(500).json({
             error: 'Server error occurred'
           });
 
         case 17:
         case "end":
-          return _context4.stop();
+          return _context6.stop();
       }
     }
   }, null, null, [[3, 13]]);
 });
-router.get('/upcoming-events', function _callee5(req, res) {
+router.get('/upcoming-events', function _callee7(req, res) {
   var sql, results, formattedEvents;
-  return regeneratorRuntime.async(function _callee5$(_context5) {
+  return regeneratorRuntime.async(function _callee7$(_context7) {
     while (1) {
-      switch (_context5.prev = _context5.next) {
+      switch (_context7.prev = _context7.next) {
         case 0:
           sql = "\n    SELECT *\n    FROM hall_allotment\n    WHERE \n      (\n        event_date > CURDATE()\n        OR (event_date = CURDATE() AND start_time > CURTIME())  -- Include events not started yet today\n        OR (event_date = CURDATE() AND end_time >= CURTIME() AND start_time <= CURTIME())  -- Include ongoing events today\n      )\n    ORDER BY event_date, start_time;\n  ";
-          _context5.prev = 1;
-          _context5.next = 4;
+          _context7.prev = 1;
+          _context7.next = 4;
           return regeneratorRuntime.awrap(query(sql));
 
         case 4:
-          results = _context5.sent;
+          results = _context7.sent;
 
           if (!(results.length === 0)) {
-            _context5.next = 7;
+            _context7.next = 7;
             break;
           }
 
-          return _context5.abrupt("return", res.status(404).json({
+          return _context7.abrupt("return", res.status(404).json({
             error: "No upcoming events found"
           }));
 
@@ -349,34 +417,34 @@ router.get('/upcoming-events', function _callee5(req, res) {
             };
           });
           res.json(formattedEvents);
-          _context5.next = 15;
+          _context7.next = 15;
           break;
 
         case 11:
-          _context5.prev = 11;
-          _context5.t0 = _context5["catch"](1);
-          console.error('Error fetching upcoming events:', _context5.t0);
+          _context7.prev = 11;
+          _context7.t0 = _context7["catch"](1);
+          console.error('Error fetching upcoming events:', _context7.t0);
           res.status(500).json({
             error: 'Server error occurred'
           });
 
         case 15:
         case "end":
-          return _context5.stop();
+          return _context7.stop();
       }
     }
   }, null, null, [[1, 11]]);
 });
-router.put('/approveEvent', function _callee6(req, res) {
+router.put('/approveEvent', function _callee8(req, res) {
   var _req$body4, eventId, userType, sql;
 
-  return regeneratorRuntime.async(function _callee6$(_context6) {
+  return regeneratorRuntime.async(function _callee8$(_context8) {
     while (1) {
-      switch (_context6.prev = _context6.next) {
+      switch (_context8.prev = _context8.next) {
         case 0:
           _req$body4 = req.body, eventId = _req$body4.eventId, userType = _req$body4.userType;
           sql = "UPDATE hall_request SET `".concat(userType, "_approval` = 1 WHERE id = ?");
-          _context6.next = 4;
+          _context8.next = 4;
           return regeneratorRuntime.awrap(query(sql, [eventId], function (err, result) {
             if (err) {
               console.error('Error updating approval:', err);
@@ -393,22 +461,23 @@ router.put('/approveEvent', function _callee6(req, res) {
 
         case 4:
         case "end":
-          return _context6.stop();
+          return _context8.stop();
       }
     }
   });
 });
-router.post('/addToHallAllotment', function _callee7(req, res) {
+router.post('/addToHallAllotment', function _callee9(req, res) {
   var data, sql;
-  return regeneratorRuntime.async(function _callee7$(_context7) {
+  return regeneratorRuntime.async(function _callee9$(_context9) {
     while (1) {
-      switch (_context7.prev = _context7.next) {
+      switch (_context9.prev = _context9.next) {
         case 0:
           console.log("THE REQUESTEDD BODY IS " + req.body);
           data = req.body;
           delete data.approvals;
+          delete data.emails;
           sql = "INSERT INTO hall_allotment SET ?";
-          _context7.next = 6;
+          _context9.next = 7;
           return regeneratorRuntime.awrap(query(sql, [data], function (err, result) {
             if (err) {
               console.error('Error adding to hall allotment:', err);
@@ -423,35 +492,57 @@ router.post('/addToHallAllotment', function _callee7(req, res) {
             }
           }));
 
-        case 6:
+        case 7:
         case "end":
-          return _context7.stop();
+          return _context9.stop();
       }
     }
   });
 });
-router["delete"]('/deletehallrequest/:id', function (req, res) {
-  var id = req.params.id;
-  var query = 'DELETE FROM hall_request WHERE id = ?';
-  db.query(query, [id], function (error, results) {
-    if (error) {
-      console.error('Error deleting hall request:', error);
-      res.status(500).json({
-        error: 'Internal Server Error'
-      });
-      return;
-    }
+router["delete"]('/deletehallrequest/:id', function _callee10(req, res) {
+  var id, sql, results;
+  return regeneratorRuntime.async(function _callee10$(_context10) {
+    while (1) {
+      switch (_context10.prev = _context10.next) {
+        case 0:
+          id = req.params.id;
+          sql = 'DELETE FROM hall_request WHERE id = ?';
+          _context10.prev = 2;
+          _context10.next = 5;
+          return regeneratorRuntime.awrap(query(sql, [id]));
 
-    if (results.affectedRows === 0) {
-      res.status(404).json({
-        message: 'Hall request not found'
-      });
-      return;
-    }
+        case 5:
+          results = _context10.sent;
 
-    res.status(200).json({
-      message: 'Hall request deleted successfully'
-    });
-  });
+          if (!(results.affectedRows === 0)) {
+            _context10.next = 8;
+            break;
+          }
+
+          return _context10.abrupt("return", res.status(404).json({
+            message: 'Hall request not found'
+          }));
+
+        case 8:
+          res.status(200).json({
+            message: 'Hall request deleted successfully'
+          });
+          _context10.next = 15;
+          break;
+
+        case 11:
+          _context10.prev = 11;
+          _context10.t0 = _context10["catch"](2);
+          console.error('Error deleting hall request:', _context10.t0);
+          res.status(500).json({
+            error: 'Internal Server Error'
+          });
+
+        case 15:
+        case "end":
+          return _context10.stop();
+      }
+    }
+  }, null, null, [[2, 11]]);
 });
 module.exports = router;

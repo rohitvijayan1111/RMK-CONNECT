@@ -167,7 +167,7 @@ router.post('/approveEventByPrincipal', function _callee4(req, res) {
               address: 'rohitvijayandrive@gmail.com'
             },
             to: emailList,
-            cc: 'broh22012.it@rmkec.ac.in',
+            cc: ['broh22012.it@rmkec.ac.in', 'like22050.it@rmkec.ac.in'],
             subject: "Notification: Hall Booking Form Approved by Principal",
             text: "The hall booking form \"".concat(formSubject, "\" has been approved by Principal.")
           };
