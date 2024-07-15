@@ -103,7 +103,7 @@ function Clubactivities() {
     }).then(async (result) => {
       if (result.isConfirmed) {
         try {
-          await axios.post('http://localhost:3000/tables/locktable', { id: 1, lock: !lockedstatus });
+          await axios.post('http://localhost:3000/tables/locktable', { id: 2, lock: !lockedstatus });
           setLockedstatus(!lockedstatus);
           Swal.fire(`${lockedstatus ? 'Unlocked' : 'Locked'}!`, '', 'success');
         } catch (error) {
@@ -157,7 +157,7 @@ function Clubactivities() {
   const formatColumnName = (name) => {
     return name.replace(/_/g, ' ').replace(/\b\w/g, char => char.toUpperCase());
   };
-
+  console.log(attributenames);
   return (
     <div className="container">
       <div className="row mb-3">
