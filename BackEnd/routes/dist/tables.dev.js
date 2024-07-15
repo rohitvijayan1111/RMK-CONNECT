@@ -53,65 +53,81 @@ var getFriendlyErrorMessage = function getFriendlyErrorMessage(errCode) {
 };
 
 router.post('/gettable', function _callee(req, res) {
-  var _req$body, table, dept, sql, values, results;
-
+  var table, department, columnSql, recordSql, columnValues, recordValues, columnResults, columnNames, recordResults;
   return regeneratorRuntime.async(function _callee$(_context) {
     while (1) {
       switch (_context.prev = _context.next) {
         case 0:
           console.log("Received request:", req.body);
-          _req$body = req.body, table = _req$body.table, dept = _req$body.dept;
+          table = req.body.table;
+          department = req.body.department;
 
-          if (!(!table || !dept)) {
-            _context.next = 4;
+          if (!(!table || !department)) {
+            _context.next = 5;
             break;
           }
 
-          return _context.abrupt("return", res.status(400).send("Please provide both table and dept parameters."));
+          return _context.abrupt("return", res.status(400).send("Please provide both table and department parameters."));
 
-        case 4:
-          sql = 'SELECT * FROM ?? WHERE dept = ?';
-          values = [table, dept];
-          _context.prev = 6;
-          _context.next = 9;
-          return regeneratorRuntime.awrap(query(sql, values));
-
-        case 9:
-          results = _context.sent;
-
-          if (!(results.length === 0)) {
-            _context.next = 12;
-            break;
-          }
-
-          return _context.abrupt("return", res.status(404).send('No records found'));
+        case 5:
+          columnSql = 'SHOW COLUMNS FROM ??';
+          recordSql = 'SELECT * FROM ?? WHERE department = ?';
+          columnValues = [table];
+          recordValues = [table, department];
+          _context.prev = 9;
+          _context.next = 12;
+          return regeneratorRuntime.awrap(query(columnSql, columnValues));
 
         case 12:
-          res.status(200).json(results);
-          _context.next = 19;
+          columnResults = _context.sent;
+          columnNames = columnResults.map(function (col) {
+            return col.Field;
+          });
+          _context.next = 16;
+          return regeneratorRuntime.awrap(query(recordSql, recordValues));
+
+        case 16:
+          recordResults = _context.sent;
+
+          if (!(recordResults.length === 0)) {
+            _context.next = 19;
+            break;
+          }
+
+          return _context.abrupt("return", res.status(200).json({
+            columnNames: columnNames,
+            data: []
+          }));
+
+        case 19:
+          res.status(200).json({
+            columnNames: columnNames,
+            data: recordResults
+          });
+          _context.next = 26;
           break;
 
-        case 15:
-          _context.prev = 15;
-          _context.t0 = _context["catch"](6);
+        case 22:
+          _context.prev = 22;
+          _context.t0 = _context["catch"](9);
           console.error(_context.t0.message);
           return _context.abrupt("return", res.status(500).send(getFriendlyErrorMessage(_context.t0.code)));
 
-        case 19:
+        case 26:
         case "end":
           return _context.stop();
       }
     }
-  }, null, null, [[6, 15]]);
+  }, null, null, [[9, 22]]);
 });
 router.put('/updaterecord', function _callee2(req, res) {
-  var _req$body2, id, data, table, existingRows;
+  var _req$body, id, data, table, existingRows;
 
   return regeneratorRuntime.async(function _callee2$(_context2) {
     while (1) {
       switch (_context2.prev = _context2.next) {
         case 0:
-          _req$body2 = req.body, id = _req$body2.id, data = _req$body2.data, table = _req$body2.table;
+          _req$body = req.body, id = _req$body.id, data = _req$body.data, table = _req$body.table;
 
           if (!(!id || !data || !table)) {
             _context2.next = 3;
@@ -172,13 +188,13 @@ router.put('/updaterecord', function _callee2(req, res) {
   }, null, null, [[3, 16]]);
 });
 router.post('/insertrecord', function _callee3(req, res) {
-  var _req$body3, data, table;
+  var _req$body2, data, table;
 
   return regeneratorRuntime.async(function _callee3$(_context3) {
     while (1) {
       switch (_context3.prev = _context3.next) {
         case 0:
-          _req$body3 = req.body, data = _req$body3.data, table = _req$body3.table;
+          _req$body2 = req.body, data = _req$body2.data, table = _req$body2.table;
 
           if (!(!data || !table)) {
             _context3.next = 3;
@@ -217,13 +233,13 @@ router.post('/insertrecord', function _callee3(req, res) {
   }, null, null, [[3, 9]]);
 });
 router["delete"]('/deleterecord', function _callee4(req, res) {
-  var _req$body4, id, table;
+  var _req$body3, id, table;
 
   return regeneratorRuntime.async(function _callee4$(_context4) {
     while (1) {
       switch (_context4.prev = _context4.next) {
         case 0:
-          _req$body4 = req.body, id = _req$body4.id, table = _req$body4.table;
+          _req$body3 = req.body, id = _req$body3.id, table = _req$body3.table;
 
           if (!(!table || !id)) {
             _context4.next = 3;
@@ -261,13 +277,13 @@ router["delete"]('/deleterecord', function _callee4(req, res) {
   }, null, null, [[4, 10]]);
 });
 router.post('/locktable', function _callee5(req, res) {
-  var _req$body5, id, lock;
+  var _req$body4, id, lock;
 
   return regeneratorRuntime.async(function _callee5$(_context5) {
     while (1) {
       switch (_context5.prev = _context5.next) {
         case 0:
-          _req$body5 = req.body, id = _req$body5.id, lock = _req$body5.lock;
+          _req$body4 = req.body, id = _req$body4.id, lock = _req$body4.lock;
 
           if (!(!id || lock === undefined)) {
             _context5.next = 3;
@@ -304,13 +320,13 @@ router.post('/locktable', function _callee5(req, res) {
   }, null, null, [[3, 9]]);
 });
 router.post('/getlocktablestatus', function _callee6(req, res) {
-  var _req$body6, id, table, results;
+  var _req$body5, id, table, results;
 
   return regeneratorRuntime.async(function _callee6$(_context6) {
     while (1) {
       switch (_context6.prev = _context6.next) {
         case 0:
-          _req$body6 = req.body, id = _req$body6.id, table = _req$body6.table;
+          _req$body5 = req.body, id = _req$body5.id, table = _req$body5.table;
 
           if (!(!table || !id)) {
             _context6.next = 3;

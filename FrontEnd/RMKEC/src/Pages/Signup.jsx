@@ -59,14 +59,14 @@ function SignPage() {
       return;
     }
 
-    const department = dept.trim() ? dept.trim().toLowerCase() : 'na';
+    const department = dept.trim() ? dept.trim(): 'na';
 
     try {
       await registerUser({
         username: username.toLowerCase(),
         password: password,
         role: role.toLowerCase(),
-        department: department.toLowerCase(),
+        department: department,
       });
     } catch (error) {
       console.error('Error registering user:', error);

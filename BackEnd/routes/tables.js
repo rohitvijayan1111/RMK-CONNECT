@@ -37,27 +37,34 @@ const getFriendlyErrorMessage = (errCode) => {
 
 router.post('/gettable', async (req, res) => {
   console.log("Received request:", req.body);
-  const { table, dept } = req.body;
+  const table = req.body.table;
+  const department = req.body.department;
 
-  if (!table || !dept) {
-    return res.status(400).send("Please provide both table and dept parameters.");
+  if (!table || !department) {
+    return res.status(400).send("Please provide both table and department parameters.");
   }
 
-  const sql = 'SELECT * FROM ?? WHERE dept = ?';
-  const values = [table, dept];
+  const columnSql = 'SHOW COLUMNS FROM ??';
+  const recordSql = 'SELECT * FROM ?? WHERE department = ?';
+  const columnValues = [table];
+  const recordValues = [table, department];
 
   try {
-    const results = await query(sql, values);
-    if (results.length === 0) {
-      return res.status(404).send('No records found');
+    const columnResults = await query(columnSql, columnValues);
+    const columnNames = columnResults.map(col => col.Field);
+
+    const recordResults = await query(recordSql, recordValues);
+    
+    if (recordResults.length === 0) {
+      return res.status(200).json({ columnNames, data: [] });
     }
-    res.status(200).json(results);
+
+    res.status(200).json({ columnNames, data: recordResults });
   } catch (err) {
     console.error(err.message);
     return res.status(500).send(getFriendlyErrorMessage(err.code));
   }
 });
-
 router.put('/updaterecord', async (req, res) => {
   const { id, data, table } = req.body;
 
