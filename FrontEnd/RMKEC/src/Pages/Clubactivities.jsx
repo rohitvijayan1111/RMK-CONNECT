@@ -103,7 +103,7 @@ function Clubactivities() {
     }).then(async (result) => {
       if (result.isConfirmed) {
         try {
-          await axios.post('http://localhost:3000/tables/locktable', { id: 1, lock: !lockedstatus });
+          await axios.post('http://localhost:3000/tables/locktable', { id: 2, lock: !lockedstatus });
           setLockedstatus(!lockedstatus);
           Swal.fire(`${lockedstatus ? 'Unlocked' : 'Locked'}!`, '', 'success');
         } catch (error) {
