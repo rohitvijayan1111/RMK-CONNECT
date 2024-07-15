@@ -18,7 +18,8 @@ import analysis from '../assets/analysis.png';
 import reserve from '../assets/reserve.png';
 import upcoming from '../assets/upcoming.png';
 import Status from '../assets/Status.png';
-import Available from '../assets/Available.png'
+import Available from '../assets/Available.png';
+
 function SideBar() {
   const location = useLocation();
   const sidebarRef = useRef(null);
@@ -52,19 +53,28 @@ function SideBar() {
     setShowHallBookingLinks(false);
   }, [location]);
 
-  const handleToggleExtraLinks = (event) => {
-    event.stopPropagation();
-    setShowExtraLinks(!showExtraLinks);
+  const handleMouseEnterExtraLinks = () => {
+    setShowExtraLinks(true);
   };
 
-  const handleToggleAttendanceLinks = (event) => {
-    event.stopPropagation();
-    setShowAttendanceLinks(!showAttendanceLinks);
+  const handleMouseLeaveExtraLinks = () => {
+    setShowExtraLinks(false);
   };
 
-  const handleToggleHallBookingLinks = (event) => {
-    event.stopPropagation();
-    setShowHallBookingLinks(!showHallBookingLinks);
+  const handleMouseEnterAttendanceLinks = () => {
+    setShowAttendanceLinks(true);
+  };
+
+  const handleMouseLeaveAttendanceLinks = () => {
+    setShowAttendanceLinks(false);
+  };
+
+  const handleMouseEnterHallBookingLinks = () => {
+    setShowHallBookingLinks(true);
+  };
+
+  const handleMouseLeaveHallBookingLinks = () => {
+    setShowHallBookingLinks(false);
   };
 
   return (
@@ -76,75 +86,74 @@ function SideBar() {
             Dashboard
           </Link>
         </li>
-        <li className='attendance_icon' onClick={handleToggleAttendanceLinks}>
+        <li className='attendance_icon' onMouseEnter={handleMouseEnterAttendanceLinks} onMouseLeave={handleMouseLeaveAttendanceLinks}>
           <p>
             <img src={att} width="40px" height="40px" alt="Attendance" />
             Attendance
           </p>
+          {showAttendanceLinks && (
+            <div className="extra-links-container-att" onMouseEnter={handleMouseEnterAttendanceLinks} onMouseLeave={handleMouseLeaveAttendanceLinks}>
+              <li className={isActive('/dashboard/Attendance_DB_Dept')}>
+                <Link to="/dashboard/Attendance_DB_Dept">
+                  <img src={statistics} width="30px" height="30px" alt="Faculty Details" />
+                  Statistics
+                </Link>
+              </li>
+              <li className={isActive('/dashboard/Todays-List')}>
+                <Link to="/dashboard/Todays-List">
+                  <img src={today} width="30px" height="30px" alt="Today" />
+                  Absentees
+                </Link>
+              </li>
+              <li className={isActive('/dashboard/Attendance-Log')}>
+                <Link to="/dashboard/Attendance-Log">
+                  <img src={past} width="30px" height="30px" alt="Past" />
+                  Lecture
+                </Link>
+              </li>
+              <li className={isActive('/dashboard/Attendance-Analysis')}>
+                <Link to="/dashboard/Attendance-Analysis">
+                  <img src={analysis} width="30px" height="30px" alt="Analysis" />
+                  Analysis
+                </Link>
+              </li>
+            </div>
+          )}
         </li>
-        {showAttendanceLinks && (
-          <div className="extra-links-container">
-            <li className={isActive('/dashboard/Attendance_DB_Dept')}>
-              <Link to="/dashboard/Attendance_DB_Dept">
-                <img src={statistics} width="40px" height="40px" alt="Faculty Details" />
-                Statistics
-              </Link>
-            </li>
-            <li className={isActive('/dashboard/Todays-List')}>
-              <Link to="/dashboard/Todays-List">
-                <img src={today} width="40px" height="40px" alt="Today" />
-                Absentees
-              </Link>
-            </li>
-            <li className={isActive('/dashboard/Attendance-Log')}>
-              <Link to="/dashboard/Attendance-Log">
-                <img src={past} width="40px" height="40px" alt="Past" />
-                Lecture
-              </Link>
-            </li>
-            <li className={isActive('/dashboard/Attendance-Analysis')}>
-              <Link to="/dashboard/Attendance-Analysis">
-                <img src={analysis} width="40px" height="40px" alt="Analysis" />
-                Analysis
-              </Link>
-            </li>
-          </div>
-        )}
-        <li className='attendance_icon' onClick={handleToggleHallBookingLinks}>
+        <li className='attendance_icon' onMouseEnter={handleMouseEnterHallBookingLinks} onMouseLeave={handleMouseLeaveHallBookingLinks}>
           <p>
             <img src={reserve} width="40px" height="40px" alt="reserve" />
             Hall Booking
           </p>
+          {showHallBookingLinks && (
+            <div className="extra-links-container" onMouseEnter={handleMouseEnterHallBookingLinks} onMouseLeave={handleMouseLeaveHallBookingLinks}>
+              <li className={isActive('/dashboard/DashBoard-Hall')}>
+                <Link to="/dashboard/DashBoard-Hall">
+                  <img src={upcoming} width="30px" height="30px" alt="upcoming" />
+                  Upcoming
+                </Link>
+              </li>
+              <li className={isActive('/dashboard/Request-Status')}>
+                <Link to="/dashboard/Request-Status">
+                  <img src={Status} width="30px" height="30px" alt="Request Status" />
+                  Req Status
+                </Link>
+              </li>
+              <li className={isActive('/dashboard/Todays-List')}>
+                <Link to="/dashboard/Past-Events">
+                  <img src={past} width="30px" height="30px" alt="Past Events" />
+                  Past Events
+                </Link>
+              </li>
+              <li className={isActive('/dashboard/Available-Halls')}>
+                <Link to="/dashboard/Available-Halls">
+                  <img src={Available} width="30px" height="30px" alt="Available Hall" />
+                  Halls
+                </Link>
+              </li>
+            </div>
+          )}
         </li>
-
-        {showHallBookingLinks && (
-          <div className="extra-links-container">
-            <li className={isActive('/dashboard/DashBoard-Hall')}>
-              <Link to="/dashboard/DashBoard-Hall">
-                <img src={upcoming} width="40px" height="40px" alt="upcoming" />
-                Upcoming
-              </Link>
-            </li>
-            <li className={isActive('/dashboard/Edit_Entry')}>
-              <Link to="/dashboard/Request-Status">
-              <img src={Status} width="40px" height="40px" alt="Request Status" />
-                Request Status
-              </Link>
-            </li>
-            <li className={isActive('/dashboard/Todays-List')}>
-              <Link to="/dashboard/Past-Events">
-              <img src={past} width="40px" height="40px" alt="Past Events" />
-                Past Events
-              </Link>
-            </li>
-            <li className={isActive('/dashboard/Available-Halls')}>
-              <Link to="/dashboard/Available-Halls">
-              <img src={Available} width="40px" height="40px" alt="Available Hall" />
-                Available Halls
-              </Link>
-            </li>
-          </div>
-        )}
 
         <li className={isActive('/dashboard/faculty-details')}>
           <Link to="/dashboard/faculty-details">
@@ -171,37 +180,37 @@ function SideBar() {
           </Link>
         </li>
 
-        <li className={`more-button ${showExtraLinks ? 'active' : ''}`} onClick={handleToggleExtraLinks}>
+        <li className={`more-button ${showHallBookingLinks ? 'active' : ''}`} onMouseEnter={handleMouseEnterExtraLinks} onMouseLeave={handleMouseLeaveExtraLinks}>
           <h3>...</h3>
+          {showExtraLinks && (
+            <div className="extra-links-container-more" onMouseEnter={handleMouseEnterExtraLinks} onMouseLeave={handleMouseLeaveExtraLinks}>
+              <li className={isActive('/dashboard/guest-lecture')}>
+                <Link to="/dashboard/guest-lecture">
+                  <img src={lecture} width="30px" height="30px" alt="Guest Lecture" />
+                  Guest Lecture
+                </Link>
+              </li>
+              <li className={isActive('/dashboard/sports')}>
+                <Link to="/dashboard/sports">
+                  <img src={sports} width="30px" height="30px" alt="Sports" />
+                  Sports
+                </Link>
+              </li>
+              <li className={isActive('/dashboard/achievements')}>
+                <Link to="/dashboard/achievements">
+                  <img src={achievements} width="30px" height="30px" alt="Achievements" />
+                  Achievements
+                </Link>
+              </li>
+              <li className={isActive('/dashboard/club-activity')}>
+                <Link to="/dashboard/club-activity">
+                  <img src={club} width="30px" height="30px" alt="Club Activity" />
+                  Club Activity
+                </Link>
+              </li>
+            </div>
+          )}
         </li>
-        {showExtraLinks && (
-          <div className="extra-links-container">
-            <li className={isActive('/dashboard/guest-lecture')}>
-              <Link to="/dashboard/guest-lecture">
-                <img src={lecture} width="40px" height="40px" alt="Guest Lecture" />
-                Guest Lecture
-              </Link>
-            </li>
-            <li className={isActive('/dashboard/sports')}>
-              <Link to="/dashboard/sports">
-                <img src={sports} width="40px" height="40px" alt="Sports" />
-                Sports
-              </Link>
-            </li>
-            <li className={isActive('/dashboard/achievements')}>
-              <Link to="/dashboard/achievements">
-                <img src={achievements} width="40px" height="40px" alt="Achievements" />
-                Achievements
-              </Link>
-            </li>
-            <li className={isActive('/dashboard/club-activity')}>
-              <Link to="/dashboard/club-activity">
-                <img src={club} width="40px" height="40px" alt="Club Activity" />
-                Club Activity
-              </Link>
-            </li>
-          </div>
-        )}
       </ul>
     </div>
   );
