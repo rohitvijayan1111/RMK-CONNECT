@@ -4,8 +4,8 @@ import { useLocation, useNavigate } from 'react-router-dom';
 import { AdapterDayjs } from '@mui/x-date-pickers/AdapterDayjs';
 import { LocalizationProvider } from '@mui/x-date-pickers/LocalizationProvider';
 import { MobileDateTimePicker } from '@mui/x-date-pickers/MobileDateTimePicker';
-import DateFnsUtils from '@date-io/date-fns';
-import { ToastContainer, toast,Zoom} from 'react-toastify';
+import { ToastContainer, toast, Zoom } from 'react-toastify';
+import 'react-toastify/dist/ReactToastify.css';
 import './EditForm.css';
 
 const AddForm = () => {
@@ -13,7 +13,13 @@ const AddForm = () => {
   const location = useLocation();
   const { table, attributenames } = location.state;
   const [data, setData] = useState({});
-  const notifysuccess = () =>{
+  
+  const attributeTypes = {
+    completion_date: 'date', 
+
+  };
+
+  const notifysuccess = () => {
     toast.success('Added Record Successfully!', {
       position: "top-center",
       autoClose: 3000,
@@ -24,9 +30,10 @@ const AddForm = () => {
       progress: undefined,
       theme: "colored",
       transition: Zoom,
-      });
-  }
-  const notifyfailure=(error)=>{
+    });
+  };
+
+  const notifyfailure = (error) => {
     toast.error(error, {
       position: "top-center",
       autoClose: 5000,
@@ -37,11 +44,12 @@ const AddForm = () => {
       progress: undefined,
       theme: "colored",
       transition: Zoom,
-      });
-  }
-  const handleDateTimeChange = (dateTime) => {
+    });
+  };
+
+  const handleDateTimeChange = (attribute, dateTime) => {
     const formattedDateTime = dateTime.toISOString().slice(0, 19).replace('T', ' ');
-    setData({ ...data, deadline: formattedDateTime });
+    setData({ ...data, [attribute]: formattedDateTime });
   };
 
   const handleSubmit = async (e) => {
@@ -69,21 +77,23 @@ const AddForm = () => {
           {attributenames.map((attribute, index) => (
             attribute !== "id" && attribute !== "createdAt" && (
               <div className="frm" key={index}>
-                <label htmlFor={attribute} className="lbl">{attribute}:</label>
-                {attribute === "deadline" ? (
-                  <MobileDateTimePicker
-                    value={data[attribute] ? new Date(data[attribute]) : null}
-                    onChange={handleDateTimeChange}
-                    renderInput={(params) => (
-                      <input
-                        {...params}
-                        type="text"
-                        className="cntr"
-                        id={attribute}
-                        required
-                      />
-                    )}
-                  />
+                <label htmlFor={attribute} className="lbl">{attribute.replace(/_/g, ' ')}:</label>
+                {attributeTypes[attribute] === 'date' ? (
+                  <LocalizationProvider dateAdapter={AdapterDayjs}>
+                    <MobileDateTimePicker
+                      value={data[attribute] ? new Date(data[attribute]) : null}
+                      onChange={(date) => handleDateTimeChange(attribute, date)}
+                      renderInput={(params) => (
+                        <input
+                          {...params}
+                          type="text"
+                          className="cntr"
+                          id={attribute}
+                          required
+                        />
+                      )}
+                    />
+                  </LocalizationProvider>
                 ) : (
                   <input
                     type="text"
@@ -98,7 +108,7 @@ const AddForm = () => {
             )
           ))}
           <div className="holder">
-            <input type='submit' value="Submit" className='btt'/>
+            <input type='submit' value="Submit" className='btt' />
           </div>
         </form>
       ) : (

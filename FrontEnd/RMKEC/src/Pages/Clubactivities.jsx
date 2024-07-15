@@ -157,7 +157,7 @@ function Clubactivities() {
   const formatColumnName = (name) => {
     return name.replace(/_/g, ' ').replace(/\b\w/g, char => char.toUpperCase());
   };
-
+  console.log(attributenames);
   return (
     <div className="container">
       <div className="row mb-3">

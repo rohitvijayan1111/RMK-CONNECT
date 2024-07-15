@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import axios from 'axios';
 import './Hall_Request.css';
-import dayjs from 'dayjs'; // Import dayjs for date/time formatting
+import dayjs from 'dayjs'; 
 import { DemoContainer } from '@mui/x-date-pickers/internals/demo';
 import { AdapterDayjs } from '@mui/x-date-pickers/AdapterDayjs';
 import { LocalizationProvider } from '@mui/x-date-pickers/LocalizationProvider';
@@ -21,7 +21,7 @@ const Hall_Request = () => {
     event_date: null,
     start_time: null,
     end_time: null,
-    hall_name: 'Hall A', // Default value
+    hall_name: 'Hall A', 
     participants: '',
     incharge_faculty: '',
     facility_needed: '',
