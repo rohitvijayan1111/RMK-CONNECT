@@ -1,14 +1,14 @@
-import React, { useState, useEffect, useRef } from 'react';
+import React, { useState, useEffect } from 'react';
 import axios from 'axios';
 import { useNavigate } from 'react-router-dom';
 import './EditForm.css';
 import { ToastContainer, toast, Zoom } from 'react-toastify';
 import Swal from 'sweetalert2';
 import 'react-toastify/dist/ReactToastify.css';
-import { utils, writeFile } from 'xlsx';
 import dayjs from 'dayjs';
 import { BsPencilSquare, BsFillTrashFill } from 'react-icons/bs'; // Importing edit and delete icons
 import { IconContext } from 'react-icons';
+import { utils, writeFile } from 'xlsx';
 
 function Clubactivities() {
   const navigate = useNavigate();
@@ -174,21 +174,7 @@ function Clubactivities() {
     completion_date: 'date',
   };
 
-  const exportToExcel = () => {
-    // Filter data to exclude the Action column
-    const filteredData = data.map(item => {
-      const { id, ...filteredItem } = item; // Assuming "id" is the primary key
-      return filteredItem;
-    });
-
-    // Create a new workbook and add the filtered data
-    const ws = utils.json_to_sheet(filteredData);
-    const wb = utils.book_new();
-    utils.book_append_sheet(wb, ws, 'ClubActivitiesData');
-
-    // Export the workbook
-    writeFile(wb, 'ClubActivitiesData.xlsx');
-  };  const handleSearch = () => {
+  const handleSearch = () => {
     if (!searchColumn || !searchValue) {
       notifyFailure('Please select a column and enter a search value.');
       return;
@@ -207,6 +193,22 @@ function Clubactivities() {
     setSearchColumn('');
     setSearchValue('');
   };
+  
+  const exportToExcel = () => {
+    // Filter data to exclude the Action column
+    const filteredData = data.map(item => {
+      const { id, ...filteredItem } = item; // Assuming "id" is the primary key
+      return filteredItem;
+    });
+
+    // Create a new workbook and add the filtered data
+    const ws = utils.json_to_sheet(filteredData);
+    const wb = utils.book_new();
+    utils.book_append_sheet(wb, ws, 'ClubActivitiesData');
+
+    // Export the workbook
+    writeFile(wb, 'ClubActivitiesData.xlsx');
+  };
 
   return (
     <div className="container">
@@ -217,6 +219,9 @@ function Clubactivities() {
         
         <div className="col">
           <button type="button" onClick={handleLock} className="btn btn-warning">{(!lockedstatus) ? "Lock Form" : "Unlock Form"}</button>
+        </div>
+        <div className="col">
+          <button type="button" onClick={exportToExcel} className="btn btn-success">Export to Excel</button>
         </div>
         
         <div className="col">
@@ -241,12 +246,6 @@ function Clubactivities() {
         <div className="col">
           <button type="button" onClick={handleSearch} className="btn btn-success mr-2">Search</button>
           <button type="button" onClick={resetSearch} className="btn btn-secondary">Reset</button>
-        </div>
-        <div className="col">
-          <button type="button" onClick={exportToExcel} className="btn btn-success">Export to Excel</button>
-        </div>
-        <div className="col">
-          <button type="button" onClick={exportToExcel} className="btn btn-success">Export to Excel</button>
         </div>
       </div>
       
