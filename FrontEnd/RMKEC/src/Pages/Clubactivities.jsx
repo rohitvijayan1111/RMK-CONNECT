@@ -158,6 +158,13 @@ function Clubactivities() {
     return name.replace(/_/g, ' ').replace(/\b\w/g, char => char.toUpperCase());
   };
   console.log(attributenames);
+
+  const attributeTypes = {
+    completion_date: 'date',
+  };
+
+
+
   return (
     <div className="container">
       <div className="row mb-3">

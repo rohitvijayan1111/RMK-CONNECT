@@ -3,20 +3,21 @@ import React, { useState } from 'react';
 import { useLocation, useNavigate } from 'react-router-dom';
 import { AdapterDayjs } from '@mui/x-date-pickers/AdapterDayjs';
 import { LocalizationProvider } from '@mui/x-date-pickers/LocalizationProvider';
-import { MobileDateTimePicker } from '@mui/x-date-pickers/MobileDateTimePicker';
+import { DatePicker } from '@mui/x-date-pickers/DatePicker';
 import { ToastContainer, toast, Zoom } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
 import './EditForm.css';
+import dayjs from 'dayjs';
 
 const AddForm = () => {
   const navigate = useNavigate();
   const location = useLocation();
   const { table, attributenames } = location.state;
   const [data, setData] = useState({});
-  
-  const attributeTypes = {
-    completion_date: 'date', 
 
+  const attributeTypes = {
+    completion_date: 'date',
+    // Add more attribute types if needed
   };
 
   const notifysuccess = () => {
@@ -47,9 +48,9 @@ const AddForm = () => {
     });
   };
 
-  const handleDateTimeChange = (attribute, dateTime) => {
-    const formattedDateTime = dateTime.toISOString().slice(0, 19).replace('T', ' ');
-    setData({ ...data, [attribute]: formattedDateTime });
+  const handleDateChange = (attribute, date) => {
+    const formattedDate = date ? dayjs(date).format('YYYY-MM-DD') : '';
+    setData({ ...data, [attribute]: formattedDate });
   };
 
   const handleSubmit = async (e) => {
@@ -80,12 +81,13 @@ const AddForm = () => {
                 <label htmlFor={attribute} className="lbl">{attribute.replace(/_/g, ' ')}:</label>
                 {attributeTypes[attribute] === 'date' ? (
                   <LocalizationProvider dateAdapter={AdapterDayjs}>
-                    <MobileDateTimePicker
-                      value={data[attribute] ? new Date(data[attribute]) : null}
-                      onChange={(date) => handleDateTimeChange(attribute, date)}
+                    <DatePicker
+                      label="Date"
+                      value={data[attribute] ? dayjs(data[attribute]) : null}
+                      onChange={(date) => handleDateChange(attribute, date)}
                       renderInput={(params) => (
                         <input
-                          {...params}
+                          {...params.inputProps}
                           type="text"
                           className="cntr"
                           id={attribute}
