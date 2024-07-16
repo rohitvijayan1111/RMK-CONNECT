@@ -59,7 +59,7 @@ function SignPage() {
       return;
     }
 
-    const department = dept.trim() ? dept.trim(): 'na';
+    const department = dept.trim()!=="NA" ? dept.trim(): role;
 
     try {
       await registerUser({

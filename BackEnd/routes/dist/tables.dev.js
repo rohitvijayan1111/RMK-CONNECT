@@ -53,7 +53,7 @@ var getFriendlyErrorMessage = function getFriendlyErrorMessage(errCode) {
 };
 
 router.post('/gettable', function _callee(req, res) {
-  var table, department, columnSql, recordSql, columnValues, recordValues, columnResults, columnNames, recordResults;
+  var table, department, recordSql, columnSql, columnValues, recordValues, columnResults, columnNames, recordResults;
   return regeneratorRuntime.async(function _callee$(_context) {
     while (1) {
       switch (_context.prev = _context.next) {
@@ -70,27 +70,32 @@ router.post('/gettable', function _callee(req, res) {
           return _context.abrupt("return", res.status(400).send("Please provide both table and department parameters."));
 
         case 5:
+          recordSql = 'SELECT * FROM ?? ';
+
+          if (department !== "All") {
+            recordSql += 'WHERE department = ?';
+          }
+
           columnSql = 'SHOW COLUMNS FROM ??';
-          recordSql = 'SELECT * FROM ?? WHERE department = ?';
           columnValues = [table];
           recordValues = [table, department];
-          _context.prev = 9;
-          _context.next = 12;
+          _context.prev = 10;
+          _context.next = 13;
           return regeneratorRuntime.awrap(query(columnSql, columnValues));
 
-        case 12:
+        case 13:
           columnResults = _context.sent;
           columnNames = columnResults.map(function (col) {
             return col.Field;
           });
-          _context.next = 16;
+          _context.next = 17;
           return regeneratorRuntime.awrap(query(recordSql, recordValues));
 
-        case 16:
+        case 17:
           recordResults = _context.sent;
 
           if (!(recordResults.length === 0)) {
-            _context.next = 19;
+            _context.next = 20;
             break;
           }
 
@@ -99,26 +104,26 @@ router.post('/gettable', function _callee(req, res) {
             data: []
           }));
 
-        case 19:
+        case 20:
           res.status(200).json({
             columnNames: columnNames,
             data: recordResults
           });
-          _context.next = 26;
+          _context.next = 27;
           break;
 
-        case 22:
-          _context.prev = 22;
-          _context.t0 = _context["catch"](9);
+        case 23:
+          _context.prev = 23;
+          _context.t0 = _context["catch"](10);
           console.error(_context.t0.message);
           return _context.abrupt("return", res.status(500).send(getFriendlyErrorMessage(_context.t0.code)));
 
-        case 26:
+        case 27:
         case "end":
           return _context.stop();
       }
     }
-  }, null, null, [[9, 22]]);
+  }, null, null, [[10, 23]]);
 });
 router.put('/updaterecord', function _callee2(req, res) {
   var _req$body, id, data, table, existingRows;
