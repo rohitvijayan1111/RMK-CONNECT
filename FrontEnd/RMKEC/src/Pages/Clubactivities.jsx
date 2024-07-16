@@ -1,7 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import axios from 'axios';
 import { useNavigate } from 'react-router-dom';
-import './EditForm.css';
 import { ToastContainer, toast, Zoom } from 'react-toastify';
 import Swal from 'sweetalert2';
 import 'react-toastify/dist/ReactToastify.css';
@@ -9,7 +8,7 @@ import dayjs from 'dayjs';
 import { BsPencilSquare, BsFillTrashFill } from 'react-icons/bs'; 
 import { IconContext } from 'react-icons';
 import { utils, writeFile } from 'xlsx';
-
+import './Clubactivities.css';
 function Clubactivities() {
   const navigate = useNavigate();
   const [table] = useState('DepartmentalClubs');
@@ -211,12 +210,12 @@ function Clubactivities() {
     <div className="container">
       <div className="row mb-3">
         <div className="col">
-          <button type="button" onClick={handleAdd} className="btn btn-primary">Add Records</button>
+          <button type="button" onClick={handleAdd} className="search-button">Add Records</button>
         </div>
         
         
         <div className="col">
-          <select className="form-control" value={searchColumn} onChange={(e) => setSearchColumn(e.target.value)}>
+          <select className="custom-select" value={searchColumn} onChange={(e) => setSearchColumn(e.target.value)}>
             <option value="">Select Column to Search</option>
             {attributenames.map((name, index) => (
               <option key={index} value={name}>{formatColumnName(name)}</option>
@@ -235,15 +234,15 @@ function Clubactivities() {
         </div>
         
         <div className="col">
-          <button type="button" onClick={handleSearch} className="btn btn-success mr-2">Search</button>
-          <button type="button" onClick={resetSearch} className="btn btn-secondary">Reset</button>
+          <button type="button" onClick={handleSearch} className="search-button">Search</button>
+          <button type="button" onClick={resetSearch} className="bttreset">Reset</button>
         </div>
 
         <div className="col">
-          <button type="button" onClick={handleLock} className="btn btn-warning">{(!lockedstatus) ? "Lock Form" : "Unlock Form"}</button>
+          <button type="button" onClick={handleLock} className="bttlock">{(!lockedstatus) ? "Lock Form" : "Unlock Form"}</button>
         </div>
         <div className="col">
-          <button type="button" onClick={exportToExcel} className="btn btn-success">Export to Excel</button>
+          <button type="button" onClick={exportToExcel} className="bttexport">Export to Excel</button>
         </div>
         
       </div>
@@ -269,8 +268,10 @@ function Clubactivities() {
                   <tr key={index}>
                     <td>
                       <IconContext.Provider value={{ className: 'react-icons' }}>
-                        <BsPencilSquare onClick={() => handleEdit(attributenames, item)} className="edit-icon" />
-                        <BsFillTrashFill onClick={() => handleDelete(item.id)} className="delete-icon" />
+                        <div className="icon-container">
+                          <BsPencilSquare onClick={() => handleEdit(attributenames, item)} className="edit-icon" />
+                          <BsFillTrashFill onClick={() => handleDelete(item.id)} className="delete-icons" />
+                        </div>
                       </IconContext.Provider>
                     </td>
                     {attributenames.map((name, attrIndex) => (
