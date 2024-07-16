@@ -43,9 +43,13 @@ router.post('/gettable', async (req, res) => {
   if (!table || !department) {
     return res.status(400).send("Please provide both table and department parameters.");
   }
-
+  let recordSql = 'SELECT * FROM ?? ';
+  if(department!=="All")
+  {
+    recordSql+='WHERE department = ?';
+  }
   const columnSql = 'SHOW COLUMNS FROM ??';
-  const recordSql = 'SELECT * FROM ?? WHERE department = ?';
+  
   const columnValues = [table];
   const recordValues = [table, department];
 

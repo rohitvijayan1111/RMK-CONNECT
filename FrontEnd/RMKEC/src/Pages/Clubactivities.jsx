@@ -13,6 +13,7 @@ function Clubactivities() {
   const navigate = useNavigate();
   const [table] = useState('DepartmentalClubs');
   const [dept, setDept] = useState(window.localStorage.getItem('department')); 
+  const role=window.localStorage.getItem('userType');
   const [data, setData] = useState([]);
   const [originalData, setOriginalData] = useState([]); 
   const [attributenames, setAttributenames] = useState([]);
@@ -35,6 +36,10 @@ function Clubactivities() {
   };
 
   useEffect(() => {
+    if(role==="IQAC")
+      {
+        setDept('All');
+      }
     const fetchLockStatus = async () => {
       try {
         const response = await axios.post('http://localhost:3000/tables/getlocktablestatus', { id: 1, table: 'form_locks' });
@@ -238,9 +243,9 @@ function Clubactivities() {
           <button type="button" onClick={resetSearch} className="bttreset">Reset</button>
         </div>
 
-        <div className="col">
+        {role==="IQAC" && <div className="col">
           <button type="button" onClick={handleLock} className="bttlock">{(!lockedstatus) ? "Lock Form" : "Unlock Form"}</button>
-        </div>
+        </div>}
         <div className="col">
           <button type="button" onClick={exportToExcel} className="bttexport">Export to Excel</button>
         </div>
@@ -254,7 +259,7 @@ function Clubactivities() {
             <table className="table table-bordered table-hover">
               <thead className="thead-dark">
                 <tr>
-                <th className="fixed-column">Action</th>  
+                {role!=="IQAC" && <th className="fixed-column">Action</th>}  
                   {attributenames && attributenames.map((name, index) => (
                     name === "id" ? <th key={index}>S.No</th> : (
                       <th key={index}>{formatColumnName(name)}</th>
@@ -266,6 +271,7 @@ function Clubactivities() {
               <tbody>
                 {data.map((item, index) => (
                   <tr key={index}>
+                    {role!=="IQAC" && 
                     <td>
                       <IconContext.Provider value={{ className: 'react-icons' }}>
                         <div className="icon-container">
@@ -274,6 +280,7 @@ function Clubactivities() {
                         </div>
                       </IconContext.Provider>
                     </td>
+                    }
                     {attributenames.map((name, attrIndex) => (
                       name === "id" ? <td key={attrIndex}>{index + 1}</td> :
                       <td key={attrIndex}>
