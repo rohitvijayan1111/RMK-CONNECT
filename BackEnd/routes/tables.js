@@ -38,7 +38,7 @@ const getFriendlyErrorMessage = (errCode) => {
 router.post('/gettable', async (req, res) => {
   console.log("Received request:", req.body);
   const table = req.body.table;
-  const department = req.body.department;
+  const department = req.body.department; 
 
   if (!table || !department) {
     return res.status(400).send("Please provide both table and department parameters.");

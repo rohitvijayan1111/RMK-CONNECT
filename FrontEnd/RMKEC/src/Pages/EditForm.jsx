@@ -3,7 +3,7 @@ import React, { useState } from 'react';
 import { useLocation, useNavigate } from 'react-router-dom';
 import { AdapterDayjs } from '@mui/x-date-pickers/AdapterDayjs';
 import { LocalizationProvider } from '@mui/x-date-pickers/LocalizationProvider';
-import { MobileDateTimePicker } from '@mui/x-date-pickers/MobileDateTimePicker';
+import { DatePicker } from '@mui/x-date-pickers/DatePicker';
 import { ToastContainer, toast, Zoom } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
 import TextField from '@mui/material/TextField';
@@ -15,6 +15,10 @@ const EditForm = () => {
   const location = useLocation();
   const { table, attributenames, item } = location.state;
   const [data, setData] = useState(item);
+
+  const attributeTypes = {
+    completion_date: 'date',
+  };
 
   const notifysuccess = () => {
     toast.success('Record Edited Successfully!', {
@@ -44,17 +48,29 @@ const EditForm = () => {
     });
   };
 
-  const handleDateTimeChange = (attribute, dateTime) => {
-    const formattedDateTime = dateTime ? dayjs(dateTime).format('YYYY-MM-DDTHH:mm:ss') : '';
-    setData({ ...data, [attribute]: formattedDateTime });
+  const handleDateChange = (attribute, date) => {
+    const formattedDate = date ? dayjs(date).format('YYYY-MM-DD') : '';
+    setData({ ...data, [attribute]: formattedDate });
+  };
+
+  const handleChange = (attribute, value) => {
+    setData({ ...data, [attribute]: value });
   };
 
   const handleSubmit = async (e) => {
     e.preventDefault();
     try {
+      // Format the date before submitting if it's a date attribute
+      const formattedData = { ...data };
+      for (const attribute of attributenames) {
+        if (attributeTypes[attribute] === 'date' && formattedData[attribute]) {
+          formattedData[attribute] = dayjs(formattedData[attribute]).format('YYYY-MM-DD');
+        }
+      }
+
       const response = await axios.put("http://localhost:3000/tables/updaterecord", {
         id: data.id,
-        data: { ...data },
+        data: formattedData,
         table
       });
       console.log(response.data);
@@ -63,7 +79,7 @@ const EditForm = () => {
         navigate("/dashboard/view-form");
       }, 1500);
     } catch (error) {
-      notifyfailure('Error updating record:', error);
+      notifyfailure('Error updating record');
     }
   };
 
@@ -76,12 +92,12 @@ const EditForm = () => {
             attribute !== "id" && attribute !== "createdAt" && (
               <div className="frm" key={index}>
                 <label htmlFor={attribute} className="lbl">{attribute.replace(/_/g, ' ')}:</label>
-                {attribute === "deadline" ? (
+                {attributeTypes[attribute] === 'date' ? (
                   <LocalizationProvider dateAdapter={AdapterDayjs}>
-                    <MobileDateTimePicker
-                      label="Deadline"
+                    <DatePicker
+                      label=''
                       value={data[attribute] ? dayjs(data[attribute]) : null}
-                      onChange={(dateTime) => handleDateTimeChange(attribute, dateTime)}
+                      onChange={(date) => handleDateChange(attribute, date)}
                       renderInput={(params) => (
                         <TextField
                           {...params}
@@ -98,7 +114,7 @@ const EditForm = () => {
                     type="text"
                     className="cntr"
                     id={attribute}
-                    onChange={(e) => setData({ ...data, [attribute]: e.target.value })}
+                    onChange={(e) => handleChange(attribute, e.target.value)}
                     value={data[attribute] || ''}
                     required
                   />

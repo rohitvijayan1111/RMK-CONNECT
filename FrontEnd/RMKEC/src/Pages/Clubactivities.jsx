@@ -6,16 +6,22 @@ import { ToastContainer, toast, Zoom } from 'react-toastify';
 import Swal from 'sweetalert2';
 import 'react-toastify/dist/ReactToastify.css';
 import { utils, writeFile } from 'xlsx';
+import dayjs from 'dayjs';
+import { BsPencilSquare, BsFillTrashFill } from 'react-icons/bs'; // Importing edit and delete icons
+import { IconContext } from 'react-icons';
 
 function Clubactivities() {
   const navigate = useNavigate();
   const [table] = useState('DepartmentalClubs'); // Hardcoded table name
   const [dept, setDept] = useState(window.localStorage.getItem('department')); // If you want to use department filtering
   const [data, setData] = useState([]);
+  const [originalData, setOriginalData] = useState([]); // Store original fetched data
   const [attributenames, setAttributenames] = useState([]);
   const [lockedstatus, setLockedstatus] = useState('');
+  const [searchColumn, setSearchColumn] = useState('');
+  const [searchValue, setSearchValue] = useState('');
 
-  const notifyfailure = (error) => {
+  const notifyFailure = (error) => {
     toast.error(error, {
       position: "top-center",
       autoClose: 5000,
@@ -36,7 +42,7 @@ function Clubactivities() {
         setLockedstatus(response.data.is_locked);
       } catch (error) {
         console.error('Error fetching lock status:', error);
-        notifyfailure(error.response.data);
+        notifyFailure(error.response.data);
       }
     };
 
@@ -44,12 +50,13 @@ function Clubactivities() {
       try {
         const response = await axios.post('http://localhost:3000/tables/gettable', { table: 'DepartmentalClubs', department: dept });
         setData(response.data.data);
+        setOriginalData(response.data.data); // Set original data for search reset
         setAttributenames(response.data.columnNames);
       } catch (err) {
         if (err.response && err.response.data) {
-          notifyfailure(err.response.data);
+          notifyFailure(err.response.data);
         } else {
-          notifyfailure('Something went wrong');
+          notifyFailure('Something went wrong');
         }
         setData([]);
         setAttributenames([]);
@@ -109,7 +116,7 @@ function Clubactivities() {
           Swal.fire(`${lockedstatus ? 'Unlocked' : 'Locked'}!`, '', 'success');
         } catch (error) {
           console.error('Error locking form:', error);
-          notifyfailure(error.response.data);
+          notifyFailure(error.response.data);
           Swal.fire('Error!', 'There was an error changing the lock status', 'error');
         }
       }
@@ -148,7 +155,7 @@ function Clubactivities() {
           Swal.fire("Deleted!", "Your record has been deleted.", "success");
         } catch (error) {
           console.error('Error deleting item:', error);
-          notifyfailure(error.response.data);
+          notifyFailure(error.response.data);
           Swal.fire('Error!', 'There was an error deleting the record', 'error');
         }
       }
@@ -158,7 +165,10 @@ function Clubactivities() {
   const formatColumnName = (name) => {
     return name.replace(/_/g, ' ').replace(/\b\w/g, char => char.toUpperCase());
   };
-  console.log(attributenames);
+
+  const formatDate = (date) => {
+    return dayjs(date).format('DD/MM/YYYY');
+  };
 
   const attributeTypes = {
     completion_date: 'date',
@@ -178,6 +188,24 @@ function Clubactivities() {
 
     // Export the workbook
     writeFile(wb, 'ClubActivitiesData.xlsx');
+  };  const handleSearch = () => {
+    if (!searchColumn || !searchValue) {
+      notifyFailure('Please select a column and enter a search value.');
+      return;
+    }
+
+    const filteredData = originalData.filter(item => {
+      const value = item[searchColumn] ? item[searchColumn].toString().toLowerCase() : '';
+      return value.includes(searchValue.toLowerCase());
+    });
+
+    setData(filteredData);
+  };
+
+  const resetSearch = () => {
+    setData(originalData); // Reset to original data
+    setSearchColumn('');
+    setSearchValue('');
   };
 
   return (
@@ -186,22 +214,42 @@ function Clubactivities() {
         <div className="col">
           <button type="button" onClick={handleAdd} className="btn btn-primary">Add Records</button>
         </div>
+        
+        <div className="col">
+          <button type="button" onClick={handleLock} className="btn btn-warning">{(!lockedstatus) ? "Lock Form" : "Unlock Form"}</button>
+        </div>
+        
+        <div className="col">
+          <select className="form-control" value={searchColumn} onChange={(e) => setSearchColumn(e.target.value)}>
+            <option value="">Select Column to Search</option>
+            {attributenames.map((name, index) => (
+              <option key={index} value={name}>{formatColumnName(name)}</option>
+            ))}
+          </select>
+        </div>
+        
         <div className="col">
           <input
             type="text"
             className="form-control"
-            placeholder="Enter department"
-            value={dept}
-            readOnly
+            placeholder="Enter search value"
+            value={searchValue}
+            onChange={(e) => setSearchValue(e.target.value)}
           />
         </div>
+        
         <div className="col">
-          <button type="button" onClick={handleLock} className="btn btn-warning">{(!lockedstatus) ? "Lock Form" : "Unlock Form"}</button>
+          <button type="button" onClick={handleSearch} className="btn btn-success mr-2">Search</button>
+          <button type="button" onClick={resetSearch} className="btn btn-secondary">Reset</button>
+        </div>
+        <div className="col">
+          <button type="button" onClick={exportToExcel} className="btn btn-success">Export to Excel</button>
         </div>
         <div className="col">
           <button type="button" onClick={exportToExcel} className="btn btn-success">Export to Excel</button>
         </div>
       </div>
+      
       {data && (
         <div>
           <h2>Results:</h2>
@@ -209,26 +257,30 @@ function Clubactivities() {
             <table className="table table-bordered table-hover">
               <thead className="thead-dark">
                 <tr>
+                <th className="fixed-column">Action</th>  
                   {attributenames && attributenames.map((name, index) => (
                     name === "id" ? <th key={index}>S.No</th> : (
                       <th key={index}>{formatColumnName(name)}</th>
                     )
                   ))}
-                  <th className="fixed-column">Action</th>
+                  
                 </tr>
               </thead>
               <tbody>
                 {data.map((item, index) => (
                   <tr key={index}>
-                    {attributenames.map((name, attrIndex) => (
-                      name === "id" ? <td key={attrIndex}>{index + 1}</td> : (
-                        <td key={attrIndex}>{item[name]}</td>
-                      )
-                    ))}
                     <td>
-                      <button type="button" className="btn btn-info mr-2" onClick={() => handleEdit(attributenames, item)}>Edit</button>
-                      <button type="button" className="btn btn-danger" onClick={() => handleDelete(item.id)}>Delete</button>
+                      <IconContext.Provider value={{ className: 'react-icons' }}>
+                        <BsPencilSquare onClick={() => handleEdit(attributenames, item)} className="edit-icon" />
+                        <BsFillTrashFill onClick={() => handleDelete(item.id)} className="delete-icon" />
+                      </IconContext.Provider>
                     </td>
+                    {attributenames.map((name, attrIndex) => (
+                      name === "id" ? <td key={attrIndex}>{index + 1}</td> :
+                      <td key={attrIndex}>
+                        {attributeTypes[name] === "date" ? formatDate(item[name]) : item[name]}
+                      </td>
+                    ))}
                   </tr>
                 ))}
               </tbody>
