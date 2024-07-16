@@ -4,7 +4,10 @@ import { useLocation, useNavigate } from 'react-router-dom';
 import { AdapterDayjs } from '@mui/x-date-pickers/AdapterDayjs';
 import { LocalizationProvider } from '@mui/x-date-pickers/LocalizationProvider';
 import { MobileDateTimePicker } from '@mui/x-date-pickers/MobileDateTimePicker';
-import { ToastContainer, toast,Zoom} from 'react-toastify';
+import { ToastContainer, toast, Zoom } from 'react-toastify';
+import 'react-toastify/dist/ReactToastify.css';
+import TextField from '@mui/material/TextField';
+import dayjs from 'dayjs';
 import './EditForm.css';
 
 const EditForm = () => {
@@ -12,7 +15,8 @@ const EditForm = () => {
   const location = useLocation();
   const { table, attributenames, item } = location.state;
   const [data, setData] = useState(item);
-  const notifysuccess = () =>{
+
+  const notifysuccess = () => {
     toast.success('Record Edited Successfully!', {
       position: "top-center",
       autoClose: 3000,
@@ -23,9 +27,10 @@ const EditForm = () => {
       progress: undefined,
       theme: "colored",
       transition: Zoom,
-      });
-  }
-  const notifyfailure=(error)=>{
+    });
+  };
+
+  const notifyfailure = (error) => {
     toast.error(error, {
       position: "top-center",
       autoClose: 5000,
@@ -36,11 +41,12 @@ const EditForm = () => {
       progress: undefined,
       theme: "colored",
       transition: Zoom,
-      });
-  }
-  const handleDateTimeChange = (dateTime) => {
-    const formattedDateTime = dateTime.toISOString().slice(0, 19).replace('T', ' ');
-    setData({ ...data, deadline: formattedDateTime });
+    });
+  };
+
+  const handleDateTimeChange = (attribute, dateTime) => {
+    const formattedDateTime = dateTime ? dayjs(dateTime).format('YYYY-MM-DDTHH:mm:ss') : '';
+    setData({ ...data, [attribute]: formattedDateTime });
   };
 
   const handleSubmit = async (e) => {
@@ -67,23 +73,26 @@ const EditForm = () => {
       {attributenames && attributenames.length > 0 ? (
         <form className='edt' onSubmit={handleSubmit}>
           {attributenames.map((attribute, index) => (
-            (attribute !== "id" && attribute !== "createdAt" ) && (
+            attribute !== "id" && attribute !== "createdAt" && (
               <div className="frm" key={index}>
-                <label htmlFor={attribute} className="lbl">{attribute}:</label>
+                <label htmlFor={attribute} className="lbl">{attribute.replace(/_/g, ' ')}:</label>
                 {attribute === "deadline" ? (
-                  <MobileDateTimePicker
-                    value={data[attribute] ? new Date(data[attribute]) : null}
-                    onChange={handleDateTimeChange}
-                    renderInput={(params) => (
-                      <input
-                        {...params}
-                        type="text"
-                        className="cntr"
-                        id={attribute}
-                        required
-                      />
-                    )}
-                  />
+                  <LocalizationProvider dateAdapter={AdapterDayjs}>
+                    <MobileDateTimePicker
+                      label="Deadline"
+                      value={data[attribute] ? dayjs(data[attribute]) : null}
+                      onChange={(dateTime) => handleDateTimeChange(attribute, dateTime)}
+                      renderInput={(params) => (
+                        <TextField
+                          {...params}
+                          variant="outlined"
+                          className="cntr"
+                          id={attribute}
+                          required
+                        />
+                      )}
+                    />
+                  </LocalizationProvider>
                 ) : (
                   <input
                     type="text"
@@ -98,7 +107,7 @@ const EditForm = () => {
             )
           ))}
           <div className="holder">
-            <input type='submit' value="Submit" className='btt'/>
+            <input type='submit' value="Submit" className='btt' />
           </div>
         </form>
       ) : (
