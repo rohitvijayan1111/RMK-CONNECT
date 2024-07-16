@@ -36,6 +36,7 @@ import Available_Halls from "./HallBooking_Component/Available_Halls";
 import DashBoard_Hall from "./HallBooking_Component/DashBoard_Hall";
 import Invalidpage from "./Pages/Invalidpage";
 import IV from "./Pages/IV";
+import { OtherForms } from "./Components/OtherForms";
 
 function ScrollToTop() {
   const { pathname } = useLocation();
@@ -87,6 +88,7 @@ function App() {
               <Route path="Past-Events" element={<Past_Events />} />
               <Route path="Available-Halls" element={<Available_Halls />} />
               <Route path="DashBoard-Hall" element={<DashBoard_Hall />} />
+              <Route path="other-forms" element={<OtherForms/>} />
               <Route path="*" element={<Invalidpage />} />
             </Route>
             <Route path="*" element={<Invalidpage />} />

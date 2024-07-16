@@ -19,6 +19,7 @@ import reserve from '../assets/reserve.png';
 import upcoming from '../assets/upcoming.png';
 import Status from '../assets/Status.png';
 import Available from '../assets/Available.png';
+import others from '../assets/others.png';
 
 function SideBar() {
   const location = useLocation();
@@ -159,6 +160,12 @@ function SideBar() {
           <Link to="/dashboard/faculty-details">
             <img src={faculty} width="40px" height="40px" alt="Faculty Details" />
             Faculty Details
+          </Link>
+        </li>
+        <li className={isActive('/dashboard/other-forms')}>
+          <Link to="/dashboard/other-forms">
+            <img src={others} width="40px" height="40px" alt="other forms" />
+            Other Forms
           </Link>
         </li>
         <li className={isActive('/dashboard/course-coverage')}>
