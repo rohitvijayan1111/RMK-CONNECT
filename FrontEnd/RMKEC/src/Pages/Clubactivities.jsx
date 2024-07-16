@@ -5,17 +5,18 @@ import { ToastContainer, toast, Zoom } from 'react-toastify';
 import Swal from 'sweetalert2';
 import 'react-toastify/dist/ReactToastify.css';
 import dayjs from 'dayjs';
-import { BsPencilSquare, BsFillTrashFill } from 'react-icons/bs'; 
+import { BsPencilSquare, BsFillTrashFill } from 'react-icons/bs';
 import { IconContext } from 'react-icons';
 import { utils, writeFile } from 'xlsx';
 import './Clubactivities.css';
+
 function Clubactivities() {
   const navigate = useNavigate();
   const [table] = useState('DepartmentalClubs');
-  const [dept, setDept] = useState(window.localStorage.getItem('department')); 
-  const role=window.localStorage.getItem('userType');
+  const [dept, setDept] = useState(window.localStorage.getItem('department'));
+  const role = window.localStorage.getItem('userType');
   const [data, setData] = useState([]);
-  const [originalData, setOriginalData] = useState([]); 
+  const [originalData, setOriginalData] = useState([]);
   const [attributenames, setAttributenames] = useState([]);
   const [lockedstatus, setLockedstatus] = useState('');
   const [searchColumn, setSearchColumn] = useState('');
@@ -36,10 +37,9 @@ function Clubactivities() {
   };
 
   useEffect(() => {
-    if(role==="IQAC")
-      {
-        setDept('All');
-      }
+    if (role === "IQAC") {
+      setDept('All');
+    }
     const fetchLockStatus = async () => {
       try {
         const response = await axios.post('http://localhost:3000/tables/getlocktablestatus', { id: 1, table: 'form_locks' });
@@ -54,7 +54,7 @@ function Clubactivities() {
       try {
         const response = await axios.post('http://localhost:3000/tables/gettable', { table: 'DepartmentalClubs', department: dept });
         setData(response.data.data);
-        setOriginalData(response.data.data); 
+        setOriginalData(response.data.data);
         setAttributenames(response.data.columnNames);
       } catch (err) {
         if (err.response && err.response.data) {
@@ -197,11 +197,10 @@ function Clubactivities() {
     setSearchColumn('');
     setSearchValue('');
   };
-  
-  const exportToExcel = () => {
 
+  const exportToExcel = () => {
     const filteredData = data.map(item => {
-      const { id, ...filteredItem } = item; 
+      const { id, ...filteredItem } = item;
       return filteredItem;
     });
     const ws = utils.json_to_sheet(filteredData);
@@ -217,8 +216,7 @@ function Clubactivities() {
         <div className="col">
           <button type="button" onClick={handleAdd} className="search-button">Add Records</button>
         </div>
-        
-        
+
         <div className="col">
           <select className="custom-select" value={searchColumn} onChange={(e) => setSearchColumn(e.target.value)}>
             <option value="">Select Column to Search</option>
@@ -227,7 +225,7 @@ function Clubactivities() {
             ))}
           </select>
         </div>
-        
+
         <div className="col">
           <input
             type="text"
@@ -237,41 +235,38 @@ function Clubactivities() {
             onChange={(e) => setSearchValue(e.target.value)}
           />
         </div>
-        
+
         <div className="col">
           <button type="button" onClick={handleSearch} className="search-button">Search</button>
           <button type="button" onClick={resetSearch} className="bttreset">Reset</button>
         </div>
 
-        {role==="IQAC" && <div className="col">
+        {role === "IQAC" && <div className="col">
           <button type="button" onClick={handleLock} className="bttlock">{(!lockedstatus) ? "Lock Form" : "Unlock Form"}</button>
         </div>}
         <div className="col">
           <button type="button" onClick={exportToExcel} className="bttexport">Export to Excel</button>
         </div>
-        
+
       </div>
-      
+
       {data && (
-        <div>
-          <h2>Results:</h2>
-          <div className="table-responsive">
-            <table className="table table-bordered table-hover">
-              <thead className="thead-dark">
-                <tr>
-                {role!=="IQAC" && <th className="fixed-column">Action</th>}  
-                  {attributenames && attributenames.map((name, index) => (
-                    name === "id" ? <th key={index}>S.No</th> : (
-                      <th key={index}>{formatColumnName(name)}</th>
-                    )
-                  ))}
-                  
-                </tr>
-              </thead>
-              <tbody>
-                {data.map((item, index) => (
-                  <tr key={index}>
-                    {role!=="IQAC" && 
+        <div className="table-responsive">
+          <table className="table table-bordered table-hover">
+            <thead className="thead-dark">
+              <tr>
+                {role !== "IQAC" && <th className="fixed-column">Action</th>}
+                {attributenames && attributenames.map((name, index) => (
+                  name === "id" ? <th key={index}>S.No</th> : (
+                    <th key={index}>{formatColumnName(name)}</th>
+                  )
+                ))}
+              </tr>
+            </thead>
+            <tbody>
+              {data.map((item, index) => (
+                <tr key={index}>
+                  {role !== "IQAC" &&
                     <td>
                       <IconContext.Provider value={{ className: 'react-icons' }}>
                         <div className="icon-container">
@@ -280,18 +275,21 @@ function Clubactivities() {
                         </div>
                       </IconContext.Provider>
                     </td>
-                    }
-                    {attributenames.map((name, attrIndex) => (
-                      name === "id" ? <td key={attrIndex}>{index + 1}</td> :
+                  }
+                  {attributenames.map((name, attrIndex) => (
+                    name === "id" ? <td key={attrIndex}>{index + 1}</td> :
                       <td key={attrIndex}>
-                        {attributeTypes[name] === "date" ? formatDate(item[name]) : item[name]}
+                        {attributeTypes[name] === "date" ? formatDate(item[name]) : (
+                          name === "website_link" && item[name] ?
+                            <a href={item[name]} target="_blank" rel="noopener noreferrer">Link</a>
+                            : item[name]
+                        )}
                       </td>
-                    ))}
-                  </tr>
-                ))}
-              </tbody>
-            </table>
-          </div>
+                  ))}
+                </tr>
+              ))}
+            </tbody>
+          </table>
         </div>
       )}
       <ToastContainer />
