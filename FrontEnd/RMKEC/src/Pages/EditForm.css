@@ -199,13 +199,15 @@
 }
 
 .column-header {
-  white-space: nowrap; /* Prevents long headers from wrapping */
+  white-space: nowrap; 
 }
 
 .fixed-column {
-  width: 120px; /* Adjust width as needed for action column */
+  width: 120px;
 }
-
+.react-icons{
+  display: flex;
+}
 .btn {
-  margin-right: 5px; /* Adds spacing between action buttons */
+  margin-right: 5px; 
 }
