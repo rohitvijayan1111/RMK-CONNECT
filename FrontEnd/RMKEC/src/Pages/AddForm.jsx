@@ -16,7 +16,6 @@ const AddForm = () => {
   
   const attributeTypes = {
     completion_date: 'date', 
-
   };
 
   const notifysuccess = () => {
