@@ -6,16 +6,16 @@ import { ToastContainer, toast, Zoom } from 'react-toastify';
 import Swal from 'sweetalert2';
 import 'react-toastify/dist/ReactToastify.css';
 import dayjs from 'dayjs';
-import { BsPencilSquare, BsFillTrashFill } from 'react-icons/bs'; // Importing edit and delete icons
+import { BsPencilSquare, BsFillTrashFill } from 'react-icons/bs'; 
 import { IconContext } from 'react-icons';
 import { utils, writeFile } from 'xlsx';
 
 function Clubactivities() {
   const navigate = useNavigate();
-  const [table] = useState('DepartmentalClubs'); // Hardcoded table name
-  const [dept, setDept] = useState(window.localStorage.getItem('department')); // If you want to use department filtering
+  const [table] = useState('DepartmentalClubs');
+  const [dept, setDept] = useState(window.localStorage.getItem('department')); 
   const [data, setData] = useState([]);
-  const [originalData, setOriginalData] = useState([]); // Store original fetched data
+  const [originalData, setOriginalData] = useState([]); 
   const [attributenames, setAttributenames] = useState([]);
   const [lockedstatus, setLockedstatus] = useState('');
   const [searchColumn, setSearchColumn] = useState('');
@@ -50,7 +50,7 @@ function Clubactivities() {
       try {
         const response = await axios.post('http://localhost:3000/tables/gettable', { table: 'DepartmentalClubs', department: dept });
         setData(response.data.data);
-        setOriginalData(response.data.data); // Set original data for search reset
+        setOriginalData(response.data.data); 
         setAttributenames(response.data.columnNames);
       } catch (err) {
         if (err.response && err.response.data) {
@@ -189,24 +189,21 @@ function Clubactivities() {
   };
 
   const resetSearch = () => {
-    setData(originalData); // Reset to original data
+    setData(originalData);
     setSearchColumn('');
     setSearchValue('');
   };
   
   const exportToExcel = () => {
-    // Filter data to exclude the Action column
+
     const filteredData = data.map(item => {
-      const { id, ...filteredItem } = item; // Assuming "id" is the primary key
+      const { id, ...filteredItem } = item; 
       return filteredItem;
     });
-
-    // Create a new workbook and add the filtered data
     const ws = utils.json_to_sheet(filteredData);
     const wb = utils.book_new();
     utils.book_append_sheet(wb, ws, 'ClubActivitiesData');
 
-    // Export the workbook
     writeFile(wb, 'ClubActivitiesData.xlsx');
   };
 
@@ -217,12 +214,6 @@ function Clubactivities() {
           <button type="button" onClick={handleAdd} className="btn btn-primary">Add Records</button>
         </div>
         
-        <div className="col">
-          <button type="button" onClick={handleLock} className="btn btn-warning">{(!lockedstatus) ? "Lock Form" : "Unlock Form"}</button>
-        </div>
-        <div className="col">
-          <button type="button" onClick={exportToExcel} className="btn btn-success">Export to Excel</button>
-        </div>
         
         <div className="col">
           <select className="form-control" value={searchColumn} onChange={(e) => setSearchColumn(e.target.value)}>
@@ -247,6 +238,14 @@ function Clubactivities() {
           <button type="button" onClick={handleSearch} className="btn btn-success mr-2">Search</button>
           <button type="button" onClick={resetSearch} className="btn btn-secondary">Reset</button>
         </div>
+
+        <div className="col">
+          <button type="button" onClick={handleLock} className="btn btn-warning">{(!lockedstatus) ? "Lock Form" : "Unlock Form"}</button>
+        </div>
+        <div className="col">
+          <button type="button" onClick={exportToExcel} className="btn btn-success">Export to Excel</button>
+        </div>
+        
       </div>
       
       {data && (
