@@ -115,7 +115,7 @@ router.post('/createformrecord', async (req, res) => {
 router.post('/getformlist', async (req, res) => {
   console.log("Received request:", req.body);
 
-  const sql = 'SELECT * FROM forms;';
+  const sql = 'SELECT * FROM form_locks;';
   try {
       db.query(sql, (err, results) => {
           if (err) {

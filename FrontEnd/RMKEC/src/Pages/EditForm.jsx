@@ -1,6 +1,6 @@
 import axios from 'axios';
 import React, { useState } from 'react';
-import { useLocation, useNavigate } from 'react-router-dom';
+import { useLocation, useNavigate} from 'react-router-dom';
 import { AdapterDayjs } from '@mui/x-date-pickers/AdapterDayjs';
 import { LocalizationProvider } from '@mui/x-date-pickers/LocalizationProvider';
 import { DatePicker } from '@mui/x-date-pickers/DatePicker';
@@ -17,7 +17,17 @@ const EditForm = () => {
   const [data, setData] = useState(item);
 
   const attributeTypes = {
-    completion_date: 'date',
+    'completion_date': 'date',
+    'Proposed Date':'date',
+    'Date of completion':'date',
+    'Proposed date of visit':'date',
+    'Actual Date  Visited':'date',
+    'Date_of_event_planned':'date',
+    'Date_of_completion':'date',
+    'Date planned':'date',
+    'Actual Date of lecture':'date',
+    'Completion Date of Event':'date',
+    'Date of Interview':'date'
   };
 
   const notifysuccess = () => {
@@ -76,11 +86,10 @@ const EditForm = () => {
       console.log(response.data);
       notifysuccess();
       setTimeout(() => {
-        navigate("/dashboard/view-form");
+        navigate(-1);
       }, 1500);
     } catch (error) {
-      notifyfailure('Error updating record');
-    }
+      notifyfailure(error.response.data.error || 'Error inserting record');
   };
 
   return (
@@ -89,7 +98,7 @@ const EditForm = () => {
       {attributenames && attributenames.length > 0 ? (
         <form className='edt' onSubmit={handleSubmit}>
           {attributenames.map((attribute, index) => (
-            attribute !== "id" && attribute !== "createdAt" && (
+            attribute !== "id" && attribute !== "department" && (
               <div className="frm" key={index}>
                 <label htmlFor={attribute} className="lbl">{attribute.replace(/_/g, ' ')}:</label>
                 {attributeTypes[attribute] === 'date' ? (
@@ -133,5 +142,5 @@ const EditForm = () => {
     </div>
   );
 };
-
+}
 export default EditForm;

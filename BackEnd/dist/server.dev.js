@@ -4,6 +4,8 @@ var express = require('express');
 
 var bodyParser = require('body-parser');
 
+var path = require('path');
+
 var cors = require('cors');
 
 var db = require('./config/db');
@@ -14,6 +16,10 @@ var app = express();
 var PORT = process.env.PORT || 3000;
 app.use(bodyParser.json());
 app.use(cors());
+app.use(bodyParser.urlencoded({
+  extended: true
+}));
+app.use('/uploads', express["static"](path.join(__dirname, 'uploads')));
 
 var authRoutes = require('./routes/auth');
 

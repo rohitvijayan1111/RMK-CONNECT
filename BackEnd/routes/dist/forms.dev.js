@@ -201,7 +201,7 @@ router.post('/getformlist', function _callee4(req, res) {
       switch (_context4.prev = _context4.next) {
         case 0:
           console.log("Received request:", req.body);
-          sql = 'SELECT * FROM forms;';
+          sql = 'SELECT * FROM form_locks;';
           _context4.prev = 2;
           db.query(sql, function (err, results) {
             if (err) {
