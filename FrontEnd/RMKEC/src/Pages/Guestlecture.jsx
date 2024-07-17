@@ -1,20 +1,28 @@
 import React, { useState, useEffect } from 'react';
 import axios from 'axios';
 import { useNavigate } from 'react-router-dom';
-import './EditForm.css';
 import { ToastContainer, toast, Zoom } from 'react-toastify';
 import Swal from 'sweetalert2';
 import 'react-toastify/dist/ReactToastify.css';
+import dayjs from 'dayjs';
+import { BsPencilSquare, BsFillTrashFill } from 'react-icons/bs';
+import { IconContext } from 'react-icons';
+import { utils, writeFile } from 'xlsx';
+import './Clubactivities.css';
 
 function Guestlecture() {
   const navigate = useNavigate();
   const [table] = useState('guest_lecture');
   const [dept, setDept] = useState(window.localStorage.getItem('department'));
+  const role = window.localStorage.getItem('userType');
   const [data, setData] = useState([]);
+  const [originalData, setOriginalData] = useState([]);
   const [attributenames, setAttributenames] = useState([]);
   const [lockedstatus, setLockedstatus] = useState('');
+  const [searchColumn, setSearchColumn] = useState('');
+  const [searchValue, setSearchValue] = useState('');
 
-  const notifyfailure = (error) => {
+  const notifyFailure = (error) => {
     toast.error(error, {
       position: "top-center",
       autoClose: 5000,
@@ -29,13 +37,16 @@ function Guestlecture() {
   };
 
   useEffect(() => {
+    if (role === "IQAC") {
+      setDept('All');
+    }
     const fetchLockStatus = async () => {
       try {
-        const response = await axios.post('http://localhost:3000/tables/getlocktablestatus', { id: 1, table: 'form_locks' });
+        const response = await axios.post('http://localhost:3000/tables/getlocktablestatus', { id: 2, table: 'form_locks' });
         setLockedstatus(response.data.is_locked);
       } catch (error) {
         console.error('Error fetching lock status:', error);
-        notifyfailure(error.response.data);
+        notifyFailure(error.response.data);
       }
     };
 
@@ -43,12 +54,13 @@ function Guestlecture() {
       try {
         const response = await axios.post('http://localhost:3000/tables/gettable', { table: table, department: dept });
         setData(response.data.data);
+        setOriginalData(response.data.data);
         setAttributenames(response.data.columnNames);
       } catch (err) {
         if (err.response && err.response.data) {
-          notifyfailure(err.response.data);
+          notifyFailure(err.response.data);
         } else {
-          notifyfailure('Something went wrong');
+          notifyFailure('Something went wrong');
         }
         setData([]);
         setAttributenames([]);
@@ -103,12 +115,12 @@ function Guestlecture() {
     }).then(async (result) => {
       if (result.isConfirmed) {
         try {
-          await axios.post('http://localhost:3000/tables/locktable', { id: 3, lock: !lockedstatus });
+          await axios.post('http://localhost:3000/tables/locktable', { id: 2, lock: !lockedstatus });
           setLockedstatus(!lockedstatus);
           Swal.fire(`${lockedstatus ? 'Unlocked' : 'Locked'}!`, '', 'success');
         } catch (error) {
           console.error('Error locking form:', error);
-          notifyfailure(error.response.data);
+          notifyFailure(error.response.data);
           Swal.fire('Error!', 'There was an error changing the lock status', 'error');
         }
       }
@@ -147,7 +159,7 @@ function Guestlecture() {
           Swal.fire("Deleted!", "Your record has been deleted.", "success");
         } catch (error) {
           console.error('Error deleting item:', error);
-          notifyfailure(error.response.data);
+          notifyFailure(error.response.data);
           Swal.fire('Error!', 'There was an error deleting the record', 'error');
         }
       }
@@ -158,59 +170,127 @@ function Guestlecture() {
     return name.replace(/_/g, ' ').replace(/\b\w/g, char => char.toUpperCase());
   };
 
+  const formatDate = (date) => {
+    return dayjs(date).format('DD/MM/YYYY');
+  };
+
+  const attributeTypes = {
+    'Proposed Date':'date',
+    'Date of completion':'date'
+  };
+
+  const handleSearch = () => {
+    if (!searchColumn || !searchValue) {
+      notifyFailure('Please select a column and enter a search value.');
+      return;
+    }
+
+    const filteredData = originalData.filter(item => {
+      const value = item[searchColumn] ? item[searchColumn].toString().toLowerCase() : '';
+      return value.includes(searchValue.toLowerCase());
+    });
+
+    setData(filteredData);
+  };
+
+  const resetSearch = () => {
+    setData(originalData);
+    setSearchColumn('');
+    setSearchValue('');
+  };
+
+  const exportToExcel = () => {
+    const filteredData = data.map(item => {
+      const { id, ...filteredItem } = item;
+      return filteredItem;
+    });
+    const ws = utils.json_to_sheet(filteredData);
+    const wb = utils.book_new();
+    utils.book_append_sheet(wb, ws, 'ClubActivitiesData');
+
+    writeFile(wb, 'ClubActivitiesData.xlsx');
+  };
+
   return (
     <div className="container">
       <div className="row mb-3">
         <div className="col">
-          <button type="button" onClick={handleAdd} className="btn btn-primary">Add Records</button>
+          <button type="button" onClick={handleAdd} className="search-button">Add Records</button>
         </div>
+
+        <div className="col">
+          <select className="custom-select" value={searchColumn} onChange={(e) => setSearchColumn(e.target.value)}>
+            <option value="">Select Column to Search</option>
+            {attributenames.map((name, index) => (
+              <option key={index} value={name}>{formatColumnName(name)}</option>
+            ))}
+          </select>
+        </div>
+
         <div className="col">
           <input
             type="text"
             className="form-control"
-            placeholder="Enter department"
-            value={dept}
-            readOnly
+            placeholder="Enter search value"
+            value={searchValue}
+            onChange={(e) => setSearchValue(e.target.value)}
           />
         </div>
+
         <div className="col">
-          <button type="button" onClick={handleLock} className="btn btn-warning">{(!lockedstatus) ? "Lock Form" : "Unlock Form"}</button>
+          <button type="button" onClick={handleSearch} className="search-button">Search</button>
+          <button type="button" onClick={resetSearch} className="bttreset">Reset</button>
         </div>
+
+        {role === "IQAC" && <div className="col">
+          <button type="button" onClick={handleLock} className="bttlock">{(!lockedstatus) ? "Lock Form" : "Unlock Form"}</button>
+        </div>}
+        <div className="col">
+          <button type="button" onClick={exportToExcel} className="bttexport">Export to Excel</button>
+        </div>
+
       </div>
+
       {data && (
-        <div>
-          <h2>Results:</h2>
-          <div className="table-responsive">
-            <div className="table-container">
-              <table className="table table-bordered table-hover">
-                <thead className="thead-dark">
-                  <tr>
-                    {attributenames && attributenames.map((name, index) => (
-                      name === "id" ? <th key={index}>S.No</th> : (
-                        <th key={index} className="column-header">{formatColumnName(name)}</th>
-                      )
-                    ))}
-                    <th className="fixed-column">Action</th>
-                  </tr>
-                </thead>
-                <tbody>
-                  {data.map((item, index) => (
-                    <tr key={index}>
-                      {attributenames.map((name, attrIndex) => (
-                        name === "id" ? <td key={attrIndex}>{index + 1}</td> : (
-                          <td key={attrIndex}>{item[name]}</td>
-                        )
-                      ))}
-                      <td>
-                        <button type="button" className="btn btn-info mr-2" onClick={() => handleEdit(attributenames, item)}>Edit</button>
-                        <button type="button" className="btn btn-danger" onClick={() => handleDelete(item.id)}>Delete</button>
+        <div className="table-responsive">
+          <table className="table table-bordered table-hover">
+            <thead className="thead-dark">
+              <tr>
+                {role !== "IQAC" && <th className="fixed-column">Action</th>}
+                {attributenames && attributenames.map((name, index) => (
+                  name === "id" ? <th key={index}>S.No</th> : (
+                    <th key={index}>{formatColumnName(name)}</th>
+                  )
+                ))}
+              </tr>
+            </thead>
+            <tbody>
+              {data.map((item, index) => (
+                <tr key={index}>
+                  {role !== "IQAC" &&
+                    <td>
+                      <IconContext.Provider value={{ className: 'react-icons' }}>
+                        <div className="icon-container">
+                          <BsPencilSquare onClick={() => handleEdit(attributenames, item)} className="edit-icon" />
+                          <BsFillTrashFill onClick={() => handleDelete(item.id)} className="delete-icons" />
+                        </div>
+                      </IconContext.Provider>
+                    </td>
+                  }
+                  {attributenames.map((name, attrIndex) => (
+                    name === "id" ? <td key={attrIndex}>{index + 1}</td> :
+                      <td key={attrIndex}>
+                        {attributeTypes[name] === "date" ? formatDate(item[name]) : (
+                          name === "website_link" && item[name] ?
+                            <a href={item[name]} target="_blank" rel="noopener noreferrer">Link</a>
+                            : item[name]
+                        )}
                       </td>
-                    </tr>
                   ))}
-                </tbody>
-              </table>
-            </div>
-          </div>
+                </tr>
+              ))}
+            </tbody>
+          </table>
         </div>
       )}
       <ToastContainer />

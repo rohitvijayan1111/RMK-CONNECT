@@ -13,11 +13,22 @@ const AddForm = () => {
   const navigate = useNavigate();
   const location = useLocation();
   const { table, attributenames } = location.state;
-  const [data, setData] = useState({});
+  const [data, setData] = useState({ department: window.localStorage.getItem('department') });
+  const [file, setFile] = useState(null);
 
   const attributeTypes = {
-    completion_date: 'date',
-    // Add more attribute types if needed
+    'completion_date': 'date',
+    'Proposed Date': 'date',
+    'Date of completion': 'date',
+    'Proposed date of visit': 'date',
+    'Actual Date  Visited': 'date',
+    'Date_of_event_planned': 'date',
+    'Date_of_completion': 'date',
+    'Date planned': 'date',
+    'Actual Date of lecture': 'date',
+    'Completion Date of Event': 'date',
+    'Date of Interview': 'date',
+    'document': 'file',
   };
 
   const notifysuccess = () => {
@@ -53,20 +64,36 @@ const AddForm = () => {
     setData({ ...data, [attribute]: formattedDate });
   };
 
+  const handleFileChange = (e) => {
+    const selectedFile = e.target.files[0]; 
+    setFile(selectedFile); 
+  };
+
   const handleSubmit = async (e) => {
     e.preventDefault();
+
     try {
-      const response = await axios.post("http://localhost:3000/tables/insertrecord", {
-        data: { ...data },
-        table
+      const formData = new FormData();
+      formData.append('table', table);
+      Object.entries(data).forEach(([key, value]) => {
+        formData.append(key, value);
+      });
+      if(file){
+        console.log("File exists");
+      formData.append('file', file);
+}
+      const response = await axios.post("http://localhost:3000/tables/insertrecord", formData, {
+        headers: {
+          'Content-Type': 'multipart/form-data'
+        }
       });
       console.log(response.data);
       notifysuccess();
       setTimeout(() => {
-        navigate("/dashboard/view-form");
+        navigate(-1);
       }, 1500);
     } catch (error) {
-      notifyfailure('Error inserting record:');
+      notifyfailure(error.response.data.error || 'Error inserting record');
     }
   };
 
@@ -76,7 +103,7 @@ const AddForm = () => {
       {attributenames && attributenames.length > 0 ? (
         <form className='edt' onSubmit={handleSubmit}>
           {attributenames.map((attribute, index) => (
-            attribute !== "id" && attribute !== "createdAt" && (
+            attribute !== "id" && attribute !== "department" && (
               <div className="frm" key={index}>
                 <label htmlFor={attribute} className="lbl">{attribute.replace(/_/g, ' ')}:</label>
                 {attributeTypes[attribute] === 'date' ? (
@@ -96,6 +123,14 @@ const AddForm = () => {
                       )}
                     />
                   </LocalizationProvider>
+                ) : attributeTypes[attribute] === 'file' ? (
+                  <input
+                    type="file"
+                    className="cntr"
+                    id={attribute}
+                    onChange={handleFileChange}
+                    required
+                  />
                 ) : (
                   <input
                     type="text"

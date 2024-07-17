@@ -163,7 +163,7 @@ function SideBar() {
           </Link>
         </li>
         <li className={isActive('/dashboard/other-forms')}>
-          <Link to="/dashboard/other-forms">
+          <Link to="/dashboard/forms">
             <img src={others} width="40px" height="40px" alt="other forms" />
             Other Forms
           </Link>

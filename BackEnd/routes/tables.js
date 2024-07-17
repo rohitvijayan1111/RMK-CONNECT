@@ -3,8 +3,9 @@ const router = express.Router();
 const db = require('../config/db');
 const util = require('util');
 const moment = require('moment');
-
-
+const path = require('path'); 
+const multer = require('multer');
+const fs = require('fs').promises;;
 const query = util.promisify(db.query).bind(db);
 const getFriendlyErrorMessage = (errCode) => {
   switch (errCode) {
@@ -48,6 +49,7 @@ router.post('/gettable', async (req, res) => {
   {
     recordSql+='WHERE department = ?';
   }
+  recordSql+='ORDER BY department'     
   const columnSql = 'SHOW COLUMNS FROM ??';
   
   const columnValues = [table];
@@ -66,7 +68,7 @@ router.post('/gettable', async (req, res) => {
     res.status(200).json({ columnNames, data: recordResults });
   } catch (err) {
     console.error(err.message);
-    return res.status(500).send(getFriendlyErrorMessage(err.code));
+    return res.status(500).json({ error: getFriendlyErrorMessage(error.code) });
   }
 });
 router.put('/updaterecord', async (req, res) => {
@@ -94,26 +96,52 @@ router.put('/updaterecord', async (req, res) => {
     res.json({ message: 'Record updated successfully' });
   } catch (error) {
     console.error('Error updating record:', error);
-    res.status(500).send(getFriendlyErrorMessage(error.code));
+    res.status(500).json({ error: getFriendlyErrorMessage(error.code) });
   }
 });
-router.post('/insertrecord', async (req, res) => {
-  const { data, table } = req.body;
+const storage = multer.diskStorage({
+  destination: async (req, file, cb) => {
+    const table = req.body.table;
+    const dir = `./uploads/${table}`;
+    await fs.mkdir(dir, { recursive: true });
+    cb(null, dir);
+  },
+  filename: (req, file, cb) => {
+    const fileName = `${moment().format('YYYYMMDD_HHmmss')}_${file.originalname}`;
+    cb(null, fileName); 
+  }
+});
 
-  if (!data || !table) {
+const upload = multer({ storage: storage });
+
+router.post('/insertrecord', upload.single('file'), async (req, res) => {
+  const { table, ...data } = req.body;
+
+  if (!table || !data) {
     return res.status(400).json({ error: 'Data and table are required' });
   }
 
   try {
+    let filePath = null;
+    if (req.file) {
+      filePath = req.file.path;
+      data.document = filePath;
+    }
+
     await query('INSERT INTO ?? SET ?', [table, data]);
 
     res.json({ message: 'Record inserted successfully' });
   } catch (error) {
     console.error('Error inserting record:', error);
-    res.status(500).json({ error: 'Internal Server Error' });
+    const friendlyMessage = getFriendlyErrorMessage(error.code);
+    res.status(500).json({ error: `${friendlyMessage}` });
   }
 });
-
+router.get('/getfile/:file', async (req, res) => {
+  const file = req.params.file;
+  const filePath = `../uploads/${table}/${file}`;
+  res.sendFile(filePath);
+});
 router.delete('/deleterecord', async (req, res) => {
   const { id, table } = req.body;
 
@@ -127,7 +155,7 @@ router.delete('/deleterecord', async (req, res) => {
     res.json({ message: 'Item deleted successfully' });
   } catch (err) {
     console.error('Error deleting item:', err.stack);
-    res.status(500).send(getFriendlyErrorMessage(err.code));
+    res.status(500).json({ error: getFriendlyErrorMessage(error.code) });
   }
 });
 router.post('/locktable', async (req, res) => {
@@ -142,7 +170,7 @@ router.post('/locktable', async (req, res) => {
     res.json({ message: 'Item lock status updated successfully' });
   } catch (err) {
     console.error('Error updating lock status:', err.stack);
-    res.status(500).send(getFriendlyErrorMessage(err.code));
+    res.status(500).json({ error: getFriendlyErrorMessage(error.code) });
   }
 });
 
@@ -163,7 +191,8 @@ router.post('/getlocktablestatus', async (req, res) => {
     }
   } catch (err) {
     console.error('Failed to fetch lock status:', err.stack);
-    res.status(500).send(getFriendlyErrorMessage(err.code));
+    res.status(500).json({ error: getFriendlyErrorMessage(error.code) });
   }
 });
+
 module.exports = router;

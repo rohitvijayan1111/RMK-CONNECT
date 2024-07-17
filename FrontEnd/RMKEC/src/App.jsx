@@ -36,7 +36,8 @@ import Available_Halls from "./HallBooking_Component/Available_Halls";
 import DashBoard_Hall from "./HallBooking_Component/DashBoard_Hall";
 import Invalidpage from "./Pages/Invalidpage";
 import IV from "./Pages/IV";
-import { OtherForms } from "./Components/OtherForms";
+import OtherForms from "./Components/OtherForms";
+import OtherFormsRecords from "./Components/OtherFormsRecords";
 
 function ScrollToTop() {
   const { pathname } = useLocation();
@@ -68,9 +69,6 @@ function App() {
               <Route path="sports" element={<Sports />} />
               <Route path="achievements" element={<Achievements />} />
               <Route path="iv" element={<IV />} />
-              <Route path="view-form" element={<ViewForm />} />
-              <Route path="view-form/edit-form" element={<EditForm />} />
-              <Route path="view-form/add-form" element={<AddForm />} />
               <Route path="view-other-forms" element={<ViewOtherForms />} />
               <Route path="view-other-forms/new-form" element={<AddOtherForm />} />
               <Route path="view-other-forms/new-record" element={<AddNewRecord />} />
@@ -88,7 +86,11 @@ function App() {
               <Route path="Past-Events" element={<Past_Events />} />
               <Route path="Available-Halls" element={<Available_Halls />} />
               <Route path="DashBoard-Hall" element={<DashBoard_Hall />} />
-              <Route path="other-forms" element={<OtherForms/>} />
+              <Route path="forms" element={<OtherForms/>} />
+              <Route path="forms/form-records" element={<OtherFormsRecords/>} />
+              <Route path="forms/form-records/edit-form" element={<EditForm />} />
+              <Route path="forms/form-records/add-form" element={<AddForm />} />
+              
               <Route path="*" element={<Invalidpage />} />
             </Route>
             <Route path="*" element={<Invalidpage />} />
