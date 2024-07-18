@@ -97,18 +97,17 @@ const Dashboard_admin = () => {
   const transformadminstaffData = (data) => {
     return data.map((item) => ({
       name: departmentMapping[item.department] || item.department, 
-      value:item.PG_Staff+item.Pursuing_PG+item.Asst_Prof+item.Non_Technical,
-      PG_Staff:item.PG_Staff ,
-      Pursuing_PG:item.Pursuing_PG,
-      Asst_Prof:item.Asst_Prof ,
-      Non_Technical: item.Non_Technical,
+    value: item.Professor + item.Associate_Professor + item.Assistant_Professor,
+    'Professor': item.Professor,
+    'Associate Professor': item.Associate_Professor,
+    'Assistant Professor': item.Assistant_Professor
     }));
   };
   const fetchadminStudentyrsData = async () => {
     try {
       const response = await axios.post("http://localhost:3000/graphs/adminstudentsyrsgraph", {});
       setadminStudentYrsDetails(transformadminyrsData(response.data));
-      console.log(response.data);
+      //console.log(response.data);
     } catch (error) {
       console.error('Error fetching student data:', error);
     }
