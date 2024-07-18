@@ -88,7 +88,7 @@ function App() {
               <Route path="DashBoard-Hall" element={<DashBoard_Hall />} />
               <Route path="forms" element={<OtherForms/>} />
               <Route path="forms/form-records" element={<OtherFormsRecords/>} />
-              <Route path="forms/form-records/edit-form" element={<EditForm />} />
+              <Route path="forms/form-records/edit-form" element={<EditForm/>} />
               <Route path="forms/form-records/add-form" element={<AddForm />} />
               
               <Route path="*" element={<Invalidpage />} />

@@ -1,6 +1,6 @@
 import axios from 'axios';
 import React, { useState } from 'react';
-import { useLocation, useNavigate} from 'react-router-dom';
+import { useLocation, useNavigate } from 'react-router-dom';
 import { AdapterDayjs } from '@mui/x-date-pickers/AdapterDayjs';
 import { LocalizationProvider } from '@mui/x-date-pickers/LocalizationProvider';
 import { DatePicker } from '@mui/x-date-pickers/DatePicker';
@@ -18,18 +18,18 @@ const EditForm = () => {
 
   const attributeTypes = {
     'completion_date': 'date',
-    'Proposed Date':'date',
-    'Date of completion':'date',
-    'Proposed date of visit':'date',
-    'Actual Date  Visited':'date',
-    'Date_of_event_planned':'date',
-    'Date_of_completion':'date',
-    'Date planned':'date',
-    'Actual Date of lecture':'date',
-    'Completion Date of Event':'date',
-    'Date of Interview':'date',
-    'start_date':'date',
-    'end_date':'date',
+    'Proposed Date': 'date',
+    'Date of completion': 'date',
+    'Proposed date of visit': 'date',
+    'Actual Date  Visited': 'date',
+    'Date_of_event_planned': 'date',
+    'Date_of_completion': 'date',
+    'Date planned': 'date',
+    'Actual Date of lecture': 'date',
+    'Completion Date of Event': 'date',
+    'Date of Interview': 'date',
+    'start_date': 'date',
+    'end_date': 'date'
   };
 
   const notifysuccess = () => {
@@ -91,7 +91,8 @@ const EditForm = () => {
         navigate(-1);
       }, 1500);
     } catch (error) {
-      notifyfailure(error.response.data.error || 'Error inserting record');
+      notifyfailure(error.response?.data?.error || 'Error inserting record');
+    }
   };
 
   return (
@@ -144,5 +145,5 @@ const EditForm = () => {
     </div>
   );
 };
-}
+
 export default EditForm;
