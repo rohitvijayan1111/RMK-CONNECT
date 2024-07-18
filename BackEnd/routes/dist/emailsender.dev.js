@@ -40,8 +40,8 @@ router.post('/send', function _callee(req, res) {
               address: 'rohitvijayandrive@gmail.com'
             },
             to: to,
-            subject: "New Form Created: ".concat(subject),
-            text: "A new form has been created. Deadline: ".concat(desc)
+            subject: "".concat(subject),
+            text: "".concat(desc)
           };
           _context.prev = 2;
           _context.next = 5;
