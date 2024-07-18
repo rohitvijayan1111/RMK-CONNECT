@@ -191,6 +191,7 @@ function OtherFormsRecords() {
     'start_date':'date',
     'end_date':'date',
     'document':'file',
+    
 
   };
 
@@ -328,7 +329,7 @@ function OtherFormsRecords() {
                     name === "id" ? <td key={attrIndex}>{index + 1}</td> :
                       <td key={attrIndex}>
                         {attributeTypes[name] === "date" ? formatDate(item[name]) : (
-                          (name === "website_link" || name==="website link") && item[name] ?
+                          (name === "website_link" || name==="website link" || name==="Website_Link") && item[name] ?
                             <a href={item[name]} target="_blank" rel="noopener noreferrer">Link</a>
                             : attributeTypes[name] === "file" ? (
                               <button type="button" onClick={() => handlePreview(table,item[name])} className="view-button">Download</button>
