@@ -190,7 +190,8 @@ function OtherFormsRecords() {
     'Date of Interview':'date',
     'start_date':'date',
     'end_date':'date',
-    'document':'file'
+    'document':'file',
+
   };
 
   const handleSearch = () => {
@@ -225,12 +226,17 @@ function OtherFormsRecords() {
       const { id, ...filteredItem } = item;
       return filteredItem;
     });
+  
     const ws = utils.json_to_sheet(filteredData);
     const wb = utils.book_new();
-    utils.book_append_sheet(wb, ws, 'ClubActivitiesData');
-
-    writeFile(wb, 'ClubActivitiesData.xlsx');
+    const sheetName = `${table}Data`; 
+    const fileName = `${sheetName}.xlsx`;
+  
+    utils.book_append_sheet(wb, ws, sheetName);
+  
+    writeFile(wb, fileName);
   };
+  
   const handlePreview = async (table, documentPath) => {
     try {
       const response = await axios.post('http://localhost:3000/tables/getfile', { table, documentPath }, {
@@ -322,7 +328,7 @@ function OtherFormsRecords() {
                     name === "id" ? <td key={attrIndex}>{index + 1}</td> :
                       <td key={attrIndex}>
                         {attributeTypes[name] === "date" ? formatDate(item[name]) : (
-                          name === "website_link" && item[name] ?
+                          (name === "website_link" || name==="website link") && item[name] ?
                             <a href={item[name]} target="_blank" rel="noopener noreferrer">Link</a>
                             : attributeTypes[name] === "file" ? (
                               <button type="button" onClick={() => handlePreview(table,item[name])} className="view-button">Download</button>

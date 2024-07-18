@@ -13,12 +13,12 @@ import Coursecoverage from "./Pages/Coursecoverage";
 import Sports from "./Pages/Sports";
 import Achievements from "./Pages/Achievements";
 import Clubactivities from "./Pages/Clubactivities";
+import Placements from "./Pages/Placements";
 import EmailNotification from "./Pages/EmailNotification";
 import EditForm from "./Pages/EditForm";
 import ViewForm from "./Pages/ViewForm";
 import AddForm from "./Pages/AddForm";
 import Dashboard_admin from "./Pages/Dashboard_admin";
-import { Placements } from "./Pages/Placements";
 import Daily_Attendance from "./Attendance_Component/Daily-Attendance";
 import Edit_Entry from "./Attendance_Component/Edit_Entry";
 import Attendance_Log from "./Attendance_Component/Attendance_Log";
@@ -74,7 +74,7 @@ function App() {
               <Route path="view-other-forms/new-record" element={<AddNewRecord />} />
               <Route path="view-other-forms/view-record" element={<ViewOtherFormRecord />} />
               <Route path="view-other-forms/view-record/edit-form-record" element={<EditOtherFormRecord />} />
-              <Route path="placements" element={<Placements />} />
+              <Route path="placements" element={<Placements/>} />
               <Route path="Daily-Attendance" element={<Daily_Attendance />} />
               <Route path="Edit-Entry" element={<Edit_Entry />} />
               <Route path="Attendance-Log" element={<Attendance_Log />} />

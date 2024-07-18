@@ -108,7 +108,7 @@ function DashBoard_hod() {
           </GridItem>
           <GridItem title="Placement">
             <PlacementBarGraph Details={studentDetails} />
-            <Link to="/dashboard/placements">
+            <Link to="Placements">
                 <button className="cute-button">View</button>
             </Link>
           </GridItem>

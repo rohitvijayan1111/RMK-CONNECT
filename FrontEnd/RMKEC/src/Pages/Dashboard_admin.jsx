@@ -139,7 +139,7 @@ const Dashboard_admin = () => {
           </GridItem>
           <GridItem title="Placement" >
             <PrincipalBC data={adminstudentDetails}/>
-            <Link to="/dashboard/placements">
+            <Link to="placements">
                 <button className="cute-button">View</button>
             </Link>
           </GridItem>
