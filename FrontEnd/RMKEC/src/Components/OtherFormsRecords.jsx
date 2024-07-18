@@ -15,8 +15,9 @@ function OtherFormsRecords() {
   const location=useLocation();
   const {form} = location.state;
   const [table] = useState(form.form_table_name);
-  const [dept, setDept] = useState(window.localStorage.getItem('department'));
   const role = window.localStorage.getItem('userType');
+  const [dept, setDept] = useState((role==="hod")?window.localStorage.getItem('department'):"All");
+
   const [data, setData] = useState([]);
   const [originalData, setOriginalData] = useState([]);
   const [attributenames, setAttributenames] = useState([]);
@@ -262,9 +263,9 @@ function OtherFormsRecords() {
     <div className="container">
         <h1>{form.form_title}</h1>
       <div className="row mb-3">
-        <div className="col">
+        {role==='hod' && <div className="col">
           <button type="button" onClick={handleAdd} className="search-button">Add Records</button>
-        </div>
+        </div>}
 
         <div className="col">
           <select className="custom-select" value={searchColumn} onChange={(e) => setSearchColumn(e.target.value)}>
@@ -304,7 +305,7 @@ function OtherFormsRecords() {
           <table className="table table-bordered table-hover">
             <thead className="thead-dark">
               <tr>
-                {role !== "IQAC" && <th className="fixed-column">Action</th>}
+                {role === "hod"  && <th className="fixed-column">Action</th>}
                 {attributenames && attributenames.map((name, index) => (
                   name === "id" ? <th key={index}>S.No</th> : (
                     <th key={index}>{formatColumnName(name)}</th>
@@ -315,7 +316,7 @@ function OtherFormsRecords() {
             <tbody>
               {data.map((item, index) => (
                 <tr key={index}>
-                  {role !== "IQAC" &&
+                  {role === "hod" &&
                     <td>
                       <IconContext.Provider value={{ className: 'react-icons' }}>
                         <div className="icon-container">
