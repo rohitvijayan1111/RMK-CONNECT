@@ -89,23 +89,7 @@ function Placements() {
     navigate("edit-form", { state: { table, attributenames, item } });
   };
 
-  const handleAdd = () => {
-    if (lockedstatus) {
-      toast.error('Form is locked. You cannot add records.', {
-        position: "top-center",
-        autoClose: 4000,
-        hideProgressBar: false,
-        closeOnClick: true,
-        pauseOnHover: true,
-        draggable: true,
-        progress: undefined,
-        theme: "colored",
-        transition: Zoom,
-      });
-      return;
-    }
-    navigate("add-form", { state: { table, attributenames } });
-  };
+  
 
   const handleLock = async () => {
     Swal.fire({
@@ -252,50 +236,12 @@ function Placements() {
   return (
     <div className="container">
         <h1>{'Placements'}</h1>
-      <div className="row mb-3">
-        <div className="col">
-          <button type="button" onClick={handleAdd} className="search-button">Add Records</button>
-        </div>
-
-        <div className="col">
-          <select className="custom-select" value={searchColumn} onChange={(e) => setSearchColumn(e.target.value)}>
-            <option value="">Select Column to Search</option>
-            {attributenames.map((name, index) => (
-              <option key={index} value={name}>{formatColumnName(name)}</option>
-            ))}
-          </select>
-        </div>
-
-        <div className="col">
-          <input
-            type="text"
-            className="form-control"
-            placeholder="Enter search value"
-            value={searchValue}
-            onChange={(e) => setSearchValue(e.target.value)}
-          />
-        </div>
-
-        <div className="col">
-          <button type="button" onClick={handleSearch} className="search-button">Search</button>
-          <button type="button" onClick={resetSearch} className="bttreset">Reset</button>
-        </div>
-
-        {role === "IQAC" && <div className="col">
-          <button type="button" onClick={handleLock} className="bttlock">{(!lockedstatus) ? "Lock Form" : "Unlock Form"}</button>
-        </div>}
-        <div className="col">
-          <button type="button" onClick={exportToExcel} className="bttexport">Export to Excel</button>
-        </div>
-
-      </div>
-
       {data && (
         <div className="table-responsive">
           <table className="table table-bordered table-hover">
             <thead className="thead-dark">
               <tr>
-                {role !== "IQAC" && <th className="fixed-column">Action</th>}
+                
                 {attributenames && attributenames.map((name, index) => (
                   name === "id" ? <th key={index}>S.No</th> : (
                     <th key={index}>{formatColumnName(name)}</th>
@@ -306,16 +252,6 @@ function Placements() {
             <tbody>
               {data.map((item, index) => (
                 <tr key={index}>
-                  {role !== "IQAC" &&
-                    <td>
-                      <IconContext.Provider value={{ className: 'react-icons' }}>
-                        <div className="icon-container">
-                          <BsPencilSquare onClick={() => handleEdit(attributenames, item)} className="edit-icon" />
-                          <BsFillTrashFill onClick={() => handleDelete(item.id)} className="delete-icons" />
-                        </div>
-                      </IconContext.Provider>
-                    </td>
-                  }
                   {attributenames.map((name, attrIndex) => (
                     name === "id" ? <td key={attrIndex}>{index + 1}</td> :
                       <td key={attrIndex}>
