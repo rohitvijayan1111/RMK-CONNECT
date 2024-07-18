@@ -162,6 +162,12 @@ function SideBar() {
             Faculty Details
           </Link>
         </li>
+        <li className={isActive('/dashboard/mail')}>
+          <Link to="/dashboard/mail">
+            <img src={mail} width="40px" height="40px" alt="Mail" />
+            Mail
+          </Link>
+        </li>
         <li className={isActive('/dashboard/other-forms')}>
           <Link to="/dashboard/forms">
             <img src={others} width="40px" height="40px" alt="other forms" />
@@ -180,12 +186,7 @@ function SideBar() {
             I V
           </Link>
         </li>
-        <li className={isActive('/dashboard/mail')}>
-          <Link to="/dashboard/mail">
-            <img src={mail} width="40px" height="40px" alt="Mail" />
-            Mail
-          </Link>
-        </li>
+        
 
         <li className={`more-button ${showHallBookingLinks ? 'active' : ''}`} onMouseEnter={handleMouseEnterExtraLinks} onMouseLeave={handleMouseLeaveExtraLinks}>
           <h3>...</h3>
