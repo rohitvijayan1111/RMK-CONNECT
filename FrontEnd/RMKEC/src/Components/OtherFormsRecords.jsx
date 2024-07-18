@@ -188,6 +188,8 @@ function OtherFormsRecords() {
     'Actual Date of lecture':'date',
     'Completion Date of Event':'date',
     'Date of Interview':'date',
+    'start_date':'date',
+    'end_date':'date',
     'document':'file'
   };
 

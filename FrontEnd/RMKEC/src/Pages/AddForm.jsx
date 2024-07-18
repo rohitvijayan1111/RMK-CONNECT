@@ -29,6 +29,8 @@ const AddForm = () => {
     'Completion Date of Event': 'date',
     'Date of Interview': 'date',
     'document': 'file',
+    'start_date':'date',
+    'end_date':'date',
   };
 
   const notifysuccess = () => {
