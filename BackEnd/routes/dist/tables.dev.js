@@ -18,10 +18,12 @@ var path = require('path');
 
 var multer = require('multer');
 
-var fs = require('fs').promises;
+var fs = require('fs');
 
-;
 var query = util.promisify(db.query).bind(db);
+
+var fsPromises = require('fs').promises; // For async operations
+
 
 var getFriendlyErrorMessage = function getFriendlyErrorMessage(errCode) {
   switch (errCode) {
@@ -218,7 +220,7 @@ var storage = multer.diskStorage({
             table = req.body.table;
             dir = "./uploads/".concat(table);
             _context3.next = 4;
-            return regeneratorRuntime.awrap(fs.mkdir(dir, {
+            return regeneratorRuntime.awrap(fsPromises.mkdir(dir, {
               recursive: true
             }));
 
@@ -293,31 +295,49 @@ router.post('/insertrecord', upload.single('file'), function _callee3(req, res) 
     }
   }, null, null, [[3, 11]]);
 });
-router.get('/getfile/:file', function _callee4(req, res) {
-  var file, filePath;
+router.post('/getfile', function _callee4(req, res) {
+  var _req$body3, table, documentPath, filePath;
+
   return regeneratorRuntime.async(function _callee4$(_context5) {
     while (1) {
       switch (_context5.prev = _context5.next) {
         case 0:
-          file = req.params.file;
-          filePath = "../uploads/".concat(table, "/").concat(file);
-          res.sendFile(filePath);
+          _req$body3 = req.body, table = _req$body3.table, documentPath = _req$body3.documentPath;
+          _context5.prev = 1;
+          filePath = path.join(__dirname, "../".concat(documentPath));
+          _context5.next = 5;
+          return regeneratorRuntime.awrap(fsPromises.access(filePath));
 
-        case 3:
+        case 5:
+          res.setHeader('Content-Disposition', "attachment; filename=\"".concat(documentPath, "\""));
+          res.setHeader('Content-Type', 'application/octet-stream');
+          fs.createReadStream(filePath).pipe(res);
+          _context5.next = 14;
+          break;
+
+        case 10:
+          _context5.prev = 10;
+          _context5.t0 = _context5["catch"](1);
+          console.error('Error sending file:', _context5.t0);
+          res.status(404).json({
+            error: 'File not found'
+          });
+
+        case 14:
         case "end":
           return _context5.stop();
       }
     }
-  });
+  }, null, null, [[1, 10]]);
 });
 router["delete"]('/deleterecord', function _callee5(req, res) {
-  var _req$body3, id, table;
+  var _req$body4, id, table;
 
   return regeneratorRuntime.async(function _callee5$(_context6) {
     while (1) {
       switch (_context6.prev = _context6.next) {
         case 0:
-          _req$body3 = req.body, id = _req$body3.id, table = _req$body3.table;
+          _req$body4 = req.body, id = _req$body4.id, table = _req$body4.table;
 
           if (!(!table || !id)) {
             _context6.next = 3;
@@ -357,13 +377,13 @@ router["delete"]('/deleterecord', function _callee5(req, res) {
   }, null, null, [[4, 10]]);
 });
 router.post('/locktable', function _callee6(req, res) {
-  var _req$body4, id, lock;
+  var _req$body5, id, lock;
 
   return regeneratorRuntime.async(function _callee6$(_context7) {
     while (1) {
       switch (_context7.prev = _context7.next) {
         case 0:
-          _req$body4 = req.body, id = _req$body4.id, lock = _req$body4.lock;
+          _req$body5 = req.body, id = _req$body5.id, lock = _req$body5.lock;
 
           if (!(!id || lock === undefined)) {
             _context7.next = 3;
@@ -402,13 +422,13 @@ router.post('/locktable', function _callee6(req, res) {
   }, null, null, [[3, 9]]);
 });
 router.post('/getlocktablestatus', function _callee7(req, res) {
-  var _req$body5, id, table, results;
+  var _req$body6, id, table, results;
 
   return regeneratorRuntime.async(function _callee7$(_context8) {
     while (1) {
       switch (_context8.prev = _context8.next) {
         case 0:
-          _req$body5 = req.body, id = _req$body5.id, table = _req$body5.table;
+          _req$body6 = req.body, id = _req$body6.id, table = _req$body6.table;
 
           if (!(!table || !id)) {
             _context8.next = 3;

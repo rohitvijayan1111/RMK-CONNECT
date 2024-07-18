@@ -5,8 +5,10 @@ const util = require('util');
 const moment = require('moment');
 const path = require('path'); 
 const multer = require('multer');
-const fs = require('fs').promises;;
+const fs = require('fs');
 const query = util.promisify(db.query).bind(db);
+const fsPromises = require('fs').promises; // For async operations
+
 const getFriendlyErrorMessage = (errCode) => {
   switch (errCode) {
     case 'ER_NO_SUCH_TABLE':
@@ -99,11 +101,12 @@ router.put('/updaterecord', async (req, res) => {
     res.status(500).json({ error: getFriendlyErrorMessage(error.code) });
   }
 });
+
 const storage = multer.diskStorage({
   destination: async (req, file, cb) => {
     const table = req.body.table;
     const dir = `./uploads/${table}`;
-    await fs.mkdir(dir, { recursive: true });
+    await fsPromises.mkdir(dir, { recursive: true });
     cb(null, dir);
   },
   filename: (req, file, cb) => {
@@ -137,10 +140,20 @@ router.post('/insertrecord', upload.single('file'), async (req, res) => {
     res.status(500).json({ error: `${friendlyMessage}` });
   }
 });
-router.get('/getfile/:file', async (req, res) => {
-  const file = req.params.file;
-  const filePath = `../uploads/${table}/${file}`;
-  res.sendFile(filePath);
+
+router.post('/getfile', async (req, res) => {
+  const { table, documentPath } = req.body;
+
+  try {
+    const filePath = path.join(__dirname, `../${documentPath}`);
+    await fsPromises.access(filePath);
+    res.setHeader('Content-Disposition', `attachment; filename="${documentPath}"`);
+    res.setHeader('Content-Type', 'application/octet-stream');
+    fs.createReadStream(filePath).pipe(res);
+  } catch (error) {
+    console.error('Error sending file:', error);
+    res.status(404).json({ error: 'File not found' });
+  }
 });
 router.delete('/deleterecord', async (req, res) => {
   const { id, table } = req.body;

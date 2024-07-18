@@ -229,19 +229,25 @@ function OtherFormsRecords() {
 
     writeFile(wb, 'ClubActivitiesData.xlsx');
   };
-  const handlePreview = (file) => {
-    axios.get(`http://localhost:3000/tables/getfile/${file}`, {
-      responseType: 'arraybuffer'
-    })
-    .then(response => {
-      const pdfBuffer = response.data;
-      const pdfUrl = URL.createObjectURL(new Blob([pdfBuffer], { type: 'application/pdf' }));
-      const pdfViewer = <PdfViewer pdfUrl={pdfUrl} />;
-      // Render the pdfViewer component in your application
-    })
-    .catch(error => {
-      console.error(error);
-    });
+  const handlePreview = async (table, documentPath) => {
+    try {
+      const response = await axios.post('http://localhost:3000/tables/getfile', { table, documentPath }, {
+        responseType: 'arraybuffer'
+      });
+  
+      const blob = new Blob([response.data], { type: 'application/octet-stream' });
+      const url = URL.createObjectURL(blob);
+  
+      const link = document.createElement('a');
+      link.href = url;
+      link.download = documentPath;
+      link.click();
+  
+      URL.revokeObjectURL(url);
+    } catch (error) {
+      console.error('Error fetching file:', error);
+      notifyFailure('Error fetching file');
+    }
   };
   return (
     <div className="container">
@@ -317,7 +323,7 @@ function OtherFormsRecords() {
                           name === "website_link" && item[name] ?
                             <a href={item[name]} target="_blank" rel="noopener noreferrer">Link</a>
                             : attributeTypes[name] === "file" ? (
-                              <button type="button" onClick={() => handlePreview(item[name])} className="view-button">View</button>
+                              <button type="button" onClick={() => handlePreview(table,item[name])} className="view-button">Download</button>
                             ) : item[name]
                         )}
                       </td>

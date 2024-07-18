@@ -69,10 +69,9 @@ function DashBoard_hod() {
 
   const transformStaffData = (data) => {
     return [
-      { name: "PG Staff", value: data.PG_Staff },
-      { name: "Pursuing PG", value: data.Pursuing_PG },
-      { name: "Asst. Prof", value: data.Asst_Prof },
-      { name: "Non-Technical", value: data.Non_Technical },
+      { name: "Assistant Professor", value: data.Assistant_Professor},
+      { name: "Associate Professor", value: data.Associate_Professor},
+      { name: "Assistant Professor", value: data.Assistant_Professor},
     ];
   };
 

@@ -47,10 +47,9 @@ router.post('/staffgraph', (req, res) => {
   const {dept} = req.body;
   const query = `
     SELECT 
-      SUM(CASE WHEN designation = 'PG Staff' THEN 1 ELSE 0 END) as PG_Staff,
-      SUM(CASE WHEN designation = 'Asst. Prof' THEN 1 ELSE 0 END) as Asst_Prof,
-      SUM(CASE WHEN designation = 'Pursuing PG' THEN 1 ELSE 0 END) as Pursuing_PG,
-      SUM(CASE WHEN designation = 'Non-Technical' THEN 1 ELSE 0 END) as Non_Technical
+      SUM(CASE WHEN designation = 'Professor' THEN 1 ELSE 0 END) as Professor,
+      SUM(CASE WHEN designation = 'Associate Professor' THEN 1 ELSE 0 END) as Associate_Professor,
+      SUM(CASE WHEN designation = 'Assistant Professor' THEN 1 ELSE 0 END) as Assistant_Professor
     FROM 
       staffs
     WHERE 

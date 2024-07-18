@@ -42,7 +42,7 @@ router.post('/studentsgraph', function (req, res) {
 });
 router.post('/staffgraph', function (req, res) {
   var dept = req.body.dept;
-  var query = "\n    SELECT \n      SUM(CASE WHEN designation = 'PG Staff' THEN 1 ELSE 0 END) as PG_Staff,\n      SUM(CASE WHEN designation = 'Asst. Prof' THEN 1 ELSE 0 END) as Asst_Prof,\n      SUM(CASE WHEN designation = 'Pursuing PG' THEN 1 ELSE 0 END) as Pursuing_PG,\n      SUM(CASE WHEN designation = 'Non-Technical' THEN 1 ELSE 0 END) as Non_Technical\n    FROM \n      staffs\n    WHERE \n      department = ?;\n  ";
+  var query = "\n    SELECT \n      SUM(CASE WHEN designation = 'Professor' THEN 1 ELSE 0 END) as Professor,\n      SUM(CASE WHEN designation = 'Associate Professor' THEN 1 ELSE 0 END) as Associate_Professor,\n      SUM(CASE WHEN designation = 'Assistant Professor' THEN 1 ELSE 0 END) as Assistant_Professor\n    FROM \n      staffs\n    WHERE \n      department = ?;\n  ";
   db.query(query, [dept], function (err, results) {
     if (err) {
       console.error('Error executing query:', err);
@@ -72,7 +72,7 @@ router.post('/studentsyrsgraph', function (req, res) {
 });
 router.post('/adminstudentsgraph', function (req, res) {
   var academic_year = req.body.academic_year;
-  var query = "\n    SELECT\n      department, \n      SUM(IF(placements_status = 'placed', 1, 0)) AS placed_students,\n      SUM(IF(placements_status = 'pending', 1, 0)) AS yet_placed_students,\n      SUM(IF(higher_studies_status != 'not applicable', 1, 0)) AS higher_studies_students\n    FROM \n      students\n    WHERE \n      academic_year = ?\n    GROUP BY \n      department\n  ";
+  var query = "\n    SELECT\n      department, \n      SUM(IF(placements_status = 'placed', 1, 0)) AS placed_students,\n      SUM(IF(placements_status = 'pending', 1, 0)) AS yet_placed_students,\n      SUM(IF(higher_studies_status != 'not applicable', 1, 0)) AS higher_studies_students\n    FROM \n      students\n    WHERE \n      academic_year = ?\n    GROUP BY \n      department\n    ORDER By\n      department\n  ";
   db.query(query, [academic_year], function (err, results) {
     if (err) {
       console.error('Error executing query:', err);
