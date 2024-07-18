@@ -87,7 +87,7 @@ router.post('/adminstudentsgraph', function (req, res) {
 });
 router.post('/adminstaffgraph', function (req, res) {
   var dept = req.body.dept;
-  var query = "\n    SELECT \n      department,\n      SUM(CASE WHEN designation = 'PG Staff' THEN 1 ELSE 0 END) as PG_Staff,\n      SUM(CASE WHEN designation = 'Asst. Prof' THEN 1 ELSE 0 END) as Asst_Prof,\n      SUM(CASE WHEN designation = 'Pursuing PG' THEN 1 ELSE 0 END) as Pursuing_PG,\n      SUM(CASE WHEN designation = 'Non-Technical' THEN 1 ELSE 0 END) as Non_Technical\n    FROM \n      staffs GROUP BY department;\n  ";
+  var query = "\n    SELECT \n      department,\n      SUM(CASE WHEN designation = 'Professor' THEN 1 ELSE 0 END) as Professor,\n      SUM(CASE WHEN designation = 'Associate Professor' THEN 1 ELSE 0 END) as Associate_Professor,\n      SUM(CASE WHEN designation = 'Assistant Professor' THEN 1 ELSE 0 END) as Assistant_Professor\n    FROM \n      staffs GROUP BY department;\n  ";
   db.query(query, [], function (err, results) {
     if (err) {
       console.error('Error executing query:', err);
