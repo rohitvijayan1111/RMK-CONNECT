@@ -15,6 +15,7 @@ const AddForm = () => {
   const { table, attributenames } = location.state;
   const [data, setData] = useState({ department: window.localStorage.getItem('department') });
   const [file, setFile] = useState(null);
+  const [fileInputKey, setFileInputKey] = useState(Date.now()); // Add key state for file input
 
   const attributeTypes = {
     'completion_date': 'date',
@@ -29,8 +30,8 @@ const AddForm = () => {
     'Completion Date of Event': 'date',
     'Date of Interview': 'date',
     'document': 'file',
-    'start_date':'date',
-    'end_date':'date',
+    'start_date': 'date',
+    'end_date': 'date',
   };
 
   const notifysuccess = () => {
@@ -67,8 +68,13 @@ const AddForm = () => {
   };
 
   const handleFileChange = (e) => {
-    const selectedFile = e.target.files[0]; 
-    setFile(selectedFile); 
+    const selectedFile = e.target.files[0];
+    setFile(selectedFile);
+  };
+
+  const handleFileReset = () => {
+    setFile(null);
+    setFileInputKey(Date.now()); // Reset the key to re-render the input
   };
 
   const handleSubmit = async (e) => {
@@ -80,10 +86,10 @@ const AddForm = () => {
       Object.entries(data).forEach(([key, value]) => {
         formData.append(key, value);
       });
-      if(file){
+      if (file) {
         console.log("File exists");
-      formData.append('file', file);
-}
+        formData.append('file', file);
+      }
       const response = await axios.post("http://localhost:3000/tables/insertrecord", formData, {
         headers: {
           'Content-Type': 'multipart/form-data'
@@ -126,13 +132,17 @@ const AddForm = () => {
                     />
                   </LocalizationProvider>
                 ) : attributeTypes[attribute] === 'file' ? (
-                  <input
-                    type="file"
-                    className="cntr"
-                    id={attribute}
-                    onChange={handleFileChange}
-                    required
-                  />
+                  <>
+                    <input
+                      type="file"
+                      className="cntr"
+                      id={attribute}
+                      onChange={handleFileChange}
+                      key={fileInputKey} // Add the key prop to re-render the input
+                      required
+                    />
+                    <button type="button" onClick={handleFileReset}>Reset File</button>
+                  </>
                 ) : (
                   <input
                     type="text"

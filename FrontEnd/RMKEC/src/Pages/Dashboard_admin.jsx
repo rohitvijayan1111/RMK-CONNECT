@@ -107,7 +107,6 @@ const Dashboard_admin = () => {
     try {
       const response = await axios.post("http://localhost:3000/graphs/adminstudentsyrsgraph", {});
       setadminStudentYrsDetails(transformadminyrsData(response.data));
-      //console.log(response.data);
     } catch (error) {
       console.error('Error fetching student data:', error);
     }
