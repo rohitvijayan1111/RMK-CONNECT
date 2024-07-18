@@ -18,7 +18,6 @@ function Facultydetails() {
   const [data, setData] = useState([]);
   const [originalData, setOriginalData] = useState([]);
   const [attributenames, setAttributenames] = useState([]);
-  const [lockedstatus, setLockedstatus] = useState('');
   const [searchColumn, setSearchColumn] = useState('');
   const [searchValue, setSearchValue] = useState('');
   
@@ -41,7 +40,6 @@ function Facultydetails() {
       setDept('All');
     }
     
-
     const fetchData = async () => {
       try {
         const response = await axios.post('http://localhost:3000/tables/gettable', { table: table, department: dept });
@@ -58,31 +56,16 @@ function Facultydetails() {
         setAttributenames([]);
       }
     };
-
-    fetchLockStatus();
     fetchData();
   }, [dept]);
 
   const handleEdit = (attributenames, item) => {
-    if (lockedstatus) {
-      toast.error('Form is locked. You cannot edit records.', {
-        position: "top-center",
-        autoClose: 4000,
-        hideProgressBar: false,
-        closeOnClick: true,
-        pauseOnHover: true,
-        draggable: true,
-        progress: undefined,
-        theme: "colored",
-        transition: Zoom,
-      });
-      return;
-    }
     navigate("edit-form", { state: { table, attributenames, item } });
   };
 
-  
-
+  const handleAdd = () => {
+    navigate("add-form", { state: { table, attributenames } });
+  };
 
   const handleDelete = async (id) => {
     if (lockedstatus) {
@@ -132,20 +115,7 @@ function Facultydetails() {
   };
 
   const attributeTypes = {
-    'completion_date': 'date',
-    'Proposed Date':'date',
-    'Date of completion':'date',
-    'Proposed date of visit':'date',
-    'Actual Date  Visited':'date',
-    'Date_of_event_planned':'date',
-    'Date_of_completion':'date',
-    'Date planned':'date',
-    'Actual Date of lecture':'date',
-    'Completion Date of Event':'date',
-    'Date of Interview':'date',
-    'start_date':'date',
-    'end_date':'date',
-    'document':'file'
+    'joining_date': 'date'
   };
 
   const handleSearch = () => {
@@ -180,41 +150,60 @@ function Facultydetails() {
       const { id, ...filteredItem } = item;
       return filteredItem;
     });
+  
     const ws = utils.json_to_sheet(filteredData);
     const wb = utils.book_new();
-    utils.book_append_sheet(wb, ws, 'ClubActivitiesData');
-
-    writeFile(wb, 'ClubActivitiesData.xlsx');
+    const sheetName = `${table}Data`; 
+    const fileName = `${sheetName}.xlsx`;
+  
+    utils.book_append_sheet(wb, ws, sheetName);
+  
+    writeFile(wb, fileName);
   };
-  const handlePreview = async (table, documentPath) => {
-    try {
-      const response = await axios.post('http://localhost:3000/tables/getfile', { table, documentPath }, {
-        responseType: 'arraybuffer'
-      });
   
-      const blob = new Blob([response.data], { type: 'application/octet-stream' });
-      const url = URL.createObjectURL(blob);
-  
-      const link = document.createElement('a');
-      link.href = url;
-      link.download = documentPath;
-      link.click();
-  
-      URL.revokeObjectURL(url);
-    } catch (error) {
-      console.error('Error fetching file:', error);
-      notifyFailure('Error fetching file');
-    }
-  };
   return (
     <div className="container">
-        <h1>{'Placements'}</h1>
+        <h1>{'Staff Details'}</h1>
+      <div className="row mb-3">
+        <div className="col">
+          <button type="button" onClick={handleAdd} className="search-button">Add Records</button>
+        </div>
+
+        <div className="col">
+          <select className="custom-select" value={searchColumn} onChange={(e) => setSearchColumn(e.target.value)}>
+            <option value="">Select Column to Search</option>
+            {attributenames.map((name, index) => (
+              <option key={index} value={name}>{formatColumnName(name)}</option>
+            ))}
+          </select>
+        </div>
+
+        <div className="col">
+          <input
+            type="text"
+            className="form-control"
+            placeholder="Enter search value"
+            value={searchValue}
+            onChange={(e) => setSearchValue(e.target.value)}
+          />
+        </div>
+
+        <div className="col">
+          <button type="button" onClick={handleSearch} className="search-button">Search</button>
+          <button type="button" onClick={resetSearch} className="bttreset">Reset</button>
+        </div>
+        <div className="col">
+          <button type="button" onClick={exportToExcel} className="bttexport">Export to Excel</button>
+        </div>
+
+      </div>
+
       {data && (
         <div className="table-responsive">
           <table className="table table-bordered table-hover">
             <thead className="thead-dark">
               <tr>
-                
+                {role !== "IQAC" && <th className="fixed-column">Action</th>}
                 {attributenames && attributenames.map((name, index) => (
                   name === "id" ? <th key={index}>S.No</th> : (
                     <th key={index}>{formatColumnName(name)}</th>
@@ -225,11 +214,21 @@ function Facultydetails() {
             <tbody>
               {data.map((item, index) => (
                 <tr key={index}>
+                  {role !== "IQAC" &&
+                    <td>
+                      <IconContext.Provider value={{ className: 'react-icons' }}>
+                        <div className="icon-container">
+                          <BsPencilSquare onClick={() => handleEdit(attributenames, item)} className="edit-icon" />
+                          <BsFillTrashFill onClick={() => handleDelete(item.id)} className="delete-icons" />
+                        </div>
+                      </IconContext.Provider>
+                    </td>
+                  }
                   {attributenames.map((name, attrIndex) => (
                     name === "id" ? <td key={attrIndex}>{index + 1}</td> :
                       <td key={attrIndex}>
                         {attributeTypes[name] === "date" ? formatDate(item[name]) : (
-                          name === "website_link" && item[name] ?
+                          (name === "website_link" || name==="website link") && item[name] ?
                             <a href={item[name]} target="_blank" rel="noopener noreferrer">Link</a>
                             : attributeTypes[name] === "file" ? (
                               <button type="button" onClick={() => handlePreview(table,item[name])} className="view-button">Download</button>
@@ -237,6 +236,7 @@ function Facultydetails() {
                         )}
                       </td>
                   ))}
+                  
                 </tr>
               ))}
             </tbody>

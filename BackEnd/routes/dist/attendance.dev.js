@@ -10,6 +10,15 @@ var util = require('util');
 
 var moment = require('moment');
 
+var dayjs = require('dayjs');
+
+var timezone = require('dayjs/plugin/timezone');
+
+var utc = require('dayjs/plugin/utc');
+
+dayjs.extend(utc);
+dayjs.extend(timezone);
+
 var getFriendlyErrorMessage = function getFriendlyErrorMessage(errCode) {
   switch (errCode) {
     case 'ER_NO_SUCH_TABLE':
@@ -521,19 +530,20 @@ router.post('/getindividual', function _callee3(req, res) {
   }, null, null, [[4, 13]]);
 });
 router.post('/fetchtoday', function _callee4(req, res) {
-  var userGroup, currentDate, department, formattedDate, queryStr, params, results;
+  var userGroup, department, timeZone, currentDate, formattedDate, queryStr, params, results;
   return regeneratorRuntime.async(function _callee4$(_context5) {
     while (1) {
       switch (_context5.prev = _context5.next) {
         case 0:
           console.log('Received request body:', req.body);
           userGroup = req.body.selectedUserGroup;
-          currentDate = new Date();
           department = req.body.department;
-          formattedDate = currentDate.toISOString().slice(0, 10);
+          timeZone = 'Asia/Kolkata';
+          currentDate = dayjs().tz(timeZone);
+          formattedDate = currentDate.format('YYYY-MM-DD');
 
           if (!(!userGroup || !department)) {
-            _context5.next = 7;
+            _context5.next = 8;
             break;
           }
 
@@ -541,81 +551,81 @@ router.post('/fetchtoday', function _callee4(req, res) {
             error: 'User Group and Department are required'
           }));
 
-        case 7:
+        case 8:
           if (!(department === "All")) {
-            _context5.next = 21;
+            _context5.next = 22;
             break;
           }
 
           if (!(userGroup === 'Student')) {
-            _context5.next = 13;
+            _context5.next = 14;
             break;
           }
 
           queryStr = "\n                SELECT \n                    s.name AS name,\n                    s.academic_year AS academic_year,\n                    s.department AS dept,\n                    s.parent_mail AS parent_mail,\n                    a.reason AS Reason,\n                    a.leave_type AS Leave_Type\n                FROM students s\n                INNER JOIN absent_attendance_records a ON s.id = a.student_id\n                WHERE a.attendance_date = ? AND s.department IS NOT NULL;\n            ";
           params = [formattedDate];
-          _context5.next = 19;
+          _context5.next = 20;
           break;
 
-        case 13:
+        case 14:
           if (!(userGroup === 'Staff')) {
-            _context5.next = 18;
+            _context5.next = 19;
             break;
           }
 
           queryStr = "\n                SELECT \n                    st.name AS name,\n                    st.department AS dept,\n                    st.email AS staff_mail,\n                    a.reason AS Reason,\n                    a.leave_type AS Leave_Type\n                FROM staffs st\n                INNER JOIN absent_attendance_records a ON st.id = a.staff_id\n                WHERE a.attendance_date = ? AND st.department IS NOT NULL;\n            ";
           params = [formattedDate];
-          _context5.next = 19;
+          _context5.next = 20;
           break;
 
-        case 18:
+        case 19:
           return _context5.abrupt("return", res.status(400).json({
             error: 'Invalid User Group'
           }));
 
-        case 19:
-          _context5.next = 32;
+        case 20:
+          _context5.next = 33;
           break;
 
-        case 21:
+        case 22:
           if (!(userGroup === 'Student')) {
-            _context5.next = 26;
+            _context5.next = 27;
             break;
           }
 
           queryStr = "\n                SELECT \n                    s.name AS name,\n                    s.academic_year AS academic_year,\n                    s.department AS dept,\n                    s.parent_mail AS parent_mail,\n                    a.reason AS Reason,\n                    a.leave_type AS Leave_Type\n                FROM students s\n                INNER JOIN absent_attendance_records a ON s.id = a.student_id\n                WHERE a.attendance_date = ? AND s.department = ?;\n            ";
           params = [formattedDate, department];
-          _context5.next = 32;
+          _context5.next = 33;
           break;
 
-        case 26:
+        case 27:
           if (!(userGroup === 'Staff')) {
-            _context5.next = 31;
+            _context5.next = 32;
             break;
           }
 
           queryStr = "\n                SELECT \n                    st.name AS name,\n                    st.department AS dept,\n                    st.email AS staff_mail,\n                    a.reason AS Reason,\n                    a.leave_type AS Leave_Type\n                FROM staffs st\n                INNER JOIN absent_attendance_records a ON st.id = a.staff_id\n                WHERE a.attendance_date = ? AND st.department = ?;\n            ";
           params = [formattedDate, department];
-          _context5.next = 32;
+          _context5.next = 33;
           break;
 
-        case 31:
+        case 32:
           return _context5.abrupt("return", res.status(400).json({
             error: 'Invalid User Group'
           }));
 
-        case 32:
+        case 33:
           console.log('Executing query:', queryStr);
           console.log('With params:', params);
-          _context5.prev = 34;
-          _context5.next = 37;
+          _context5.prev = 35;
+          _context5.next = 38;
           return regeneratorRuntime.awrap(query(queryStr, params));
 
-        case 37:
+        case 38:
           results = _context5.sent;
 
           if (!(!results || results.length === 0)) {
-            _context5.next = 40;
+            _context5.next = 41;
             break;
           }
 
@@ -623,28 +633,28 @@ router.post('/fetchtoday', function _callee4(req, res) {
             error: 'No Records Found'
           }));
 
-        case 40:
+        case 41:
           res.json({
             message: 'Records fetched successfully',
             data: results
           });
-          _context5.next = 47;
+          _context5.next = 48;
           break;
 
-        case 43:
-          _context5.prev = 43;
-          _context5.t0 = _context5["catch"](34);
+        case 44:
+          _context5.prev = 44;
+          _context5.t0 = _context5["catch"](35);
           console.error('Error fetching records:', _context5.t0);
           res.status(500).json({
             error: 'Error fetching records'
           });
 
-        case 47:
+        case 48:
         case "end":
           return _context5.stop();
       }
     }
-  }, null, null, [[34, 43]]);
+  }, null, null, [[35, 44]]);
 });
 router.post('/fetchdatedata', function _callee5(req, res) {
   var userGroup, currentdate, department, formattedDate, queryStr, params, results;

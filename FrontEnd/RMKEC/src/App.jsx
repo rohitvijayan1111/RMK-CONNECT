@@ -90,7 +90,8 @@ function App() {
               <Route path="forms/form-records" element={<OtherFormsRecords/>} />
               <Route path="forms/form-records/edit-form" element={<EditForm/>} />
               <Route path="forms/form-records/add-form" element={<AddForm />} />
-              
+              <Route path="faculty-details/edit-form" element={<EditForm/>} />
+              <Route path="faculty-details/add-form" element={<AddForm />} />
               <Route path="*" element={<Invalidpage />} />
             </Route>
             <Route path="*" element={<Invalidpage />} />

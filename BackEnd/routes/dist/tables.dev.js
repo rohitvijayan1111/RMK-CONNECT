@@ -141,85 +141,16 @@ router.post('/gettable', function _callee(req, res) {
     }
   }, null, null, [[11, 24]]);
 });
-router.put('/updaterecord', function _callee2(req, res) {
-  var _req$body, id, data, table, existingRows;
-
-  return regeneratorRuntime.async(function _callee2$(_context2) {
-    while (1) {
-      switch (_context2.prev = _context2.next) {
-        case 0:
-          _req$body = req.body, id = _req$body.id, data = _req$body.data, table = _req$body.table;
-
-          if (!(!id || !data || !table)) {
-            _context2.next = 3;
-            break;
-          }
-
-          return _context2.abrupt("return", res.status(400).json({
-            error: 'Id, data, and table are required'
-          }));
-
-        case 3:
-          _context2.prev = 3;
-          _context2.next = 6;
-          return regeneratorRuntime.awrap(query('SELECT * FROM ?? WHERE id = ?', [table, id]));
-
-        case 6:
-          existingRows = _context2.sent;
-
-          if (!(existingRows.length === 0)) {
-            _context2.next = 9;
-            break;
-          }
-
-          return _context2.abrupt("return", res.status(404).json({
-            message: 'Record not found'
-          }));
-
-        case 9:
-          if (data.createdAt) {
-            data.createdAt = moment(data.createdAt).format('YYYY-MM-DD HH:mm:ss');
-          }
-
-          if (data.deadline) {
-            data.deadline = moment(data.deadline).format('YYYY-MM-DD HH:mm:ss');
-          }
-
-          _context2.next = 13;
-          return regeneratorRuntime.awrap(query('UPDATE ?? SET ? WHERE id = ?', [table, data, id]));
-
-        case 13:
-          res.json({
-            message: 'Record updated successfully'
-          });
-          _context2.next = 20;
-          break;
-
-        case 16:
-          _context2.prev = 16;
-          _context2.t0 = _context2["catch"](3);
-          console.error('Error updating record:', _context2.t0);
-          res.status(500).json({
-            error: getFriendlyErrorMessage(_context2.t0.code)
-          });
-
-        case 20:
-        case "end":
-          return _context2.stop();
-      }
-    }
-  }, null, null, [[3, 16]]);
-});
 var storage = multer.diskStorage({
   destination: function destination(req, file, cb) {
     var table, dir;
-    return regeneratorRuntime.async(function destination$(_context3) {
+    return regeneratorRuntime.async(function destination$(_context2) {
       while (1) {
-        switch (_context3.prev = _context3.next) {
+        switch (_context2.prev = _context2.next) {
           case 0:
             table = req.body.table;
             dir = "./uploads/".concat(table);
-            _context3.next = 4;
+            _context2.next = 4;
             return regeneratorRuntime.awrap(fsPromises.mkdir(dir, {
               recursive: true
             }));
@@ -229,7 +160,7 @@ var storage = multer.diskStorage({
 
           case 5:
           case "end":
-            return _context3.stop();
+            return _context2.stop();
         }
       }
     });
@@ -242,26 +173,26 @@ var storage = multer.diskStorage({
 var upload = multer({
   storage: storage
 });
-router.post('/insertrecord', upload.single('file'), function _callee3(req, res) {
-  var _req$body2, table, data, filePath, friendlyMessage;
+router.post('/insertrecord', upload.single('file'), function _callee2(req, res) {
+  var _req$body, table, data, filePath, friendlyMessage;
 
-  return regeneratorRuntime.async(function _callee3$(_context4) {
+  return regeneratorRuntime.async(function _callee2$(_context3) {
     while (1) {
-      switch (_context4.prev = _context4.next) {
+      switch (_context3.prev = _context3.next) {
         case 0:
-          _req$body2 = req.body, table = _req$body2.table, data = _objectWithoutProperties(_req$body2, ["table"]);
+          _req$body = req.body, table = _req$body.table, data = _objectWithoutProperties(_req$body, ["table"]);
 
           if (!(!table || !data)) {
-            _context4.next = 3;
+            _context3.next = 3;
             break;
           }
 
-          return _context4.abrupt("return", res.status(400).json({
+          return _context3.abrupt("return", res.status(400).json({
             error: 'Data and table are required'
           }));
 
         case 3:
-          _context4.prev = 3;
+          _context3.prev = 3;
           filePath = null;
 
           if (req.file) {
@@ -269,31 +200,110 @@ router.post('/insertrecord', upload.single('file'), function _callee3(req, res) 
             data.document = filePath;
           }
 
-          _context4.next = 8;
+          _context3.next = 8;
           return regeneratorRuntime.awrap(query('INSERT INTO ?? SET ?', [table, data]));
 
         case 8:
           res.json({
             message: 'Record inserted successfully'
           });
-          _context4.next = 16;
+          _context3.next = 16;
           break;
 
         case 11:
-          _context4.prev = 11;
-          _context4.t0 = _context4["catch"](3);
-          console.error('Error inserting record:', _context4.t0);
-          friendlyMessage = getFriendlyErrorMessage(_context4.t0.code);
+          _context3.prev = 11;
+          _context3.t0 = _context3["catch"](3);
+          console.error('Error inserting record:', _context3.t0);
+          friendlyMessage = getFriendlyErrorMessage(_context3.t0.code);
           res.status(500).json({
             error: "".concat(friendlyMessage)
           });
 
         case 16:
         case "end":
-          return _context4.stop();
+          return _context3.stop();
       }
     }
   }, null, null, [[3, 11]]);
+});
+router.post('/updaterecord', upload.single('file'), function _callee3(req, res) {
+  var _req$body2, id, table, data, existingRows;
+
+  return regeneratorRuntime.async(function _callee3$(_context4) {
+    while (1) {
+      switch (_context4.prev = _context4.next) {
+        case 0:
+          _req$body2 = req.body, id = _req$body2.id, table = _req$body2.table, data = _objectWithoutProperties(_req$body2, ["id", "table"]);
+
+          if (!(!id || !table)) {
+            _context4.next = 3;
+            break;
+          }
+
+          return _context4.abrupt("return", res.status(400).json({
+            error: 'Id and table are required'
+          }));
+
+        case 3:
+          _context4.prev = 3;
+          _context4.next = 6;
+          return regeneratorRuntime.awrap(query('SELECT * FROM ?? WHERE id = ?', [table, id]));
+
+        case 6:
+          existingRows = _context4.sent;
+
+          if (!(existingRows.length === 0)) {
+            _context4.next = 9;
+            break;
+          }
+
+          return _context4.abrupt("return", res.status(404).json({
+            message: 'Record not found'
+          }));
+
+        case 9:
+          if (!req.file) {
+            _context4.next = 14;
+            break;
+          }
+
+          if (!data.document) {
+            _context4.next = 13;
+            break;
+          }
+
+          _context4.next = 13;
+          return regeneratorRuntime.awrap(fsPromises.unlink("./".concat(data.document)));
+
+        case 13:
+          // Update data with new file name
+          data.document = req.file.filename;
+
+        case 14:
+          _context4.next = 16;
+          return regeneratorRuntime.awrap(query('UPDATE ?? SET ? WHERE id = ?', [table, data, id]));
+
+        case 16:
+          res.json({
+            message: 'Record updated successfully'
+          });
+          _context4.next = 23;
+          break;
+
+        case 19:
+          _context4.prev = 19;
+          _context4.t0 = _context4["catch"](3);
+          console.error('Error updating record:', _context4.t0);
+          res.status(500).json({
+            error: getFriendlyErrorMessage(_context4.t0.code)
+          });
+
+        case 23:
+        case "end":
+          return _context4.stop();
+      }
+    }
+  }, null, null, [[3, 19]]);
 });
 router.post('/getfile', function _callee4(req, res) {
   var _req$body3, table, documentPath, filePath;
