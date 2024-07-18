@@ -174,51 +174,6 @@ function SideBar() {
             Other Forms
           </Link>
         </li>
-        <li className={isActive('/dashboard/course-coverage')}>
-          <Link to="/dashboard/course-coverage">
-            <img src={course} width="40px" height="40px" alt="Course Coverage" />
-            Course Coverage
-          </Link>
-        </li>
-        <li className={isActive('/dashboard/iv')}>
-          <Link to="/dashboard/iv">
-            <img src={IV} width="40px" height="40px" alt="I V" />
-            I V
-          </Link>
-        </li>
-        
-
-        <li className={`more-button ${showHallBookingLinks ? 'active' : ''}`} onMouseEnter={handleMouseEnterExtraLinks} onMouseLeave={handleMouseLeaveExtraLinks}>
-          <h3>...</h3>
-          {showExtraLinks && (
-            <div className="extra-links-container-more" onMouseEnter={handleMouseEnterExtraLinks} onMouseLeave={handleMouseLeaveExtraLinks}>
-              <li className={isActive('/dashboard/guest-lecture')}>
-                <Link to="/dashboard/guest-lecture">
-                  <img src={lecture} width="30px" height="30px" alt="Guest Lecture" />
-                  Guest Lecture
-                </Link>
-              </li>
-              <li className={isActive('/dashboard/sports')}>
-                <Link to="/dashboard/sports">
-                  <img src={sports} width="30px" height="30px" alt="Sports" />
-                  Sports
-                </Link>
-              </li>
-              <li className={isActive('/dashboard/achievements')}>
-                <Link to="/dashboard/achievements">
-                  <img src={achievements} width="30px" height="30px" alt="Achievements" />
-                  Achievements
-                </Link>
-              </li>
-              <li className={isActive('/dashboard/club-activity')}>
-                <Link to="/dashboard/club-activity">
-                  <img src={club} width="30px" height="30px" alt="Club Activity" />
-                  Club Activity
-                </Link>
-              </li>
-            </div>
-          )}
-        </li>
       </ul>
     </div>
   );

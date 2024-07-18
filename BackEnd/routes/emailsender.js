@@ -29,8 +29,8 @@ router.post('/send', async (req, res) => {
   const mailOptions = {
     from: { name: 'RMKEC UPDATES', address: 'rohitvijayandrive@gmail.com' },
     to: to,
-    subject: `New Form Created: ${subject}`,
-    text: `A new form has been created. Deadline: ${desc}`
+    subject: `${subject}`,
+    text: `${desc}`
   };
 
   try {
