@@ -16,6 +16,7 @@ const EditForm = () => {
   const { table, attributenames, item } = location.state;
   const [data, setData] = useState(item);
   const [file, setFile] = useState(null);
+  const [oldFileName, setOldFileName] = useState(item.document);
 
   const attributeTypes = {
     'completion_date': 'date',
@@ -31,7 +32,8 @@ const EditForm = () => {
     'Date of Interview': 'date',
     'start_date': 'date',
     'end_date': 'date',
-    'document': 'file'
+    'document': 'file',
+    'joining_date':'date'
   };
 
   const notifysuccess = () => {
@@ -72,19 +74,20 @@ const EditForm = () => {
   };
 
   const handleFileChange = (e) => {
-    const selectedFile = e.target.files[0]; 
-    setFile(selectedFile); 
+    const selectedFile = e.target.files[0];
+    setFile(selectedFile);
     setData({ ...data, document: selectedFile.name }); // Update document name in data
   };
 
   const handleReset = async () => {
     try {
       // Delete the file from the server if it exists
-      if (data.document) {
-        await axios.delete(`http://localhost:3000/deletefile/${data.document}`);
+      if (oldFileName) {
+        await axios.delete(`http://localhost:3000/tables/deletefile/${oldFileName}`);
       }
       setFile(null);
-      setData({ ...data, document: '' });
+      setData({ ...item, document: '' }); // Reset form data to original item state
+      setOldFileName(item.document); // Reset oldFileName state to original document name
     } catch (error) {
       console.error('Error deleting file:', error);
       notifyfailure('Error deleting file');
@@ -100,9 +103,7 @@ const EditForm = () => {
           formattedData[attribute] = dayjs(formattedData[attribute]).format('YYYY-MM-DD');
         }
       }
-
       const formData = new FormData();
-      formData.append('id', data.id);
       formData.append('table', table);
       Object.entries(formattedData).forEach(([key, value]) => {
         formData.append(key, value);
@@ -110,8 +111,7 @@ const EditForm = () => {
       if (file) {
         formData.append('file', file);
       }
-
-      const response = await axios.put("http://localhost:3000/tables/updaterecord", formData, {
+      const response = await axios.post("http://localhost:3000/tables/updaterecord", formData, {
         headers: {
           'Content-Type': 'multipart/form-data'
         }
@@ -122,7 +122,7 @@ const EditForm = () => {
         navigate(-1);
       }, 1500);
     } catch (error) {
-      notifyfailure(error.response?.data?.error || 'Error editing record');
+      notifyfailure(error.response.data.error || 'Error updating record');
     }
   };
 

@@ -3,6 +3,12 @@ const router = express.Router();
 const db = require('../config/db');
 const util = require('util');
 const moment = require('moment');
+const dayjs = require('dayjs');
+const timezone = require('dayjs/plugin/timezone');
+const utc = require('dayjs/plugin/utc');
+
+dayjs.extend(utc);
+dayjs.extend(timezone);
 
 const getFriendlyErrorMessage = (errCode) => {
     switch (errCode) {
@@ -250,10 +256,10 @@ router.post('/getindividual', async (req, res) => {
 router.post('/fetchtoday', async (req, res) => {
     console.log('Received request body:', req.body);
     const userGroup = req.body.selectedUserGroup;
-    const currentDate = new Date();
     const department = req.body.department;
-    const formattedDate = currentDate.toISOString().slice(0, 10);
-
+    const timeZone = 'Asia/Kolkata';
+    const currentDate = dayjs().tz(timeZone);
+    const formattedDate = currentDate.format('YYYY-MM-DD');
     if (!userGroup || !department) {
         return res.status(400).json({ error: 'User Group and Department are required' });
     }

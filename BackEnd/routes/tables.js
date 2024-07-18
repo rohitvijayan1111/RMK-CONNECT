@@ -73,35 +73,6 @@ router.post('/gettable', async (req, res) => {
     return res.status(500).json({ error: getFriendlyErrorMessage(error.code) });
   }
 });
-router.put('/updaterecord', async (req, res) => {
-  const { id, data, table } = req.body;
-
-  if (!id || !data || !table) {
-    return res.status(400).json({ error: 'Id, data, and table are required' });
-  }
-
-  try {
-    
-    const existingRows = await query('SELECT * FROM ?? WHERE id = ?', [table, id]);
-    if (existingRows.length === 0) {
-      return res.status(404).json({ message: 'Record not found' });
-    }
-    if (data.createdAt) {
-      data.createdAt = moment(data.createdAt).format('YYYY-MM-DD HH:mm:ss');
-    }
-    if (data.deadline) {
-      data.deadline = moment(data.deadline).format('YYYY-MM-DD HH:mm:ss');
-    }
-    
-    await query('UPDATE ?? SET ? WHERE id = ?', [table, data, id]);
-
-    res.json({ message: 'Record updated successfully' });
-  } catch (error) {
-    console.error('Error updating record:', error);
-    res.status(500).json({ error: getFriendlyErrorMessage(error.code) });
-  }
-});
-
 const storage = multer.diskStorage({
   destination: async (req, file, cb) => {
     const table = req.body.table;
@@ -140,7 +111,38 @@ router.post('/insertrecord', upload.single('file'), async (req, res) => {
     res.status(500).json({ error: `${friendlyMessage}` });
   }
 });
+router.post('/updaterecord', upload.single('file'), async (req, res) => {
+  const { id, table, ...data } = req.body;
 
+  if (!id || !table) {
+    return res.status(400).json({ error: 'Id and table are required' });
+  }
+
+  try {
+    const existingRows = await query('SELECT * FROM ?? WHERE id = ?', [table, id]);
+    if (existingRows.length === 0) {
+      return res.status(404).json({ message: 'Record not found' });
+    }
+
+    // Handle file update
+    if (req.file) {
+      // Delete existing file if it exists
+      if (data.document) {
+        await fsPromises.unlink(`./${data.document}`); // Ensure proper path to your file
+      }
+      // Update data with new file name
+      data.document = req.file.filename;
+    }
+
+    // Update other fields in the database
+    await query('UPDATE ?? SET ? WHERE id = ?', [table, data, id]);
+
+    res.json({ message: 'Record updated successfully' });
+  } catch (error) {
+    console.error('Error updating record:', error);
+    res.status(500).json({ error: getFriendlyErrorMessage(error.code) });
+  }
+});
 router.post('/getfile', async (req, res) => {
   const { table, documentPath } = req.body;
 
