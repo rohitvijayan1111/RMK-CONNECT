@@ -8,7 +8,7 @@ import dayjs from 'dayjs';
 import { BsPencilSquare, BsFillTrashFill } from 'react-icons/bs';
 import { IconContext } from 'react-icons';
 import { utils, writeFile } from 'xlsx';
-import './Fa  cultydetails.css';
+import './Facultydetails.css';
 
 function Facultydetails() {
   const navigate = useNavigate();
