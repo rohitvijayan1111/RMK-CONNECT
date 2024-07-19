@@ -29,7 +29,8 @@ const EditForm = () => {
     'Completion Date of Event': 'date',
     'Date of Interview': 'date',
     'start_date': 'date',
-    'end_date': 'date'
+    'end_date': 'date',
+    'joining_date':'date'
   };
 
   const notifysuccess = () => {
@@ -72,7 +73,6 @@ const EditForm = () => {
   const handleSubmit = async (e) => {
     e.preventDefault();
     try {
-      // Format the date before submitting if it's a date attribute
       const formattedData = { ...data };
       for (const attribute of attributenames) {
         if (attributeTypes[attribute] === 'date' && formattedData[attribute]) {
@@ -80,7 +80,7 @@ const EditForm = () => {
         }
       }
 
-      const response = await axios.put("http://localhost:3000/tables/updaterecord", {
+      const response = await axios.post("http://localhost:3000/tables/updaterecord", {
         id: data.id,
         data: formattedData,
         table

@@ -8,13 +8,13 @@ import dayjs from 'dayjs';
 import { BsPencilSquare, BsFillTrashFill } from 'react-icons/bs';
 import { IconContext } from 'react-icons';
 import { utils, writeFile } from 'xlsx';
-import './Facultydetails.css';
+import './Fa  cultydetails.css';
 
 function Facultydetails() {
   const navigate = useNavigate();
   const [table] = useState('staffs');
-  const [dept, setDept] = useState(window.localStorage.getItem('department'));
   const role = window.localStorage.getItem('userType');
+  const [dept, setDept] = useState(role === 'hod' ? window.localStorage.getItem('department') : 'All');
   const [data, setData] = useState([]);
   const [originalData, setOriginalData] = useState([]);
   const [attributenames, setAttributenames] = useState([]);

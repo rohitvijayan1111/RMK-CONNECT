@@ -1,5 +1,13 @@
 "use strict";
 
+function _toConsumableArray(arr) { return _arrayWithoutHoles(arr) || _iterableToArray(arr) || _nonIterableSpread(); }
+
+function _nonIterableSpread() { throw new TypeError("Invalid attempt to spread non-iterable instance"); }
+
+function _iterableToArray(iter) { if (Symbol.iterator in Object(iter) || Object.prototype.toString.call(iter) === "[object Arguments]") return Array.from(iter); }
+
+function _arrayWithoutHoles(arr) { if (Array.isArray(arr)) { for (var i = 0, arr2 = new Array(arr.length); i < arr.length; i++) { arr2[i] = arr[i]; } return arr2; } }
+
 function _objectWithoutProperties(source, excluded) { if (source == null) return {}; var target = _objectWithoutPropertiesLoose(source, excluded); var key, i; if (Object.getOwnPropertySymbols) { var sourceSymbolKeys = Object.getOwnPropertySymbols(source); for (i = 0; i < sourceSymbolKeys.length; i++) { key = sourceSymbolKeys[i]; if (excluded.indexOf(key) >= 0) continue; if (!Object.prototype.propertyIsEnumerable.call(source, key)) continue; target[key] = source[key]; } } return target; }
 
 function _objectWithoutPropertiesLoose(source, excluded) { if (source == null) return {}; var target = {}; var sourceKeys = Object.keys(source); var key, i; for (i = 0; i < sourceKeys.length; i++) { key = sourceKeys[i]; if (excluded.indexOf(key) >= 0) continue; target[key] = source[key]; } return target; }
@@ -226,17 +234,18 @@ router.post('/insertrecord', upload.single('file'), function _callee2(req, res) 
     }
   }, null, null, [[3, 11]]);
 });
-router.post('/updaterecord', upload.single('file'), function _callee3(req, res) {
-  var _req$body2, id, table, data, existingRows;
+router.post('/updaterecord', function _callee3(req, res) {
+  var _req$body2, id, table, data, existingRows, setClause, values, updateQuery;
 
   return regeneratorRuntime.async(function _callee3$(_context4) {
     while (1) {
       switch (_context4.prev = _context4.next) {
         case 0:
-          _req$body2 = req.body, id = _req$body2.id, table = _req$body2.table, data = _objectWithoutProperties(_req$body2, ["id", "table"]);
+          console.log(req.body);
+          _req$body2 = req.body, id = _req$body2.id, table = _req$body2.table, data = _req$body2.data;
 
           if (!(!id || !table)) {
-            _context4.next = 3;
+            _context4.next = 4;
             break;
           }
 
@@ -244,16 +253,16 @@ router.post('/updaterecord', upload.single('file'), function _callee3(req, res) 
             error: 'Id and table are required'
           }));
 
-        case 3:
-          _context4.prev = 3;
-          _context4.next = 6;
+        case 4:
+          _context4.prev = 4;
+          _context4.next = 7;
           return regeneratorRuntime.awrap(query('SELECT * FROM ?? WHERE id = ?', [table, id]));
 
-        case 6:
+        case 7:
           existingRows = _context4.sent;
 
           if (!(existingRows.length === 0)) {
-            _context4.next = 9;
+            _context4.next = 10;
             break;
           }
 
@@ -261,49 +270,40 @@ router.post('/updaterecord', upload.single('file'), function _callee3(req, res) 
             message: 'Record not found'
           }));
 
-        case 9:
-          if (!req.file) {
-            _context4.next = 14;
-            break;
-          }
+        case 10:
+          // Construct the SET clause dynamically with proper escaping
+          setClause = Object.keys(data).map(function (key) {
+            return "`".concat(key, "` = ?");
+          }).join(', ');
+          values = Object.values(data); // Log the query for debugging purposes
 
-          if (!data.document) {
-            _context4.next = 13;
-            break;
-          }
+          updateQuery = "UPDATE `".concat(table, "` SET ").concat(setClause, " WHERE id = ?");
+          console.log('SQL Query:', updateQuery);
+          console.log('Values:', [].concat(_toConsumableArray(values), [id]));
+          _context4.next = 17;
+          return regeneratorRuntime.awrap(query(updateQuery, [].concat(_toConsumableArray(values), [id])));
 
-          _context4.next = 13;
-          return regeneratorRuntime.awrap(fsPromises.unlink("./".concat(data.document)));
-
-        case 13:
-          // Update data with new file name
-          data.document = req.file.filename;
-
-        case 14:
-          _context4.next = 16;
-          return regeneratorRuntime.awrap(query('UPDATE ?? SET ? WHERE id = ?', [table, data, id]));
-
-        case 16:
+        case 17:
           res.json({
             message: 'Record updated successfully'
           });
-          _context4.next = 23;
+          _context4.next = 24;
           break;
 
-        case 19:
-          _context4.prev = 19;
-          _context4.t0 = _context4["catch"](3);
+        case 20:
+          _context4.prev = 20;
+          _context4.t0 = _context4["catch"](4);
           console.error('Error updating record:', _context4.t0);
           res.status(500).json({
             error: getFriendlyErrorMessage(_context4.t0.code)
           });
 
-        case 23:
+        case 24:
         case "end":
           return _context4.stop();
       }
     }
-  }, null, null, [[3, 19]]);
+  }, null, null, [[4, 20]]);
 });
 router.post('/getfile', function _callee4(req, res) {
   var _req$body3, table, documentPath, filePath;

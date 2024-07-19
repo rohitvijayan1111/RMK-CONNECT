@@ -111,8 +111,9 @@ router.post('/insertrecord', upload.single('file'), async (req, res) => {
     res.status(500).json({ error: `${friendlyMessage}` });
   }
 });
-router.post('/updaterecord', upload.single('file'), async (req, res) => {
-  const { id, table, ...data } = req.body;
+router.post('/updaterecord', async (req, res) => {
+  console.log(req.body);
+  const { id, table, data } = req.body;
 
   if (!id || !table) {
     return res.status(400).json({ error: 'Id and table are required' });
@@ -124,18 +125,16 @@ router.post('/updaterecord', upload.single('file'), async (req, res) => {
       return res.status(404).json({ message: 'Record not found' });
     }
 
-    // Handle file update
-    if (req.file) {
-      // Delete existing file if it exists
-      if (data.document) {
-        await fsPromises.unlink(`./${data.document}`); // Ensure proper path to your file
-      }
-      // Update data with new file name
-      data.document = req.file.filename;
-    }
+    // Construct the SET clause dynamically with proper escaping
+    const setClause = Object.keys(data).map(key => `\`${key}\` = ?`).join(', ');
+    const values = Object.values(data);
 
-    // Update other fields in the database
-    await query('UPDATE ?? SET ? WHERE id = ?', [table, data, id]);
+    // Log the query for debugging purposes
+    const updateQuery = `UPDATE \`${table}\` SET ${setClause} WHERE id = ?`;
+    console.log('SQL Query:', updateQuery);
+    console.log('Values:', [...values, id]);
+
+    await query(updateQuery, [...values, id]);
 
     res.json({ message: 'Record updated successfully' });
   } catch (error) {

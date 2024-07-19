@@ -13,8 +13,8 @@ import './Placements.css';
 function Placements() {
   const navigate = useNavigate();
   const [table] = useState('Placement');
-  const [dept, setDept] = useState(window.localStorage.getItem('department'));
   const role = window.localStorage.getItem('userType');
+  const [dept, setDept] = useState(role === 'hod' ? window.localStorage.getItem('department') : 'All');
   const [data, setData] = useState([]);
   const [originalData, setOriginalData] = useState([]);
   const [attributenames, setAttributenames] = useState([]);
