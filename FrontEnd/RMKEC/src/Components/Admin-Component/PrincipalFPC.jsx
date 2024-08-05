@@ -39,21 +39,31 @@ const renderCustomizedLabel = ({
 
 const CustomTooltip = ({ active, payload }) => {
   if (active && payload && payload.length) {
-    const { name, PG_Staff, Pursuing_PG, Asst_Prof, Non_Technical } = payload[0].payload;
+    const { name, Professor, Associate_Professor,Assistant_Professor, fill } = payload[0].payload;
+
+    const data = [
+      { label: "Professor", value:Professor},
+      { label: "Associate Professor", value: Associate_Professor},
+      { label: "Assistant Professor", value: Assistant_Professor },
+      
+    ];
+
     return (
       <div className="custom-tooltip-pfp">
         <div className="tooltip-value-pfp">
-          <p style={{ color: payload[0].fill }}>{name}</p>
-          <p style={{ color: payload[0].fill }}>PG Staff: {PG_Staff}</p>
-          <p style={{ color: payload[0].fill }}>Pursuing PG: {Pursuing_PG}</p>
-          <p style={{ color: payload[0].fill }}>Asst Prof: {Asst_Prof}</p>
-          <p style={{ color: payload[0].fill }}>Non Technical: {Non_Technical}</p>
+          <p style={{ color: fill }}>{name}</p>
+          {data.map((entry, index) => (
+            <p key={`item-${index}`} style={{ color: fill, fontSize: "12px" }}>
+              {entry.label}: {entry.value}
+            </p>
+          ))}
         </div>
       </div>
     );
   }
   return null;
 };
+
 
 const PrincipalFPC = ({data}) => (
   <ResponsiveContainer >

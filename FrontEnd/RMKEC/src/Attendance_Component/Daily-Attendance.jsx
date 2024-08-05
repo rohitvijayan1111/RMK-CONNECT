@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState,useEffect} from 'react';
 import axios from 'axios';
 import { ToastContainer, toast, Zoom } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
@@ -50,19 +50,7 @@ const Daily_Attendance = () => {
   const [selectedUserGroup, setSelectedUserGroup] = useState('Student');
   const [rollNumber, setRollNumber] = useState('');
   const [reason, setReason] = useState('');
-
-  const capitalizeEachWord = (str) => {
-    if (typeof str !== 'string') {
-      return '';
-    }
-
-    return str.split(' ').map(word => {
-      return word.charAt(0).toUpperCase() + word.slice(1).toLowerCase();
-    }).join(' ');
-  };
-
-  const department = capitalizeEachWord(window.localStorage.getItem('department'));
-
+  const [name, setName] = useState('');
   const notifysuccess = (message) => {
     toast.success(message, {
       position: "top-center",
@@ -90,7 +78,40 @@ const Daily_Attendance = () => {
       transition: Zoom,
     });
   };
+  const capitalizeEachWord = (str) => {
+    if (typeof str !== 'string') {
+      return '';
+    }
 
+    return str.split(' ').map(word => {
+      return word.charAt(0).toUpperCase() + word.slice(1).toLowerCase();
+    }).join(' ');
+  };
+  const fetchUserName = async (identifier) => {
+    const userType = selectedUserGroup.toLowerCase(); // 'student' or 'staff'
+    try {
+      const response = await axios.post(`http://localhost:3000/attendance/getname `,{userType:userType,userId:identifier});
+      console.log(response.data);
+      setName(response.data.data.name);
+    } catch (err) {
+      if (err.response) {
+        setName('NA');
+      } else {
+        setName("NA");
+      }
+    }
+  };
+
+  const department = capitalizeEachWord(window.localStorage.getItem('department'));
+  useEffect(() => {
+    if (rollNumber) {
+      fetchUserName(rollNumber);
+    } else {
+      setName('');
+    }
+  }, [rollNumber, selectedUserGroup]);
+  
+  
   const handleSubmit = async (e) => {
     e.preventDefault();
     if (!selectedLeaveType || !selectedUserGroup || !rollNumber || !reason) {
@@ -149,7 +170,9 @@ const Daily_Attendance = () => {
         <form>
           <label>{(selectedUserGroup === 'Student') ? "Roll Number" : "Enrollment Number"}</label>
           <input type='number' name='rollNumber' value={rollNumber} onChange={(e) => setRollNumber(e.target.value)} required />
-          
+          <label>Name</label>
+          <input type='text' name='name' value={name || ''} readOnly required />
+
           <label>Reason</label>
           <input type='text' name='reason' value={reason} onChange={(e) => setReason(e.target.value)} required />
 

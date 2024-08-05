@@ -7,7 +7,7 @@ import LineCharts from './LineCharts';
 import Attendance_BC from './Attendance_BC';
 import Attendance_BC_Admin from '../Components/Admin-Component/Attendance_BC_Admin';
 import withAuthorization from '../Components/WithAuthorization';
-
+import dayjs from 'dayjs';
 const BatchSelector = ({ onBatchSelect }) => {
   const [selectedBatch, setSelectedBatch] = useState('');
 
@@ -41,7 +41,7 @@ export function Attendance_DB_Dept() {
   const [data, setData] = useState([]);
   const [countdata, setCountData] = useState(null);
   const [linedata, setLineData] = useState([]);
-
+  const todayDate = dayjs().format('DD-MM-YYYY');
   const notifyFailure = (error) => {
     toast.error(error.message, {
       position: "top-center",
@@ -94,6 +94,7 @@ export function Attendance_DB_Dept() {
   return (
     <div>
       <BatchSelector onBatchSelect={handleYearGroupSelect} />
+      <h1>{todayDate}</h1>
       <div className='home-grid-db'>
         <div className="grid-containers">
           <div className='home-grid-db'>
@@ -130,6 +131,7 @@ export function Attendance_DB_Admin() {
   const [data, setData] = useState([]);
   const [countdata, setCountData] = useState(null);
   const [linedata, setLineData] = useState([]);
+  const todayDate = dayjs().format('DD-MM-YYYY');
   const departmentMapping = {
     'Artificial Intelligence and Data Science': 'AI',
     'Civil Engineering': 'CE',
@@ -200,6 +202,7 @@ export function Attendance_DB_Admin() {
   return (
     <div>
       <BatchSelector onBatchSelect={handleYearGroupSelect} />
+      <h1>{todayDate}</h1>
       <div className='home-grid-db'>
         <div className="grid-containers">
           <div className='home-grid-db'>

@@ -17,7 +17,6 @@ function OtherFormsRecords() {
   const [table] = useState(form.form_table_name);
   const role = window.localStorage.getItem('userType');
   const [dept, setDept] = useState((role==="hod")?window.localStorage.getItem('department'):"All");
-
   const [data, setData] = useState([]);
   const [originalData, setOriginalData] = useState([]);
   const [attributenames, setAttributenames] = useState([]);
@@ -158,7 +157,8 @@ function OtherFormsRecords() {
       if (result.isConfirmed) {
         try {
           await axios.delete('http://localhost:3000/tables/deleterecord', { data: { id, table } });
-          setData(data.filter((item) => item.id !== id));
+          setData(prevData => prevData.filter((item) => item.id !== id));
+          setOriginalData(prevData => prevData.filter((item) => item.id !== id));
           Swal.fire("Deleted!", "Your record has been deleted.", "success");
         } catch (error) {
           console.error('Error deleting item:', error);
@@ -168,7 +168,7 @@ function OtherFormsRecords() {
       }
     });
   };
-
+  
   const formatColumnName = (name) => {
     return name.replace(/_/g, ' ').replace(/\b\w/g, char => char.toUpperCase());
   };
@@ -191,8 +191,7 @@ function OtherFormsRecords() {
     'Date of Interview':'date',
     'start_date':'date',
     'end_date':'date',
-    'document':'file',
-    
+    'document':'file'
 
   };
 
@@ -239,26 +238,7 @@ function OtherFormsRecords() {
     writeFile(wb, fileName);
   };
   
-  const handlePreview = async (table, documentPath) => {
-    try {
-      const response = await axios.post('http://localhost:3000/tables/getfile', { table, documentPath }, {
-        responseType: 'arraybuffer'
-      });
   
-      const blob = new Blob([response.data], { type: 'application/octet-stream' });
-      const url = URL.createObjectURL(blob);
-  
-      const link = document.createElement('a');
-      link.href = url;
-      link.download = documentPath;
-      link.click();
-  
-      URL.revokeObjectURL(url);
-    } catch (error) {
-      console.error('Error fetching file:', error);
-      notifyFailure('Error fetching file');
-    }
-  };
   return (
     <div className="container">
         <h1>{form.form_title}</h1>
@@ -323,7 +303,7 @@ function OtherFormsRecords() {
                           <BsPencilSquare onClick={() => handleEdit(attributenames, item)} className="edit-icon" />
                           <BsFillTrashFill onClick={() => handleDelete(item.id)} className="delete-icons" />
                         </div>
-                      </IconContext.Provider>
+                      </IconContext.Provider>   
                     </td>
                   }
                   {attributenames.map((name, attrIndex) => (
@@ -333,7 +313,9 @@ function OtherFormsRecords() {
                           (name === "website_link" || name==="website link" || name==="Website_Link") && item[name] ?
                             <a href={item[name]} target="_blank" rel="noopener noreferrer">Link</a>
                             : attributeTypes[name] === "file" ? (
-                              <button type="button" onClick={() => handlePreview(table,item[name])} className="view-button">Download</button>
+                              <a href={`http://localhost:3000/${item.document}`} target="_blank" rel="noopener noreferrer">
+                                View
+                            </a>
                             ) : item[name]
                         )}
                       </td>

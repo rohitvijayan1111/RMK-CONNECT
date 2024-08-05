@@ -222,12 +222,58 @@ router.post('/hall_requests_remove', function _callee4(req, res) {
     }
   }, null, null, [[2, 11]]);
 });
-router.post('/hall_requests_status', function _callee5(req, res) {
-  var _req$body2, department, role, sql, params, results, formattedEvents;
-
+router.post('/hall_requests_remove_admin', function _callee5(req, res) {
+  var id, sql, results;
   return regeneratorRuntime.async(function _callee5$(_context5) {
     while (1) {
       switch (_context5.prev = _context5.next) {
+        case 0:
+          id = req.body.id;
+          sql = 'DELETE FROM hall_allotment WHERE id = ?';
+          _context5.prev = 2;
+          _context5.next = 5;
+          return regeneratorRuntime.awrap(query(sql, [id]));
+
+        case 5:
+          results = _context5.sent;
+
+          if (!(results.affectedRows === 0)) {
+            _context5.next = 8;
+            break;
+          }
+
+          return _context5.abrupt("return", res.status(404).json({
+            error: "No Records Removed"
+          }));
+
+        case 8:
+          res.json({
+            message: "Removed Successfully"
+          });
+          _context5.next = 15;
+          break;
+
+        case 11:
+          _context5.prev = 11;
+          _context5.t0 = _context5["catch"](2);
+          console.error('Error removing record:', _context5.t0);
+          res.status(500).send({
+            error: getFriendlyErrorMessage(_context5.t0)
+          });
+
+        case 15:
+        case "end":
+          return _context5.stop();
+      }
+    }
+  }, null, null, [[2, 11]]);
+});
+router.post('/hall_requests_status', function _callee6(req, res) {
+  var _req$body2, department, role, sql, params, results, formattedEvents;
+
+  return regeneratorRuntime.async(function _callee6$(_context6) {
+    while (1) {
+      switch (_context6.prev = _context6.next) {
         case 0:
           _req$body2 = req.body, department = _req$body2.department, role = _req$body2.role;
           sql = 'SELECT * FROM hall_request';
@@ -239,20 +285,20 @@ router.post('/hall_requests_status', function _callee5(req, res) {
           }
 
           console.log(sql);
-          _context5.prev = 5;
-          _context5.next = 8;
+          _context6.prev = 5;
+          _context6.next = 8;
           return regeneratorRuntime.awrap(query(sql, params));
 
         case 8:
-          results = _context5.sent;
+          results = _context6.sent;
 
           if (!(results.length === 0)) {
-            _context5.next = 11;
+            _context6.next = 11;
             break;
           }
 
-          return _context5.abrupt("return", res.status(404).json({
-            error: "No Records found"
+          return _context6.abrupt("return", res.status(404).json({
+            error: "No Hall Request Found"
           }));
 
         case 11:
@@ -279,30 +325,30 @@ router.post('/hall_requests_status', function _callee5(req, res) {
             };
           });
           res.json(formattedEvents);
-          _context5.next = 19;
+          _context6.next = 19;
           break;
 
         case 15:
-          _context5.prev = 15;
-          _context5.t0 = _context5["catch"](5);
-          console.error('Error fetching data:', _context5.t0);
+          _context6.prev = 15;
+          _context6.t0 = _context6["catch"](5);
+          console.error('Error fetching data:', _context6.t0);
           res.status(500).send({
-            error: getFriendlyErrorMessage(_context5.t0)
+            error: getFriendlyErrorMessage(_context6.t0)
           });
 
         case 19:
         case "end":
-          return _context5.stop();
+          return _context6.stop();
       }
     }
   }, null, null, [[5, 15]]);
 });
-router.post('/past-events', function _callee6(req, res) {
+router.post('/past-events', function _callee7(req, res) {
   var _req$body3, department, role, sql, results, formattedEvents;
 
-  return regeneratorRuntime.async(function _callee6$(_context6) {
+  return regeneratorRuntime.async(function _callee7$(_context7) {
     while (1) {
-      switch (_context6.prev = _context6.next) {
+      switch (_context7.prev = _context7.next) {
         case 0:
           _req$body3 = req.body, department = _req$body3.department, role = _req$body3.role;
           sql = "\n    SELECT *\n    FROM hall_allotment\n    WHERE event_date < CURDATE()\n      OR (event_date = CURDATE() AND end_time < CURTIME())\n  ";
@@ -311,20 +357,20 @@ router.post('/past-events', function _callee6(req, res) {
             sql += ' AND department = ?';
           }
 
-          _context6.prev = 3;
-          _context6.next = 6;
+          _context7.prev = 3;
+          _context7.next = 6;
           return regeneratorRuntime.awrap(query(sql, [department]));
 
         case 6:
-          results = _context6.sent;
+          results = _context7.sent;
 
           if (!(results.length === 0)) {
-            _context6.next = 9;
+            _context7.next = 9;
             break;
           }
 
-          return _context6.abrupt("return", res.status(404).json({
-            error: "No records found"
+          return _context7.abrupt("return", res.status(404).json({
+            error: "No Past Events Available"
           }));
 
         case 9:
@@ -350,48 +396,49 @@ router.post('/past-events', function _callee6(req, res) {
             };
           });
           res.json(formattedEvents);
-          _context6.next = 17;
+          _context7.next = 17;
           break;
 
         case 13:
-          _context6.prev = 13;
-          _context6.t0 = _context6["catch"](3);
-          console.error('Error fetching past events:', _context6.t0);
+          _context7.prev = 13;
+          _context7.t0 = _context7["catch"](3);
+          console.error('Error fetching past events:', _context7.t0);
           res.status(500).json({
             error: 'Server error occurred'
           });
 
         case 17:
         case "end":
-          return _context6.stop();
+          return _context7.stop();
       }
     }
   }, null, null, [[3, 13]]);
 });
-router.get('/upcoming-events', function _callee7(req, res) {
+router.get('/upcoming-events', function _callee8(req, res) {
   var sql, results, formattedEvents;
-  return regeneratorRuntime.async(function _callee7$(_context7) {
+  return regeneratorRuntime.async(function _callee8$(_context8) {
     while (1) {
-      switch (_context7.prev = _context7.next) {
+      switch (_context8.prev = _context8.next) {
         case 0:
-          sql = "\n    SELECT *\n    FROM hall_allotment\n    WHERE \n      (\n        event_date > CURDATE()\n        OR (event_date = CURDATE() AND start_time > CURTIME())  -- Include events not started yet today\n        OR (event_date = CURDATE() AND end_time >= CURTIME() AND start_time <= CURTIME())  -- Include ongoing events today\n      )\n    ORDER BY event_date, start_time;\n  ";
-          _context7.prev = 1;
-          _context7.next = 4;
+          console.log("request got");
+          sql = "\n    SELECT *\n    FROM hall_allotment\n    WHERE \n      (\n        event_date > CURDATE()\n        OR (event_date = CURDATE() AND start_time > CURTIME()) \n        OR (event_date = CURDATE() AND end_time >= CURTIME() AND start_time <= CURTIME())  \n      )\n    ORDER BY event_date, start_time;\n  ";
+          _context8.prev = 2;
+          _context8.next = 5;
           return regeneratorRuntime.awrap(query(sql));
 
-        case 4:
-          results = _context7.sent;
+        case 5:
+          results = _context8.sent;
 
           if (!(results.length === 0)) {
-            _context7.next = 7;
+            _context8.next = 8;
             break;
           }
 
-          return _context7.abrupt("return", res.status(404).json({
+          return _context8.abrupt("return", res.status(404).json({
             error: "No upcoming events found"
           }));
 
-        case 7:
+        case 8:
           formattedEvents = results.map(function (event) {
             return {
               id: event.id,
@@ -417,34 +464,34 @@ router.get('/upcoming-events', function _callee7(req, res) {
             };
           });
           res.json(formattedEvents);
-          _context7.next = 15;
+          _context8.next = 16;
           break;
 
-        case 11:
-          _context7.prev = 11;
-          _context7.t0 = _context7["catch"](1);
-          console.error('Error fetching upcoming events:', _context7.t0);
+        case 12:
+          _context8.prev = 12;
+          _context8.t0 = _context8["catch"](2);
+          console.error('Error fetching upcoming events:', _context8.t0);
           res.status(500).json({
             error: 'Server error occurred'
           });
 
-        case 15:
+        case 16:
         case "end":
-          return _context7.stop();
+          return _context8.stop();
       }
     }
-  }, null, null, [[1, 11]]);
+  }, null, null, [[2, 12]]);
 });
-router.put('/approveEvent', function _callee8(req, res) {
+router.put('/approveEvent', function _callee9(req, res) {
   var _req$body4, eventId, userType, sql;
 
-  return regeneratorRuntime.async(function _callee8$(_context8) {
+  return regeneratorRuntime.async(function _callee9$(_context9) {
     while (1) {
-      switch (_context8.prev = _context8.next) {
+      switch (_context9.prev = _context9.next) {
         case 0:
           _req$body4 = req.body, eventId = _req$body4.eventId, userType = _req$body4.userType;
           sql = "UPDATE hall_request SET `".concat(userType, "_approval` = 1 WHERE id = ?");
-          _context8.next = 4;
+          _context9.next = 4;
           return regeneratorRuntime.awrap(query(sql, [eventId], function (err, result) {
             if (err) {
               console.error('Error updating approval:', err);
@@ -461,23 +508,23 @@ router.put('/approveEvent', function _callee8(req, res) {
 
         case 4:
         case "end":
-          return _context8.stop();
+          return _context9.stop();
       }
     }
   });
 });
-router.post('/addToHallAllotment', function _callee9(req, res) {
+router.post('/addToHallAllotment', function _callee10(req, res) {
   var data, sql;
-  return regeneratorRuntime.async(function _callee9$(_context9) {
+  return regeneratorRuntime.async(function _callee10$(_context10) {
     while (1) {
-      switch (_context9.prev = _context9.next) {
+      switch (_context10.prev = _context10.next) {
         case 0:
           console.log("THE REQUESTEDD BODY IS " + req.body);
           data = req.body;
           delete data.approvals;
           delete data.emails;
           sql = "INSERT INTO hall_allotment SET ?";
-          _context9.next = 7;
+          _context10.next = 7;
           return regeneratorRuntime.awrap(query(sql, [data], function (err, result) {
             if (err) {
               console.error('Error adding to hall allotment:', err);
@@ -494,32 +541,32 @@ router.post('/addToHallAllotment', function _callee9(req, res) {
 
         case 7:
         case "end":
-          return _context9.stop();
+          return _context10.stop();
       }
     }
   });
 });
-router["delete"]('/deletehallrequest/:id', function _callee10(req, res) {
+router["delete"]('/deletehallrequest/:id', function _callee11(req, res) {
   var id, sql, results;
-  return regeneratorRuntime.async(function _callee10$(_context10) {
+  return regeneratorRuntime.async(function _callee11$(_context11) {
     while (1) {
-      switch (_context10.prev = _context10.next) {
+      switch (_context11.prev = _context11.next) {
         case 0:
           id = req.params.id;
           sql = 'DELETE FROM hall_request WHERE id = ?';
-          _context10.prev = 2;
-          _context10.next = 5;
+          _context11.prev = 2;
+          _context11.next = 5;
           return regeneratorRuntime.awrap(query(sql, [id]));
 
         case 5:
-          results = _context10.sent;
+          results = _context11.sent;
 
           if (!(results.affectedRows === 0)) {
-            _context10.next = 8;
+            _context11.next = 8;
             break;
           }
 
-          return _context10.abrupt("return", res.status(404).json({
+          return _context11.abrupt("return", res.status(404).json({
             message: 'Hall request not found'
           }));
 
@@ -527,20 +574,20 @@ router["delete"]('/deletehallrequest/:id', function _callee10(req, res) {
           res.status(200).json({
             message: 'Hall request deleted successfully'
           });
-          _context10.next = 15;
+          _context11.next = 15;
           break;
 
         case 11:
-          _context10.prev = 11;
-          _context10.t0 = _context10["catch"](2);
-          console.error('Error deleting hall request:', _context10.t0);
+          _context11.prev = 11;
+          _context11.t0 = _context11["catch"](2);
+          console.error('Error deleting hall request:', _context11.t0);
           res.status(500).json({
             error: 'Internal Server Error'
           });
 
         case 15:
         case "end":
-          return _context10.stop();
+          return _context11.stop();
       }
     }
   }, null, null, [[2, 11]]);

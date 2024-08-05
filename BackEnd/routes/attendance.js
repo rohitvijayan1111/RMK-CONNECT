@@ -88,7 +88,7 @@ router.post('/addabsent', async (req, res) => {
             
             if (studentDepartment !== data.department_name) {
                 console.error('Department mismatch for student');
-                return res.status(400).json({ error: 'Student is not part of Your Department' });
+                return res.status(400).json({ error: `Student is not part of ${department} Department` });
             }
 
             console.log('Data to insert:', data);
@@ -117,7 +117,7 @@ router.post('/addabsent', async (req, res) => {
 
             if (!staffDepartment) {
                 console.error('Department information missing for the staff');
-                return res.status(404).json({ error: 'Staff is not part of Your Department' });
+                return res.status(404).json({ error: `Staff is not part of ${department} Department` });
             }
 
             
@@ -177,18 +177,41 @@ router.post('/removeabsent', async (req, res) => {
     const column = userGroup === 'Student' ? 'student_id' : 'staff_id';
 
     try {
-        
+        // Check if the record exists
         const checkQuery = `SELECT * FROM absent_attendance_records WHERE attendance_date=? AND ${column}=?`;
         const records = await query(checkQuery, [date, rollnumber]);
-        
+
         if (records.length === 0) {
             return res.status(404).json({ error: 'Attendance record not found' });
         }
 
-        
+        // Retrieve department for student or staff
+        let userDepartment;
+        if (userGroup === 'Student') {
+            const studentDetails = await query('SELECT department FROM students WHERE id = ?', [rollnumber]);
+
+            if (!studentDetails || studentDetails.length === 0) {
+                return res.status(404).json({ error: 'Student not found or missing department information' });
+            }
+
+            userDepartment = studentDetails[0].department;
+        } else if (userGroup === 'Staff') {
+            const staffDetails = await query('SELECT department FROM staff WHERE id = ?', [rollnumber]);
+
+            if (!staffDetails || staffDetails.length === 0) {
+                return res.status(404).json({ error: 'Staff not found or missing department information' });
+            }
+
+            userDepartment = staffDetails[0].department;
+        }
+
+        if (userDepartment !== department_name) {
+            return res.status(400).json({ error: 'Department mismatch for user' });
+        }
+
         await query('START TRANSACTION');
 
-        
+        // Update the member count
         if (userGroup === 'Student') {
             const studentYear = await getStudentYear(rollnumber);
             if (!studentYear) {
@@ -211,16 +234,14 @@ router.post('/removeabsent', async (req, res) => {
             await query(decrementQuery, [department_name]);
         }
 
-        
+        // Delete the record
         const deleteResult = await query(`DELETE FROM absent_attendance_records WHERE attendance_date=? AND ${column}=?`, [date, rollnumber]);
         if (deleteResult.affectedRows === 0) {
             await query('ROLLBACK');
             return res.status(404).json({ error: 'Record not found' });
         }
 
-        
         await query('COMMIT');
-
         res.json({ message: 'Record removed successfully' });
 
     } catch (error) {
@@ -231,28 +252,49 @@ router.post('/removeabsent', async (req, res) => {
 });
 
 router.post('/getindividual', async (req, res) => {
-    const { rollnumber, userGroup } = req.body;
+    const { rollnumber, userGroup, department } = req.body;
   
-    if (!rollnumber || !userGroup) {
-        return res.status(400).json({ error: 'Roll Number and User Group are required' });
+    if (!rollnumber || !userGroup || !department) {
+      return res.status(400).json({ error: 'Roll Number, User Group, and Department are required' });
     }
   
     const column = userGroup === 'Student' ? 'student_id' : 'staff_id';
+    const userTable = userGroup === 'Student' ? 'students' : 'staffs';
   
     try {
-        const result = await query(`SELECT * FROM absent_attendance_records WHERE ${column}=?`, [rollnumber]);
-
-        if (result.length == 0) {
-            return res.status(400).json({ error: "Record does not Exist" });
-        }
-
-        res.json(result);
+      let departmentCheckQuery = '';
+      let departmentCheckParams = [];
+  
+      if (department !== 'All') {
+        // Check if the roll number belongs to the specified department
+        departmentCheckQuery = `SELECT * FROM ${userTable} WHERE id= ? AND department= ?`;
+        departmentCheckParams = [rollnumber, department];
+      } else {
+        // Check if the roll number exists in the table
+        departmentCheckQuery = `SELECT * FROM ${userTable} WHERE id= ?`;
+        departmentCheckParams = [rollnumber];
+      }
+  
+      const departmentCheckResult = await query(departmentCheckQuery, departmentCheckParams);
+  
+      if (departmentCheckResult.length === 0) {
+        return res.status(400).json({ error: `${userGroup} doesn't belong to ${department} department or doesn't exist` });
+      }
+  
+      // Fetch attendance records
+      const attendanceQuery = `SELECT * FROM absent_attendance_records WHERE ${column} = ?`;
+      const attendanceResult = await query(attendanceQuery, [rollnumber]);
+  
+      if (attendanceResult.length === 0) {
+        return res.status(400).json({ error: 'No Absent Record Exists For The Given Roll Number' });
+      }
+  
+      res.json(attendanceResult);
     } catch (error) {
-        console.error('Error fetching data:', error);
-        res.status(500).json({ error: 'Error fetching data' });
+      console.error('Error fetching data:', error);
+      res.status(500).json({ error: 'Error fetching data' });
     }
-});
-
+  });
 router.post('/fetchtoday', async (req, res) => {
     console.log('Received request body:', req.body);
     const userGroup = req.body.selectedUserGroup;
@@ -336,7 +378,7 @@ router.post('/fetchtoday', async (req, res) => {
         const results = await query(queryStr, params);
 
         if (!results || results.length === 0) {
-            return res.status(404).json({ error: 'No Records Found' });
+            return res.status(404).json({ error: `No ${userGroup}s                                                                                                                                                                                                           Are Absent` });
         }
 
         res.json({ message: 'Records fetched successfully', data: results });
@@ -352,9 +394,9 @@ router.post('/fetchdatedata', async (req, res) => {
     const currentdate = req.body.date;
     console.log('Received request body:', req.body);
     const department = req.body.department;
+    const formattedDate2=req.body.date2;
     const formattedDate = currentdate;
     console.log("THE FORMATTED DATE IS "+formattedDate);
-
     if (!userGroup || !department) {
         return res.status(400).json({ error: 'User Group is required' });
     }
@@ -431,7 +473,7 @@ router.post('/fetchdatedata', async (req, res) => {
         const results = await query(queryStr, params);
 
         if (!results || results.length === 0) {
-            return res.status(404).json({ error: 'No Records Found' });
+            return res.status(404).json({ error: `No ${userGroup}s Were Absent On ${formattedDate2}` });
         }
 
         res.json({ message: 'Records fetched successfully', data: results });
@@ -703,5 +745,30 @@ router.post('/admin-attendance-graph', async (req, res) => {
     }
 });
 
+router.post('/getname', async (req, res) => {
+    const { userId, userType } = req.body;
+    console.log(req.body);
+    if (!userId || !userType) {
+        return res.status(400).json({ error: 'User ID and User Type are required' });
+    }
 
+    if (!['student', 'staff'].includes(userType)) {
+        return res.status(400).json({ error: 'Invalid User Type' });
+    }
+
+    const table = userType === 'student' ? 'students' : 'staffs';
+    try {
+        const queryStr = `SELECT name FROM ${table} WHERE id = ?`;
+        const result = await query(queryStr, [userId]);
+
+        if (result.length === 0) {
+            return res.status(404).json({ error: `${userType} not found` });
+        }
+
+        res.json({ data: result[0] });
+    } catch (error) {
+        console.error('Error fetching user data:', error);
+        res.status(500).json({ error: getFriendlyErrorMessage(error.code) });
+    }
+});
 module.exports = router;

@@ -173,7 +173,7 @@ router.post('/addabsent', function _callee(req, res) {
 
           console.error('Department mismatch for student');
           return _context.abrupt("return", res.status(400).json({
-            error: 'Student is not part of Your Department'
+            error: "Student is not part of ".concat(department, " Department")
           }));
 
         case 40:
@@ -226,7 +226,7 @@ router.post('/addabsent', function _callee(req, res) {
 
           console.error('Department information missing for the staff');
           return _context.abrupt("return", res.status(404).json({
-            error: 'Staff is not part of Your Department'
+            error: "Staff is not part of ".concat(department, " Department")
           }));
 
         case 63:
@@ -298,7 +298,7 @@ function getStudentYear(student_id) {
 }
 
 router.post('/removeabsent', function _callee2(req, res) {
-  var _req$body, date, rollnumber, userGroup, department_name, column, checkQuery, records, studentYear, updateField, decrementQuery, _decrementQuery, deleteResult;
+  var _req$body, date, rollnumber, userGroup, department_name, column, checkQuery, records, userDepartment, studentDetails, staffDetails, studentYear, updateField, decrementQuery, _decrementQuery, deleteResult;
 
   return regeneratorRuntime.async(function _callee2$(_context3) {
     while (1) {
@@ -358,6 +358,7 @@ router.post('/removeabsent', function _callee2(req, res) {
         case 11:
           column = userGroup === 'Student' ? 'student_id' : 'staff_id';
           _context3.prev = 12;
+          // Check if the record exists
           checkQuery = "SELECT * FROM absent_attendance_records WHERE attendance_date=? AND ".concat(column, "=?");
           _context3.next = 16;
           return regeneratorRuntime.awrap(query(checkQuery, [date, rollnumber]));
@@ -375,159 +376,251 @@ router.post('/removeabsent', function _callee2(req, res) {
           }));
 
         case 19:
-          _context3.next = 21;
-          return regeneratorRuntime.awrap(query('START TRANSACTION'));
-
-        case 21:
           if (!(userGroup === 'Student')) {
+            _context3.next = 28;
+            break;
+          }
+
+          _context3.next = 22;
+          return regeneratorRuntime.awrap(query('SELECT department FROM students WHERE id = ?', [rollnumber]));
+
+        case 22:
+          studentDetails = _context3.sent;
+
+          if (!(!studentDetails || studentDetails.length === 0)) {
+            _context3.next = 25;
+            break;
+          }
+
+          return _context3.abrupt("return", res.status(404).json({
+            error: 'Student not found or missing department information'
+          }));
+
+        case 25:
+          userDepartment = studentDetails[0].department;
+          _context3.next = 35;
+          break;
+
+        case 28:
+          if (!(userGroup === 'Staff')) {
             _context3.next = 35;
             break;
           }
 
-          _context3.next = 24;
-          return regeneratorRuntime.awrap(getStudentYear(rollnumber));
+          _context3.next = 31;
+          return regeneratorRuntime.awrap(query('SELECT department FROM staff WHERE id = ?', [rollnumber]));
 
-        case 24:
-          studentYear = _context3.sent;
+        case 31:
+          staffDetails = _context3.sent;
 
-          if (studentYear) {
-            _context3.next = 29;
+          if (!(!staffDetails || staffDetails.length === 0)) {
+            _context3.next = 34;
             break;
           }
 
-          _context3.next = 28;
+          return _context3.abrupt("return", res.status(404).json({
+            error: 'Staff not found or missing department information'
+          }));
+
+        case 34:
+          userDepartment = staffDetails[0].department;
+
+        case 35:
+          if (!(userDepartment !== department_name)) {
+            _context3.next = 37;
+            break;
+          }
+
+          return _context3.abrupt("return", res.status(400).json({
+            error: 'Department mismatch for user'
+          }));
+
+        case 37:
+          _context3.next = 39;
+          return regeneratorRuntime.awrap(query('START TRANSACTION'));
+
+        case 39:
+          if (!(userGroup === 'Student')) {
+            _context3.next = 53;
+            break;
+          }
+
+          _context3.next = 42;
+          return regeneratorRuntime.awrap(getStudentYear(rollnumber));
+
+        case 42:
+          studentYear = _context3.sent;
+
+          if (studentYear) {
+            _context3.next = 47;
+            break;
+          }
+
+          _context3.next = 46;
           return regeneratorRuntime.awrap(query('ROLLBACK'));
 
-        case 28:
+        case 46:
           return _context3.abrupt("return", res.status(404).json({
             error: 'Student year not found'
           }));
 
-        case 29:
+        case 47:
           updateField = "todayabsentcount_year_".concat(studentYear);
           decrementQuery = "\n                UPDATE MemberCount \n                SET ".concat(updateField, " = ").concat(updateField, " - 1 \n                WHERE department_name = ?");
-          _context3.next = 33;
+          _context3.next = 51;
           return regeneratorRuntime.awrap(query(decrementQuery, [department_name]));
 
-        case 33:
-          _context3.next = 39;
+        case 51:
+          _context3.next = 57;
           break;
 
-        case 35:
+        case 53:
           if (!(userGroup === 'Staff')) {
-            _context3.next = 39;
+            _context3.next = 57;
             break;
           }
 
           _decrementQuery = "\n                UPDATE MemberCount \n                SET todayabsentcount_staff = todayabsentcount_staff - 1 \n                WHERE department_name = ?";
-          _context3.next = 39;
+          _context3.next = 57;
           return regeneratorRuntime.awrap(query(_decrementQuery, [department_name]));
 
-        case 39:
-          _context3.next = 41;
+        case 57:
+          _context3.next = 59;
           return regeneratorRuntime.awrap(query("DELETE FROM absent_attendance_records WHERE attendance_date=? AND ".concat(column, "=?"), [date, rollnumber]));
 
-        case 41:
+        case 59:
           deleteResult = _context3.sent;
 
           if (!(deleteResult.affectedRows === 0)) {
-            _context3.next = 46;
+            _context3.next = 64;
             break;
           }
 
-          _context3.next = 45;
+          _context3.next = 63;
           return regeneratorRuntime.awrap(query('ROLLBACK'));
 
-        case 45:
+        case 63:
           return _context3.abrupt("return", res.status(404).json({
             error: 'Record not found'
           }));
 
-        case 46:
-          _context3.next = 48;
+        case 64:
+          _context3.next = 66;
           return regeneratorRuntime.awrap(query('COMMIT'));
 
-        case 48:
+        case 66:
           res.json({
             message: 'Record removed successfully'
           });
-          _context3.next = 57;
+          _context3.next = 75;
           break;
 
-        case 51:
-          _context3.prev = 51;
+        case 69:
+          _context3.prev = 69;
           _context3.t0 = _context3["catch"](12);
           console.error('Error removing record:', _context3.t0);
-          _context3.next = 56;
+          _context3.next = 74;
           return regeneratorRuntime.awrap(query('ROLLBACK'));
 
-        case 56:
+        case 74:
           res.status(500).json({
             error: 'Error removing record'
           });
 
-        case 57:
+        case 75:
         case "end":
           return _context3.stop();
       }
     }
-  }, null, null, [[12, 51]]);
+  }, null, null, [[12, 69]]);
 });
 router.post('/getindividual', function _callee3(req, res) {
-  var _req$body2, rollnumber, userGroup, column, result;
+  var _req$body2, rollnumber, userGroup, department, column, userTable, departmentCheckQuery, departmentCheckParams, departmentCheckResult, attendanceQuery, attendanceResult;
 
   return regeneratorRuntime.async(function _callee3$(_context4) {
     while (1) {
       switch (_context4.prev = _context4.next) {
         case 0:
-          _req$body2 = req.body, rollnumber = _req$body2.rollnumber, userGroup = _req$body2.userGroup;
+          _req$body2 = req.body, rollnumber = _req$body2.rollnumber, userGroup = _req$body2.userGroup, department = _req$body2.department;
 
-          if (!(!rollnumber || !userGroup)) {
+          if (!(!rollnumber || !userGroup || !department)) {
             _context4.next = 3;
             break;
           }
 
           return _context4.abrupt("return", res.status(400).json({
-            error: 'Roll Number and User Group are required'
+            error: 'Roll Number, User Group, and Department are required'
           }));
 
         case 3:
           column = userGroup === 'Student' ? 'student_id' : 'staff_id';
-          _context4.prev = 4;
-          _context4.next = 7;
-          return regeneratorRuntime.awrap(query("SELECT * FROM absent_attendance_records WHERE ".concat(column, "=?"), [rollnumber]));
+          userTable = userGroup === 'Student' ? 'students' : 'staffs';
+          _context4.prev = 5;
+          departmentCheckQuery = '';
+          departmentCheckParams = [];
 
-        case 7:
-          result = _context4.sent;
+          if (department !== 'All') {
+            // Check if the roll number belongs to the specified department
+            departmentCheckQuery = "SELECT * FROM ".concat(userTable, " WHERE id= ? AND department= ?");
+            departmentCheckParams = [rollnumber, department];
+          } else {
+            // Check if the roll number exists in the table
+            departmentCheckQuery = "SELECT * FROM ".concat(userTable, " WHERE id= ?");
+            departmentCheckParams = [rollnumber];
+          }
 
-          if (!(result.length == 0)) {
-            _context4.next = 10;
+          _context4.next = 11;
+          return regeneratorRuntime.awrap(query(departmentCheckQuery, departmentCheckParams));
+
+        case 11:
+          departmentCheckResult = _context4.sent;
+
+          if (!(departmentCheckResult.length === 0)) {
+            _context4.next = 14;
             break;
           }
 
           return _context4.abrupt("return", res.status(400).json({
-            error: "Record does not Exist"
+            error: "".concat(userGroup, " doesn't belong to ").concat(department, " department or doesn't exist")
           }));
 
-        case 10:
-          res.json(result);
+        case 14:
+          // Fetch attendance records
+          attendanceQuery = "SELECT * FROM absent_attendance_records WHERE ".concat(column, " = ?");
           _context4.next = 17;
+          return regeneratorRuntime.awrap(query(attendanceQuery, [rollnumber]));
+
+        case 17:
+          attendanceResult = _context4.sent;
+
+          if (!(attendanceResult.length === 0)) {
+            _context4.next = 20;
+            break;
+          }
+
+          return _context4.abrupt("return", res.status(400).json({
+            error: 'No Absent Record Exists For The Given Roll Number'
+          }));
+
+        case 20:
+          res.json(attendanceResult);
+          _context4.next = 27;
           break;
 
-        case 13:
-          _context4.prev = 13;
-          _context4.t0 = _context4["catch"](4);
+        case 23:
+          _context4.prev = 23;
+          _context4.t0 = _context4["catch"](5);
           console.error('Error fetching data:', _context4.t0);
           res.status(500).json({
             error: 'Error fetching data'
           });
 
-        case 17:
+        case 27:
         case "end":
           return _context4.stop();
       }
     }
-  }, null, null, [[4, 13]]);
+  }, null, null, [[5, 23]]);
 });
 router.post('/fetchtoday', function _callee4(req, res) {
   var userGroup, department, timeZone, currentDate, formattedDate, queryStr, params, results;
@@ -630,7 +723,7 @@ router.post('/fetchtoday', function _callee4(req, res) {
           }
 
           return _context5.abrupt("return", res.status(404).json({
-            error: 'No Records Found'
+            error: "No ".concat(userGroup, "s                                                                                                                                                                                                           Are Absent")
           }));
 
         case 41:
@@ -657,7 +750,7 @@ router.post('/fetchtoday', function _callee4(req, res) {
   }, null, null, [[35, 44]]);
 });
 router.post('/fetchdatedata', function _callee5(req, res) {
-  var userGroup, currentdate, department, formattedDate, queryStr, params, results;
+  var userGroup, currentdate, department, formattedDate2, formattedDate, queryStr, params, results;
   return regeneratorRuntime.async(function _callee5$(_context6) {
     while (1) {
       switch (_context6.prev = _context6.next) {
@@ -667,11 +760,12 @@ router.post('/fetchdatedata', function _callee5(req, res) {
           currentdate = req.body.date;
           console.log('Received request body:', req.body);
           department = req.body.department;
+          formattedDate2 = req.body.date2;
           formattedDate = currentdate;
           console.log("THE FORMATTED DATE IS " + formattedDate);
 
           if (!(!userGroup || !department)) {
-            _context6.next = 9;
+            _context6.next = 10;
             break;
           }
 
@@ -679,110 +773,110 @@ router.post('/fetchdatedata', function _callee5(req, res) {
             error: 'User Group is required'
           }));
 
-        case 9:
+        case 10:
           if (!(department === "All")) {
-            _context6.next = 23;
+            _context6.next = 24;
             break;
           }
 
           if (!(userGroup === 'Student')) {
-            _context6.next = 15;
+            _context6.next = 16;
             break;
           }
 
           queryStr = "\n                SELECT \n                    s.name AS name,\n                    s.academic_year AS academic_year,\n                    s.department AS dept,\n                    s.parent_mail AS parent_mail,\n                    a.reason AS Reason,\n                    a.leave_type AS Leave_Type\n                FROM students s\n                INNER JOIN absent_attendance_records a ON s.id = a.student_id\n                WHERE a.attendance_date = ? AND s.department IS NOT NULL;\n            ";
           params = [formattedDate];
-          _context6.next = 21;
+          _context6.next = 22;
           break;
 
-        case 15:
+        case 16:
           if (!(userGroup === 'Staff')) {
-            _context6.next = 20;
+            _context6.next = 21;
             break;
           }
 
           queryStr = "\n                SELECT \n                    st.name AS name,\n                    st.department AS dept,\n                    st.email AS staff_mail,\n                    a.reason AS Reason,\n                    a.leave_type AS Leave_Type\n                FROM staffs st\n                INNER JOIN absent_attendance_records a ON st.id = a.staff_id\n                WHERE a.attendance_date = ? AND st.department IS NOT NULL;\n            ";
           params = [formattedDate];
-          _context6.next = 21;
+          _context6.next = 22;
           break;
 
-        case 20:
+        case 21:
           return _context6.abrupt("return", res.status(400).json({
             error: 'Invalid User Group'
           }));
 
-        case 21:
-          _context6.next = 34;
+        case 22:
+          _context6.next = 35;
           break;
 
-        case 23:
+        case 24:
           if (!(userGroup === 'Student')) {
-            _context6.next = 28;
+            _context6.next = 29;
             break;
           }
 
           queryStr = "\n                SELECT \n                    s.name AS name,\n                    s.academic_year AS academic_year,\n                    s.department AS dept,\n                    s.parent_mail AS parent_mail,\n                    a.reason AS Reason,\n                    a.leave_type AS Leave_Type\n                FROM students s\n                INNER JOIN absent_attendance_records a ON s.id = a.student_id\n                WHERE a.attendance_date = ? AND s.department = ?;\n            ";
           params = [formattedDate, department];
-          _context6.next = 34;
+          _context6.next = 35;
           break;
 
-        case 28:
+        case 29:
           if (!(userGroup === 'Staff')) {
-            _context6.next = 33;
+            _context6.next = 34;
             break;
           }
 
           queryStr = "\n                SELECT \n                    st.name AS name,\n                    st.department AS dept,\n                    st.email AS staff_mail,\n                    a.reason AS Reason,\n                    a.leave_type AS Leave_Type\n                FROM staffs st\n                INNER JOIN absent_attendance_records a ON st.id = a.staff_id\n                WHERE a.attendance_date = ? AND st.department = ?;\n            ";
           params = [formattedDate, department];
-          _context6.next = 34;
+          _context6.next = 35;
           break;
 
-        case 33:
+        case 34:
           return _context6.abrupt("return", res.status(400).json({
             error: 'Invalid User Group'
           }));
 
-        case 34:
+        case 35:
           console.log('Executing query:', queryStr);
           console.log('With params:', params);
-          _context6.prev = 36;
-          _context6.next = 39;
+          _context6.prev = 37;
+          _context6.next = 40;
           return regeneratorRuntime.awrap(query(queryStr, params));
 
-        case 39:
+        case 40:
           results = _context6.sent;
 
           if (!(!results || results.length === 0)) {
-            _context6.next = 42;
+            _context6.next = 43;
             break;
           }
 
           return _context6.abrupt("return", res.status(404).json({
-            error: 'No Records Found'
+            error: "No ".concat(userGroup, "s Were Absent On ").concat(formattedDate2)
           }));
 
-        case 42:
+        case 43:
           res.json({
             message: 'Records fetched successfully',
             data: results
           });
-          _context6.next = 49;
+          _context6.next = 50;
           break;
 
-        case 45:
-          _context6.prev = 45;
-          _context6.t0 = _context6["catch"](36);
+        case 46:
+          _context6.prev = 46;
+          _context6.t0 = _context6["catch"](37);
           console.error('Error fetching records:', _context6.t0);
           res.status(500).json({
             error: 'Error fetching records'
           });
 
-        case 49:
+        case 50:
         case "end":
           return _context6.stop();
       }
     }
-  }, null, null, [[36, 45]]);
+  }, null, null, [[37, 46]]);
 });
 router.post('/attendance-summary', function _callee6(req, res) {
   var department, results, row, data;
@@ -1224,5 +1318,75 @@ router.post('/admin-attendance-graph', function _callee11(req, res) {
       }
     }
   }, null, null, [[5, 18]]);
+});
+router.post('/getname', function _callee12(req, res) {
+  var _req$body4, userId, userType, table, queryStr, result;
+
+  return regeneratorRuntime.async(function _callee12$(_context13) {
+    while (1) {
+      switch (_context13.prev = _context13.next) {
+        case 0:
+          _req$body4 = req.body, userId = _req$body4.userId, userType = _req$body4.userType;
+          console.log(req.body);
+
+          if (!(!userId || !userType)) {
+            _context13.next = 4;
+            break;
+          }
+
+          return _context13.abrupt("return", res.status(400).json({
+            error: 'User ID and User Type are required'
+          }));
+
+        case 4:
+          if (['student', 'staff'].includes(userType)) {
+            _context13.next = 6;
+            break;
+          }
+
+          return _context13.abrupt("return", res.status(400).json({
+            error: 'Invalid User Type'
+          }));
+
+        case 6:
+          table = userType === 'student' ? 'students' : 'staffs';
+          _context13.prev = 7;
+          queryStr = "SELECT name FROM ".concat(table, " WHERE id = ?");
+          _context13.next = 11;
+          return regeneratorRuntime.awrap(query(queryStr, [userId]));
+
+        case 11:
+          result = _context13.sent;
+
+          if (!(result.length === 0)) {
+            _context13.next = 14;
+            break;
+          }
+
+          return _context13.abrupt("return", res.status(404).json({
+            error: "".concat(userType, " not found")
+          }));
+
+        case 14:
+          res.json({
+            data: result[0]
+          });
+          _context13.next = 21;
+          break;
+
+        case 17:
+          _context13.prev = 17;
+          _context13.t0 = _context13["catch"](7);
+          console.error('Error fetching user data:', _context13.t0);
+          res.status(500).json({
+            error: getFriendlyErrorMessage(_context13.t0.code)
+          });
+
+        case 21:
+        case "end":
+          return _context13.stop();
+      }
+    }
+  }, null, null, [[7, 17]]);
 });
 module.exports = router;

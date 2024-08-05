@@ -75,7 +75,7 @@ const AddForm = () => {
 
   const handleFileReset = () => {
     setFile(null);
-    setFileInputKey(Date.now()); // Reset the key to re-render the input
+    setFileInputKey(Date.now()); 
   };
 
   const handleSubmit = async (e) => {

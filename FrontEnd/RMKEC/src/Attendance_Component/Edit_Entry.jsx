@@ -98,14 +98,14 @@ const Edit_Entry = () => {
       const response = await axios.post("http://localhost:3000/attendance/removeabsent", payload);
       console.log(response.data);
       if (response.data.error) {
-        notifyfailure(response.data.error);
+        notifyfailure(error.response?.data?.error);
       } else {
         notifysuccess(response.data.message);
         setRollNumber('')
       }
     } catch (error) {
-      if (error.response && error.response.status === 404) {
-        notifyfailure('Record not found');
+      if (error.response) {
+        notifyfailure(error.response?.data?.error);
       } else {
         notifyfailure('Error removing record: ' + error.message);
       }
