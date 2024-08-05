@@ -12,6 +12,8 @@ export const ViewOtherFormRecord = () => {
   const navigate = useNavigate();
   const { id, attributenames, form } = location.state;
   const [records, setRecords] = useState([]);
+  const [filteredRecords, setFilteredRecords] = useState([]);
+
   useEffect(() => {
     const fetchForms = async () => {
       try {
@@ -21,6 +23,7 @@ export const ViewOtherFormRecord = () => {
           record_data: JSON.parse(record.record_data)
         }));
         setRecords(formsData);
+        setFilteredRecords(formsData);
       } catch (error) {
         console.error('Error fetching forms:', error);
       }
@@ -64,7 +67,10 @@ export const ViewOtherFormRecord = () => {
     }
     try {
       await axios.post('http://localhost:3000/forms/updateAndDeleteRecord', {recordId:recordId,formId:form.id });
-      setRecords(records.filter(record => record.id !== recordId));
+      const updatedRecords = records.filter(record => record.id !== recordId);
+      setRecords(updatedRecords);
+      setFilteredRecords(updatedRecords);
+
     } catch (error) {
       console.error('Error deleting record:', error);
     }
@@ -73,44 +79,45 @@ export const ViewOtherFormRecord = () => {
   return (
     <Container>
       <h2>View Other Form Records</h2>
-      {records.length > 0 ? (
-        <Table striped bordered hover>
-          <thead>
-            <tr>
-              {attributenames.map((attribute, index) => (
-                <th key={index}>{attribute.name}</th>
-              ))}
-              <th>Action</th>
-            </tr>
-          </thead>
-          <tbody>
-            {records.map((record, index) => (
-              <tr key={index}>
-                {attributenames.map((attribute, attrIndex) => (
-                  <td key={attrIndex}>{record.record_data[attribute.name]}</td>
-                ))}
-                <td className="fixed-column">
-                  <button
-                    className="btn btn-warning btn-sm mr-2"
-                    style={{ marginRight: "5px" }}
-                    onClick={() => handleEdit(record)}
-                  >
-                    Edit
-                  </button>
-                  <button
-                    className="btn btn-danger btn-sm"
-                    onClick={() => handleDelete(record.id)}
-                  >
-                    Delete
-                  </button>
-                </td>
-              </tr>
-            ))}
-          </tbody>
-        </Table>
-      ) : (
-        <p>Loading...</p>
-      )}
+      {filteredRecords.length > 0 ? (
+  <Table striped bordered hover>
+    <thead>
+      <tr>
+        {attributenames.map((attribute, index) => (
+          <th key={index}>{attribute.name}</th>
+        ))}
+        <th>Action</th>
+      </tr>
+    </thead>
+    <tbody>
+      {filteredRecords.map((record, index) => (
+        <tr key={index}>
+          {attributenames.map((attribute, attrIndex) => (
+            <td key={attrIndex}>{record.record_data[attribute.name]}</td>
+          ))}
+          <td className="fixed-column">
+            <button
+              className="btn btn-warning btn-sm mr-2"
+              style={{ marginRight: "5px" }}
+              onClick={() => handleEdit(record)}
+            >
+              Edit
+            </button>
+            <button
+              className="btn btn-danger btn-sm"
+              onClick={() => handleDelete(record.id)}
+            >
+              Delete
+            </button>
+          </td>
+        </tr>
+      ))}
+    </tbody>
+  </Table>
+) : (
+  <p>Loading...</p>
+)}
+
       <ToastContainer />
     </Container>
   );
