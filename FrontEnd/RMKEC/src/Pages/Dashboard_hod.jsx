@@ -52,7 +52,7 @@ function DashBoard_hod() {
   const transformData = (data) => {
     return [
       { status: 'Placed', students: data.placed_students },
-      { status: 'Yet to be Placed', students: data.yet_placed_students },
+      { status: 'Yet Placed', students: data.yet_placed_students },
       { status: 'HS', students: data.higher_studies_students },
     ];
   };
