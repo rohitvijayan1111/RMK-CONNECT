@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import axios from 'axios';
 import { Table } from 'react-bootstrap';
 import { ToastContainer, toast, Zoom } from 'react-toastify';
@@ -62,32 +62,20 @@ const Attendance_Log = () => {
   const [selectedDate, setSelectedDate] = useState(null);
   const [selectedDepartment, setSelectedDepartment] = useState('');
   const user = window.localStorage.getItem('userType');
-
-  const notifyFailure = (error) => {
-    const errorMessage = error.response?.data?.error || 'Error fetching data';
-    toast.error(errorMessage, {
-      position: 'top-center',
-      autoClose: 5000,
-      hideProgressBar: false,
-      closeOnClick: true,
-      pauseOnHover: true,
-      draggable: true,
-      progress: undefined,
-      theme: 'colored',
-      transition: Zoom,
-    });
-  };
+  const [name, setName] = useState("");
 
   const fetchData = async () => {
     try {
       const formattedDate = selectedDate ? selectedDate.format('YYYY-MM-DD') : null;
+      const formattedDate2 = selectedDate ? selectedDate.format('DD-MM-YYYY') : null;
       const departmentToFetch = (user === 'hod' || user === 'Attendance Manager') ? window.localStorage.getItem('department') : selectedDepartment;
       console.log('Fetching data with department:', departmentToFetch);
 
       const response = await axios.post('http://localhost:3000/attendance/fetchdatedata', {
         selectedUserGroup,
         date: formattedDate,
-        department: departmentToFetch
+        department: departmentToFetch,
+        date2:formattedDate2
       });
       console.log('Response data:', response.data);
       setData(response.data.data);
@@ -95,10 +83,11 @@ const Attendance_Log = () => {
         const keys = extractAttributeNames(response.data.data[0]);
         setAttributeNames(keys);
       } else {
+        setName("No Absent Record Found on " + formattedDate2);
         setAttributeNames([]);
       }
     } catch (error) {
-      notifyFailure(error);
+      setName(error.response?.data?.error);
       console.error('Error fetching data:', error);
     }
   };
@@ -109,9 +98,16 @@ const Attendance_Log = () => {
 
   const handleFetchClick = () => {
     setData([]);
+    setName("");
     setAttributeNames([]);
     fetchData();
   };
+
+  useEffect(() => {
+    // Reset data and name when the selected department or user group changes
+    setData([]);
+    setName("");
+  }, [selectedDepartment, selectedUserGroup]);
 
   return (
     <div className='hon'>
@@ -130,6 +126,7 @@ const Attendance_Log = () => {
         </LocalizationProvider>
         <input type='submit' value="Fetch" className='btm' onClick={handleFetchClick} />
       </div>
+      {name && <h1>{name}</h1>}
       {data.length > 0 && (
         <Table striped bordered hover>
           <thead>

@@ -220,6 +220,38 @@
 .btn {
   margin-right: 5px; 
 }
+/* Base styles for the button */
+.change-button {
+  display: inline-block;
+  padding: 10px 20px;
+  font-size: 16px;
+  font-weight: 600;
+  color: #fff;
+  background-color: #007bff; /* Blue color */
+  border: none;
+  border-radius: 5px;
+  cursor: pointer;
+  text-align: center;
+  text-decoration: none;
+  transition: background-color 0.3s ease, transform 0.2s ease;
+}
+
+/* Button hover effect */
+.change-button:hover {
+  background-color: #0056b3; /* Darker blue */
+}
+
+/* Button active effect */
+.change-button:active {
+  background-color: #003d80; /* Even darker blue */
+  transform: translateY(1px); /* Slight pressing effect */
+}
+
+/* Button focus effect */
+.change-button:focus {
+  outline: none;
+  box-shadow: 0 0 0 3px rgba(0, 123, 255, 0.5); /* Focus ring */
+}
 
 
 .company{

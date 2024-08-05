@@ -15,6 +15,9 @@ const EditForm = () => {
   const location = useLocation();
   const { table, attributenames, item } = location.state;
   const [data, setData] = useState(item);
+  const [selectedFile, setSelectedFile] = useState(null);
+  const [showFileUpload, setShowFileUpload] = useState(false);
+
 
   const attributeTypes = {
     'completion_date': 'date',
@@ -30,7 +33,8 @@ const EditForm = () => {
     'Date of Interview': 'date',
     'start_date': 'date',
     'end_date': 'date',
-    'joining_date':'date'
+    'joining_date':'date',
+
   };
 
   const notifysuccess = () => {
@@ -66,6 +70,10 @@ const EditForm = () => {
     setData({ ...data, [attribute]: formattedDate });
   };
 
+  const handleChange = (attribute, value) => {
+    console.log("data is changed "+value);
+    setData({ ...data, [attribute]: value });
+  };
 
   const handleSubmit = async (e) => {
     e.preventDefault();
@@ -77,11 +85,19 @@ const EditForm = () => {
           formattedData[attribute] = dayjs(formattedData[attribute]).format('YYYY-MM-DD');
         }
       }
-
-      const response = await axios.post("http://localhost:3000/tables/updaterecord", {
-        id: data.id,
-        data: formattedData,
-        table
+  
+      const formData = new FormData();
+      formData.append('id', data.id);
+      formData.append('table', table);
+      formData.append('data', JSON.stringify(formattedData));
+      if (selectedFile) {
+        formData.append('file', selectedFile);
+      }
+  
+      const response = await axios.post("http://localhost:3000/tables/updaterecord", formData, {
+        headers: {
+          'Content-Type': 'multipart/form-data'
+        }
       });
       console.log(response.data);
       notifysuccess();
@@ -92,84 +108,60 @@ const EditForm = () => {
       notifyfailure(error.response?.data?.error || 'Error inserting record');
     }
   };
-  const handleChange = (attribute, value) => {
-    setData(prevData => {
-      const newData = { ...prevData, [attribute]: value };
-      if (attribute === 'No_of_Students_Registered_for_Placement' || attribute === 'No_of_Students_Placed') {
-        const totalStudents = parseFloat(newData['No_of_Students_Registered_for_Placement']);
-        const placedStudents = parseFloat(newData['No_of_Students_Placed']);
-        if (totalStudents && placedStudents) {
-          newData['Placement_Percentage'] = ((placedStudents / totalStudents) * 100).toFixed(2);
-        } else {
-          newData['Placement_Percentage'] = '0.00';
-        }
-      }
-      if (attribute === 'No_of_Students_Opted_for_Higher_Studies' || attribute === 'No_of_Students_Admitted_to_Higher_Studies') {
-        const totalStudents = parseFloat(newData['No_of_Students_Opted_for_Higher_Studies']);
-        const placedStudents = parseFloat(newData['No_of_Students_Admitted_to_Higher_Studies']);
-        if (totalStudents && placedStudents) {
-          newData['Percentage_of_Higher_Studies'] = ((placedStudents / totalStudents) * 100).toFixed(2);
-        } else {
-          newData['Percentage_of_Higher_Studies'] = '0.00';
-        }
-      }
-
-      return newData;
-    });
-  };
-
+  
   return (
-    <div className="cnt">
-      <h2>Edit Form</h2>
-      {attributenames && attributenames.length > 0 ? (
-        <form className='edt' onSubmit={handleSubmit}>
-          {attributenames.map((attribute, index) => (
-            attribute !== "id" && attribute !== "department" && (
-              <div className="frm" key={index}>
-                <label htmlFor={attribute} className="lbl">{attribute.replace(/_/g, ' ')}:</label>
-                {attributeTypes[attribute] === 'date' ? (
-                  <LocalizationProvider dateAdapter={AdapterDayjs}>
-                    <DatePicker
-                      label=''
-                      value={data[attribute] ? dayjs(data[attribute]) : null}
-                      onChange={(date) => handleDateChange(attribute, date)}
-                      renderInput={(params) => (
-                        <TextField
-                          {...params}
-                          variant="outlined"
-                          className="cntr"
-                          id={attribute}
-                          required
-                        />
-                      )}
-                    />
-                  </LocalizationProvider>
-                ) : attributeTypes[attribute] === 'Placement_Percentage' ?( 
-                  <>
-                  <input
-                      type="text"
-                      className="cntr"
-                      id={attribute}
-                      onChange={(e) => setData({ ...data, [attribute]: (data[No_of_Students_Placed]/data[Total_No_of_Students])/100 })}
-                      value={data[attribute]  || ''}
-                      readOnly
-                      required
-                    />
-                  </>
-                ): attributeTypes[attribute] === 'Percentage_of_Higher_Studies' ?( 
-                  <>
-                  <input
-                      type="text"
-                      className="cntr"
-                      id={attribute}
-                      onChange={(e) => setData({ ...data, [attribute]: (data[No_of_Students_Admitted_to_Higher_Studies]/data[No_of_Students_Opted_for_Higher_Studies])/100  })}
-                      value={data[attribute] || ''}
-                      readOnly
-                      required
-                    />
-                  </>
-
-                ): (
+  <div className="cnt">
+    <h2>Edit Form</h2>
+    {attributenames && attributenames.length > 0 ? (
+      <form className='edt' onSubmit={handleSubmit}>
+        {attributenames.map((attribute, index) => (
+          attribute !== "id" && attribute !== "department" && (
+            <div className="frm" key={index}>
+              <label htmlFor={attribute} className="lbl">{attribute.replace(/_/g, ' ')}:</label>
+              {attributeTypes[attribute] === 'date' ? (
+                <LocalizationProvider dateAdapter={AdapterDayjs}>
+                  <DatePicker
+                    label=''
+                    value={data[attribute] ? dayjs(data[attribute]) : null}
+                    onChange={(date) => handleDateChange(attribute, date)}
+                    renderInput={(params) => (
+                      <TextField
+                        {...params}
+                        variant="outlined"
+                        className="cntr"
+                        id={attribute}
+                        required
+                      />
+                    )}
+                  />
+                </LocalizationProvider>
+              ) : (
+                attribute === "document" ? (
+                  <div>
+                    {data.document && (
+                      <div>
+                        <a href={`http://localhost:3000/${data.document}`} target="_blank" rel="noopener noreferrer">
+                          View Current Document
+                        </a>
+                        <button
+                          type="button"
+                          class="change-button"
+                          onClick={() => setShowFileUpload(true) }
+                        >
+                          Change
+                        </button>
+                      </div>
+                    )}
+                    {showFileUpload && (
+                      <input
+                        type="file"
+                        className="cntr"
+                        id="document"
+                        onChange={(e) => setSelectedFile(e.target.files[0])}
+                      />
+                    )}
+                  </div>
+                ) : (
                   <input
                     type="text"
                     className="cntr"
@@ -178,20 +170,20 @@ const EditForm = () => {
                     value={data[attribute] || ''}
                     required
                   />
-                )}
-              </div>
-            )
-          ))}
-          <div className="holder">
-            <input type='submit' value="Submit" className='btt' />
-          </div>
-        </form>
-      ) : (
-        <p>Loading...</p>
-      )}
-      <ToastContainer />
-    </div>
-  );
-};
-
+                )
+              )}
+            </div>
+          )
+        ))}
+        <div className="holder">
+          <input type='submit' value="Submit" className='btt' />
+        </div>
+      </form>
+    ) : (
+      <p>Loading...</p>
+    )}
+    <ToastContainer />
+  </div>
+);
+}
 export default EditForm;

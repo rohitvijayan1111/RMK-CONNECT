@@ -2,6 +2,8 @@ import React, { useState } from 'react';
 import './EventDetails.css';
 import { FaUser, FaCalendarAlt, FaClock, FaMapMarkerAlt, FaUsers, FaChalkboardTeacher, FaTools, FaCheckCircle, FaTimes } from 'react-icons/fa';
 import axios from 'axios';
+import { toast, ToastContainer, Zoom } from 'react-toastify';
+import 'react-toastify/dist/ReactToastify.css';
 import dayjs from 'dayjs';
 import Swal from 'sweetalert2';
 
@@ -34,7 +36,19 @@ const EventDetails = ({ eventData, needbutton, checkall,onDelete,showdelete}) =>
       }
     });
   };
-
+  const notifySuccess = (error) => {
+    toast.success(error, {
+      position: "top-center",
+      autoClose: 5000,
+      hideProgressBar: false,
+      closeOnClick: true,
+      pauseOnHover: true,
+      draggable: true,
+      progress: undefined,
+      theme: "colored",
+      transition: Zoom,
+    });
+  };
   const determineEndpoint = (userType) => {
     switch (userType) {
       case 'hod':
@@ -118,7 +132,7 @@ Facilities Needed: ${eventData.facility_needed}
   return (
     <div className="event-detail">
       <div className="event-header">
-        {showdelete && (user==="hod" || user==="Event Coordinator") &&
+        {showdelete && 
           <FaTimes className="delete-icon" onClick={handleDelete}  />
         }
         <h2>{eventData.name}</h2>

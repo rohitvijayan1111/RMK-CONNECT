@@ -8,7 +8,20 @@ import './Past_Events.css';
 function Past_Events() {
   const [events, setEvents] = useState([]);
   const [loading, setLoading] = useState(true);
-
+  const [name,setName]=useState("");
+  const notifyInfo = (error) => {
+    toast.info(error, {
+      position: "top-center",
+      autoClose: 5000,
+      hideProgressBar: false,
+      closeOnClick: true,
+      pauseOnHover: true,
+      draggable: true,
+      progress: undefined,
+      theme: "colored",
+      transition: Zoom,
+    });
+  };
   const notifyFailure = (error) => {
     toast.error(error, {
       position: "top-center",
@@ -22,7 +35,6 @@ function Past_Events() {
       transition: Zoom,
     });
   };
-
   useEffect(() => {
     async function fetchPastEvents() {
       try {
@@ -34,8 +46,9 @@ function Past_Events() {
         setLoading(false); 
       } catch (error) {
         if (error.response && error.response.data) {
+          setName(error.response.data.error);
           console.log('Error message from backend:', error.response.data);
-          notifyFailure(error.response.data.error);  
+          notifyInfo(error.response.data.error);  
         } else {
           notifyFailure('An unexpected error occurred.');
         }
@@ -53,7 +66,7 @@ function Past_Events() {
 
   return (
     <div>
-      {events.length === 0 && <p>NO DATA</p>}
+      {events.length === 0 && <h2 style={{paddingTop:"10%"}}>No Past Events Available</h2>}
       {events.map((event, index) => (
         <div className="event-container" key={index}>
           <EventDetails needbutton={false} eventData={event} showdelete={false}  checkall={true} />

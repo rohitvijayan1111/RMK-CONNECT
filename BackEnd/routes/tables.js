@@ -111,9 +111,10 @@ router.post('/insertrecord', upload.single('file'), async (req, res) => {
     res.status(500).json({ error: `${friendlyMessage}` });
   }
 });
-router.post('/updaterecord', async (req, res) => {
+router.post('/updaterecord', upload.single('file'), async (req, res) => {
   console.log(req.body);
-  const { id, table, data } = req.body;
+  const { id, table, data: rawData } = req.body;
+  const data = JSON.parse(rawData);
 
   if (!id || !table) {
     return res.status(400).json({ error: 'Id and table are required' });
@@ -123,6 +124,25 @@ router.post('/updaterecord', async (req, res) => {
     const existingRows = await query('SELECT * FROM ?? WHERE id = ?', [table, id]);
     if (existingRows.length === 0) {
       return res.status(404).json({ message: 'Record not found' });
+    }
+
+    // Handling file upload and deletion
+    const oldFilePath = existingRows[0].document;
+    let newFilePath = oldFilePath;
+
+    if (req.file) {
+      newFilePath = req.file.path;
+      if (oldFilePath && oldFilePath !== newFilePath) {
+        try {
+          await fsPromises.unlink(path.resolve(oldFilePath));
+        } catch (unlinkError) {
+          console.error('Error deleting old file:', unlinkError);
+        }
+      }
+    }
+
+    if (newFilePath) {
+      data.document = newFilePath;
     }
 
     // Construct the SET clause dynamically with proper escaping
@@ -140,20 +160,6 @@ router.post('/updaterecord', async (req, res) => {
   } catch (error) {
     console.error('Error updating record:', error);
     res.status(500).json({ error: getFriendlyErrorMessage(error.code) });
-  }
-});
-router.post('/getfile', async (req, res) => {
-  const { table, documentPath } = req.body;
-
-  try {
-    const filePath = path.join(__dirname, `../${documentPath}`);
-    await fsPromises.access(filePath);
-    res.setHeader('Content-Disposition', `attachment; filename="${documentPath}"`);
-    res.setHeader('Content-Type', 'application/octet-stream');
-    fs.createReadStream(filePath).pipe(res);
-  } catch (error) {
-    console.error('Error sending file:', error);
-    res.status(404).json({ error: 'File not found' });
   }
 });
 router.delete('/deleterecord', async (req, res) => {

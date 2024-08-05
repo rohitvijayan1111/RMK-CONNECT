@@ -8,12 +8,13 @@ import { LocalizationProvider } from '@mui/x-date-pickers/LocalizationProvider';
 import { DatePicker } from '@mui/x-date-pickers/DatePicker';
 import { TextField } from '@mui/material';
 import { TimePicker } from '@mui/x-date-pickers/TimePicker';
-import { useNavigate} from 'react-router-dom';
+import { useNavigate } from 'react-router-dom';
+
 const Hall_Request = () => {
   const [halls, setHalls] = useState([]);
   const [fvalue, setFvalue] = useState(null); 
   const [tvalue, setTvalue] = useState(null);
-  const navigate=useNavigate();
+  const navigate = useNavigate();
   const [formData, setFormData] = useState({
     name: '',
     speaker: '',
@@ -25,7 +26,7 @@ const Hall_Request = () => {
     participants: '',
     incharge_faculty: '',
     facility_needed: '',
-    emails:'',
+    emails: '',
     department: window.localStorage.getItem("department") || ''
   });
 
@@ -40,7 +41,11 @@ const Hall_Request = () => {
     setFormData({ ...formData, [name]: value });
   };
 
-  const handleSubmit = (e) => {
+  const capitalizeEachWord = (str) => {
+    return str.replace(/\b\w/g, (char) => char.toUpperCase());
+  };
+
+  const handleSubmit = async (e) => {
     e.preventDefault();
 
     const formattedDate = dayjs(formData.event_date).format('YYYY-MM-DD');
@@ -56,10 +61,34 @@ const Hall_Request = () => {
 
     console.log(requestData); 
 
-    axios.post('http://localhost:3000/hall/hall-request', requestData)
-      .then(response => alert(response.data))
-      .catch(error => alert(error.response.data.error));
-    navigate("/dashboard");
+    try {
+      await axios.post('http://localhost:3000/hall/hall-request', requestData)
+        .then(response => alert(response.data))
+        .catch(error => alert(error.response.data.error));
+
+      const formattedDate2 = dayjs(formData.event_date).format('MMMM DD, YYYY');
+      const formContent = `
+You have a new hall booking approval request for the event "${formData.name}" scheduled on ${formattedDate2} from ${formattedStartTime} to ${formattedEndTime} at ${formData.hall_name}.
+Event Name: ${formData.name}
+Speaker: ${formData.speaker}
+Speaker Description: ${formData.speaker_description}
+Department: ${formData.department}
+Participants: ${formData.participants}
+In-charge Faculty: ${formData.incharge_faculty}
+Facilities Needed: ${formData.facility_needed}
+`;
+
+      await axios.post(`http://localhost:3000/mail/notifyHOD`, {
+        formSubject: formContent,
+        department: capitalizeEachWord(formData.department),
+        emails: formData.emails
+      });  
+
+      navigate("/dashboard");
+    } catch (error) {
+      console.error('Error submitting request:', error);
+      alert('Error submitting request');
+    }
   };
 
   return (

@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import axios from 'axios';
 import { Table } from 'react-bootstrap';
 import { ToastContainer, toast, Zoom } from 'react-toastify';
@@ -28,49 +28,67 @@ const UserGroupSelector = ({ setSelectedUserGroup }) => {
   );
 };
 
+const DepartmentSelector = ({ setSelectedDepartment }) => {
+  const handleDepartmentChange = (event) => {
+    const department = event.target.value;
+    setSelectedDepartment(department);
+  };
+
+  return (
+    <div>
+      <select id="departmentSelect" className='status-yr' onChange={handleDepartmentChange} required>
+        <option value="">Select Department</option>
+        <option value="All">All</option>
+        <option value="Artificial Intelligence and Data Science">Artificial Intelligence and Data Science</option>
+        <option value="Civil Engineering">Civil Engineering</option>
+        <option value="Computer Science and Business Systems">Computer Science and Business Systems</option>
+        <option value="Computer Science and Design">Computer Science and Design</option>
+        <option value="Computer Science and Engineering">Computer Science and Engineering</option>
+        <option value="Electrical and Electronics Engineering">Electrical and Electronics Engineering</option>
+        <option value="Electronics and Communication Engineering">Electronics and Communication Engineering</option>
+        <option value="Electronics and Instrumentation Engineering">Electronics and Instrumentation Engineering</option>
+        <option value="Information Technology">Information Technology</option>
+        <option value="Mechanical Engineering">Mechanical Engineering</option>
+      </select>
+    </div>
+  );
+};
+
 const Attendance_Analysis = () => {
   const [selectedUserGroup, setSelectedUserGroup] = useState('Student');
   const [data, setData] = useState([]);
   const [attributeNames, setAttributeNames] = useState([]);
   const [rollNumber, setRollNumber] = useState('');
-
-  const notifyFailure = (error) => {
-    const errorMessage = error.response?.data?.error || 'Error fetching data';
-    toast.error(errorMessage, {
-      position: 'top-center',
-      autoClose: 5000,
-      hideProgressBar: false,
-      closeOnClick: true,
-      pauseOnHover: true,
-      draggable: true,
-      progress: undefined,
-      theme: 'colored',
-      transition: Zoom,
-    });
-  };
+  const [selectedDepartment, setSelectedDepartment] = useState('');
+  const user = window.localStorage.getItem('userType');
+  const [name, setName] = useState('');
 
   const fetchData = async () => {
     try {
+      const departmentToFetch = (user === 'hod' || user === 'Attendance Manager') ? window.localStorage.getItem('department') : selectedDepartment;
       const response = await axios.post('http://localhost:3000/attendance/getindividual', {
         userGroup: selectedUserGroup,
-        rollnumber: rollNumber
+        rollnumber: rollNumber,
+        department: departmentToFetch
       });
 
-      setData(response.data); 
+      setData(response.data);
       if (response.data.length > 0) {
         const keys = Object.keys(response.data[0]).filter(key => key !== 'id' && (selectedUserGroup === 'Student' ? key !== 'staff_id' : key !== 'student_id'));
         setAttributeNames(keys);
       } else {
+        setName("No Absentees On That Day");
         setAttributeNames([]);
       }
     } catch (error) {
-      notifyFailure(error);
+      setName(error.response?.data?.error || 'Error fetching data');
       console.error('Error fetching data:', error);
     }
   };
 
   const handleFetchClick = () => {
     setData([]);
+    setName("");
     setAttributeNames([]);
     fetchData();
   };
@@ -83,9 +101,18 @@ const Attendance_Analysis = () => {
     return dayjs(dateString).format('DD/MM/YYYY');
   };
 
+  useEffect(() => {
+    // Reset data and name when the selected department or user group changes
+    setData([]);
+    setName("");
+  }, [selectedDepartment, selectedUserGroup]);
+
   return (
     <div>
-      <UserGroupSelector setSelectedUserGroup={setSelectedUserGroup} />
+      <div>
+        <UserGroupSelector setSelectedUserGroup={setSelectedUserGroup} />
+        {(user !== 'hod' && user !== 'Attendance Manager') && <DepartmentSelector setSelectedDepartment={setSelectedDepartment} />}
+      </div>
       <div className='bb'>
         <form className='aa'>
           <input
@@ -97,6 +124,7 @@ const Attendance_Analysis = () => {
         </form>
         <input type='submit' className='bmt' value="Fetch" onClick={handleFetchClick} />
       </div>
+      {name && <h1>{name}</h1>}
       {data.length > 0 && attributeNames.length > 0 && (
         <Table striped bordered hover>
           <thead>

@@ -6,7 +6,7 @@ import 'bootstrap/dist/css/bootstrap.min.css';
 import 'react-toastify/dist/ReactToastify.css';
 import './Todays_List.css';
 import withAuthorization from '../Components/WithAuthorization';
-
+import dayjs from 'dayjs';
 const UserGroupSelector = ({ setSelectedUserGroup }) => {
   const [selectedUserGroup, setSelectedUserGroupState] = useState('Student');
 
@@ -57,8 +57,9 @@ const Todays_List = () => {
   const [data, setData] = useState([]);
   const [attributeNames, setAttributeNames] = useState([]);
   const [selectedDepartment, setSelectedDepartment] = useState('');
+  const [name, setName] = useState('');
   const user = window.localStorage.getItem('userType');
-
+  const todayDate = dayjs().format('DD-MM-YYYY');
   useEffect(() => {
     if (selectedUserGroup) {
       setData([]);
@@ -66,21 +67,6 @@ const Todays_List = () => {
       fetchData();
     }
   }, [selectedUserGroup, selectedDepartment]);
-
-  const notifyFailure = (error) => {
-    const errorMessage = error.response?.data?.error || 'Error fetching data';
-    toast.error(errorMessage, {
-      position: 'top-center',
-      autoClose: 5000,
-      hideProgressBar: false,
-      closeOnClick: true,
-      pauseOnHover: true,
-      draggable: true,
-      progress: undefined,
-      theme: 'colored',
-      transition: Zoom,
-    });
-  };
 
   const fetchData = async () => {
     try {
@@ -94,15 +80,16 @@ const Todays_List = () => {
 
       console.log('Response data:', response.data);
       setData(response.data.data);
-
       if (response.data.data && response.data.data.length > 0) {
         const keys = extractAttributeNames(response.data.data[0]);
         setAttributeNames(keys);
+        setName('');  
       } else {
+        setName("No Absenties Today");
         setAttributeNames([]);
       }
     } catch (error) {
-      notifyFailure(error);
+      setName(error.response?.data?.error);
       console.error('Error fetching data:', error);
     }
   };
@@ -113,13 +100,14 @@ const Todays_List = () => {
 
   return (
     <div>
+      <h1>{todayDate}</h1>
       <div className='holder'>
-      <UserGroupSelector setSelectedUserGroup={setSelectedUserGroup} />
-      {(user !== 'hod' && user !== 'Attendance Manager') && (
-        <DepartmentSelector setSelectedDepartment={setSelectedDepartment} />
-      )}
+        <UserGroupSelector setSelectedUserGroup={setSelectedUserGroup} />
+        {(user !== 'hod' && user !== 'Attendance Manager') && (
+          <DepartmentSelector setSelectedDepartment={setSelectedDepartment} />
+        )}
       </div>
-      
+      {name && <h1>{name}</h1>}
       {data.length > 0 && (
         <Table striped bordered hover>
           <thead>
@@ -142,7 +130,7 @@ const Todays_List = () => {
           </tbody>
         </Table>
       )}
-      <ToastContainer />
+      <ToastContainer transition={Zoom} />
     </div>
   );
 };

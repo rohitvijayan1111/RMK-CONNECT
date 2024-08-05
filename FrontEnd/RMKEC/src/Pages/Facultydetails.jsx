@@ -68,21 +68,6 @@ function Facultydetails() {
   };
 
   const handleDelete = async (id) => {
-    if (lockedstatus) {
-      toast.error('Form is locked. You cannot delete records.', {
-        position: "top-center",
-        autoClose: 4000,
-        hideProgressBar: false,
-        closeOnClick: true,
-        pauseOnHover: true,
-        draggable: true,
-        progress: undefined,
-        theme: "colored",
-        transition: Zoom,
-      });
-      return;
-    }
-
     Swal.fire({
       title: "Are you sure?",
       text: "You won't be able to revert this!",
@@ -95,7 +80,8 @@ function Facultydetails() {
       if (result.isConfirmed) {
         try {
           await axios.delete('http://localhost:3000/tables/deleterecord', { data: { id, table } });
-          setData(data.filter((item) => item.id !== id));
+          setData(prevData => prevData.filter((item) => item.id !== id));
+          setOriginalData(prevData => prevData.filter((item) => item.id !== id));
           Swal.fire("Deleted!", "Your record has been deleted.", "success");
         } catch (error) {
           console.error('Error deleting item:', error);

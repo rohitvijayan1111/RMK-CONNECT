@@ -109,7 +109,23 @@ router.post('/hall_requests_remove', async (req, res) => {
     res.status(500).send({ error: getFriendlyErrorMessage(err) });
   }
 });
+router.post('/hall_requests_remove_admin', async (req, res) => {
+  const { id } = req.body;
+  const sql = 'DELETE FROM hall_allotment WHERE id = ?';
 
+  try {
+    const results = await query(sql, [id]);
+
+    if (results.affectedRows === 0) {
+      return res.status(404).json({ error: "No Records Removed" });
+    }
+
+    res.json({ message: "Removed Successfully" });
+  } catch (err) {
+    console.error('Error removing record:', err);
+    res.status(500).send({ error: getFriendlyErrorMessage(err) });
+  }
+});
 
 router.post('/hall_requests_status', async (req, res) => {
   const { department, role } = req.body;
@@ -127,7 +143,7 @@ router.post('/hall_requests_status', async (req, res) => {
     const results = await query(sql, params);
     
     if (results.length === 0) {
-      return res.status(404).json({ error: "No Records found" });
+      return res.status(404).json({ error: "No Hall Request Found" });
     }
     
     const formattedEvents = results.map(event => ({
@@ -173,7 +189,7 @@ router.post('/past-events', async (req, res) => {
   try {
     const results = await query(sql, [department]);
     if (results.length === 0) {
-      return res.status(404).json({ error: "No records found" });
+      return res.status(404).json({ error: "No Past Events Available" });
     }
     const formattedEvents = results.map(event => ({
       id: event.id,
@@ -202,14 +218,15 @@ router.post('/past-events', async (req, res) => {
 });
 
   router.get('/upcoming-events', async (req, res) => {
+    console.log("request got");
     const sql = `
     SELECT *
     FROM hall_allotment
     WHERE 
       (
         event_date > CURDATE()
-        OR (event_date = CURDATE() AND start_time > CURTIME())  -- Include events not started yet today
-        OR (event_date = CURDATE() AND end_time >= CURTIME() AND start_time <= CURTIME())  -- Include ongoing events today
+        OR (event_date = CURDATE() AND start_time > CURTIME()) 
+        OR (event_date = CURDATE() AND end_time >= CURTIME() AND start_time <= CURTIME())  
       )
     ORDER BY event_date, start_time;
   `;
