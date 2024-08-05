@@ -49,8 +49,8 @@ export default function Attendance_BC({data}) {
         <YAxis />
         <Tooltip content={<CustomTooltip />} />
         <Legend />
-        <Bar dataKey="present" stackId="a" fill="#8884d8" barSize="50" animationBegin={0} animationDuration={1400} />
-        <Bar dataKey="absent" stackId="a" fill="#82ca9d" barSize="50" animationBegin={0} animationDuration={1400}/>
+        <Bar dataKey="present" stackId="a" fill="#8884d8" barSize="30" animationBegin={0} animationDuration={1400} />
+        <Bar dataKey="absent" stackId="a" fill="#82ca9d" barSize="30" animationBegin={0} animationDuration={1400}/>
       </BarChart>
     </ResponsiveContainer>
     </>

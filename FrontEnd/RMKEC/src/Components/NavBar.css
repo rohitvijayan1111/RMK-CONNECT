@@ -16,17 +16,18 @@
 {
     color: aliceblue;
     font-weight: 700;
-    font-size: 32px;
+    font-size: 30px;
 }
 
-.navbar a
+.cls
 {
     position: relative;
-    font-size: 18px;
+    font-size: 14px;
     font-weight: 500;
     color: aliceblue;
-    margin-left: 40px;
+    margin-top: -4px;
 }
+
 .left
 {
     display: flex;

@@ -98,9 +98,9 @@ const Dashboard_admin = () => {
     return data.map((item) => ({
       name: departmentMapping[item.department] || item.department, 
     value: item.Professor + item.Associate_Professor + item.Assistant_Professor,
-    'Professor': item.Professor,
-    'Associate Professor': item.Associate_Professor,
-    'Assistant Professor': item.Assistant_Professor
+    Professor: item.Professor,
+    Associate_Professor: item.Associate_Professor,
+    Assistant_Professor: item.Assistant_Professor
     }));
   };
   const fetchadminStudentyrsData = async () => {

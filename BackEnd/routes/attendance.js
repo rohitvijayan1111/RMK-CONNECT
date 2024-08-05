@@ -106,7 +106,7 @@ router.post('/addabsent', async (req, res) => {
 
         } else if (data.staff_id) {
             
-            const staffDetails = await query('SELECT department FROM staff WHERE id = ?', [data.staff_id]);
+            const staffDetails = await query('SELECT department FROM staffs WHERE id = ?', [data.staff_id]);
 
             if (!staffDetails || staffDetails.length === 0) {
                 console.error('Staff not found or missing department information');

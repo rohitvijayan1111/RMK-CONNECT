@@ -19,7 +19,11 @@ function NavBar() {
       <header className='header'>
       <nav className='left'>
         <img src={logo} width="50px" height="70px" alt="Logo" />
-        <a href='/dashboard' className='logo' style={{ textDecoration: 'none' }}>R.M.K. Engineering College</a>
+        <a href='/dashboard' className='logo' style={{ textDecoration: 'none' }}>
+        <div>R.M.K. Engineering College</div>
+        <div className='cls'>(AN AUTONOMOUS INSTITUTE)</div>
+        </a>
+
       </nav>
       <div className='alig'>
         <h5>{capitalizeWords(window.localStorage.getItem('department'))}</h5>
