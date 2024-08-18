@@ -5,17 +5,21 @@ import { toast, ToastContainer, Zoom } from 'react-toastify';
 import dayjs from 'dayjs';
 import 'react-toastify/dist/ReactToastify.css';
 import './DashBoard_Hall.css';
+import { getTokenData } from '../Pages/authUtils';
 
 function DashBoard_Hall() {
   const [upcomingEvents, setUpcomingEvents] = useState([]);
   const [loading, setLoading] = useState(true);
-  const user = window.localStorage.getItem("userType");
-  const [name,setName]=useState("");
+  const tokendata = getTokenData();
+  const user = tokendata.role;
+  const userDepartment = tokendata.department; 
+  const [name, setName] = useState("");
+
   const rolemapping = {
     'hod': "HOD",
     "academic_coordinator": "Academic Coordinator",
     "principal": "Principal",
-    "Event Coordinator":"Event Coordinator"
+    "Event Coordinator": "Event Coordinator"
   };
 
   const determineEndpoint = (userType) => {
@@ -107,13 +111,23 @@ function DashBoard_Hall() {
     <div className="dashboard-hall">
       <h1>Upcoming Events</h1>
       {upcomingEvents.length === 0 ? (
-        <h2 style={{paddingTop:"10%"}}>No Upcoming Events.</h2>
+        <h2 style={{ paddingTop: "10%" }}>No Upcoming Events.</h2>
       ) : (
-        upcomingEvents.map((event, index) => (
-          <div className="event-container" key={index}>
-            <EventDetails checkall={true} onDelete={() => handleDelete(event)} showdelete={true} eventData={event} />
-          </div>
-        ))
+        upcomingEvents.map((event, index) => {
+          const canCancel = 
+            event.department === userDepartment;
+
+          return (
+            <div className="event-container" key={index}>
+              <EventDetails
+                checkall={true}
+                onDelete={canCancel ? () => handleDelete(event) : null}
+                showdelete={canCancel}
+                eventData={event}
+              />
+            </div>
+          );
+        })
       )}
       <ToastContainer />
     </div>

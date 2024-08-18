@@ -4,13 +4,17 @@ import Dashboard_admin from './Dashboard_admin';
 import Attendance_DB_Dept from '../Attendance_Component/Attendance_DB_Dept';
 import withAuthorization from '../Components/WithAuthorization';
 import DashBoard_Hall from '../HallBooking_Component/DashBoard_Hall';
+import { useNavigate } from 'react-router-dom';
+import { jwtDecode } from 'jwt-decode';
+import { getTokenData } from './authUtils';
+
 
 const DashBoard = () => {
-  const role = window.localStorage.getItem('userType');
-  
-  if (!role) {
-    return null;
-  }
+  const tokenData = getTokenData();
+    if (!tokenData) {
+      return <Navigate to="/" />;
+    }
+    const {role} = tokenData;
 
   return (
     <>
@@ -21,5 +25,4 @@ const DashBoard = () => {
     </>
   );
 }
-
 export default withAuthorization(['hod', 'Principal', 'VC', 'Dean', 'Attendance Manager','Event Coordinator',"academic_coordinator","IQAC"])(DashBoard);

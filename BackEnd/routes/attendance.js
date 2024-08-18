@@ -85,10 +85,11 @@ router.post('/addabsent', async (req, res) => {
                 return res.status(404).json({ error: 'Year or department information missing for the student' });
             }
 
-            
-            if (studentDepartment !== data.department_name) {
+            console.log("Student Department is "+studentDepartment);
+            console.log("data department is "+data.department_name);
+            if (studentDepartment.toLowerCase() !== data.department_name.toLowerCase()) {
                 console.error('Department mismatch for student');
-                return res.status(400).json({ error: `Student is not part of ${department} Department` });
+                return res.status(400).json({ error: `Student is not part of your Department` });
             }
 
             console.log('Data to insert:', data);
@@ -106,7 +107,7 @@ router.post('/addabsent', async (req, res) => {
 
         } else if (data.staff_id) {
             
-            const staffDetails = await query('SELECT department FROM staff WHERE id = ?', [data.staff_id]);
+            const staffDetails = await query('SELECT department FROM staffs WHERE id = ?', [data.staff_id]);
 
             if (!staffDetails || staffDetails.length === 0) {
                 console.error('Staff not found or missing department information');
@@ -117,11 +118,11 @@ router.post('/addabsent', async (req, res) => {
 
             if (!staffDepartment) {
                 console.error('Department information missing for the staff');
-                return res.status(404).json({ error: `Staff is not part of ${department} Department` });
+                return res.status(404).json({ error: `Staff is not part of your Department` });
             }
 
             
-            if (staffDepartment !== data.department_name) {
+            if (staffDepartment.toLowerCase() !== data.department_name.toLowerCase()) {
                 console.error('Department mismatch for staff');
                 return res.status(400).json({ error: 'Department mismatch for staff' });
             }
@@ -139,7 +140,7 @@ router.post('/addabsent', async (req, res) => {
             await query(updateQuery, [data.department_name]);
         }
 
-        res.json({ message: 'Record inserted and count updated successfully' });
+        res.json({ message:'Record inserted and count updated successfully' });
     } catch (error) {
         console.error('Error inserting record or updating count:', error);
         res.status(500).json({ error: 'Internal Server Error' });
@@ -205,7 +206,7 @@ router.post('/removeabsent', async (req, res) => {
             userDepartment = staffDetails[0].department;
         }
 
-        if (userDepartment !== department_name) {
+        if (userDepartment.toLowerCase() !== department_name.toLowerCase()) {
             return res.status(400).json({ error: 'Department mismatch for user' });
         }
 
@@ -278,7 +279,7 @@ router.post('/getindividual', async (req, res) => {
       const departmentCheckResult = await query(departmentCheckQuery, departmentCheckParams);
   
       if (departmentCheckResult.length === 0) {
-        return res.status(400).json({ error: `${userGroup} doesn't belong to ${department} department or doesn't exist` });
+        return res.status(400).json({ error: `${userGroup} doesn't belong to your department or doesn't exist` });
       }
   
       // Fetch attendance records

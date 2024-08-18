@@ -9,21 +9,23 @@ import { BsPencilSquare, BsFillTrashFill } from 'react-icons/bs';
 import { IconContext } from 'react-icons';
 import { utils, writeFile } from 'xlsx';
 import './OtherFormsRecords.css';
+import { getTokenData } from '../Pages/authUtils';
 
 function OtherFormsRecords() {
   const navigate = useNavigate();
   const location=useLocation();
   const {form} = location.state;
   const [table] = useState(form.form_table_name);
-  const role = window.localStorage.getItem('userType');
-  const [dept, setDept] = useState((role==="hod")?window.localStorage.getItem('department'):"All");
+  const tokendata=getTokenData();
+  const role = tokendata.role;
+  const [dept, setDept] = useState((role==="hod")?tokendata.department:"All");
   const [data, setData] = useState([]);
   const [originalData, setOriginalData] = useState([]);
   const [attributenames, setAttributenames] = useState([]);
   const [lockedstatus, setLockedstatus] = useState('');
   const [searchColumn, setSearchColumn] = useState('');
   const [searchValue, setSearchValue] = useState('');
-  
+  const [attributeTypes,setAttributeTypes]=useState({'document':'file','website_link':'link','related_link':'link'});
   const notifyFailure = (error) => {
     toast.error(error, {
       position: "top-center",
@@ -57,7 +59,12 @@ function OtherFormsRecords() {
         const response = await axios.post('http://localhost:3000/tables/gettable', { table: table, department: dept });
         setData(response.data.data);
         setOriginalData(response.data.data);
-        setAttributenames(response.data.columnNames);
+        setAttributenames(Object.keys(response.data.columnDataTypes));
+        setAttributeTypes({
+          ...response.data.columnDataTypes,
+          ...{'document':'file', 'website_link': 'link'}
+        });
+        
       } catch (err) {
         if (err.response && err.response.data) {
           notifyFailure(err.response.data);
@@ -66,6 +73,7 @@ function OtherFormsRecords() {
         }
         setData([]);
         setAttributenames([]);
+        setAttributeTypes([]);
       }
     };
 
@@ -88,7 +96,7 @@ function OtherFormsRecords() {
       });
       return;
     }
-    navigate("edit-form", { state: { table, attributenames, item } });
+    navigate("edit-form", { state: { table, attributenames,attributeTypes,item } });
   };
 
   const handleAdd = () => {
@@ -106,7 +114,7 @@ function OtherFormsRecords() {
       });
       return;
     }
-    navigate("add-form", { state: { table, attributenames } });
+    navigate("add-form", { state: { table, attributenames,attributeTypes} });
   };
 
   const handleLock = async () => {
@@ -177,23 +185,7 @@ function OtherFormsRecords() {
     return dayjs(date).format('DD/MM/YYYY');
   };
 
-  const attributeTypes = {
-    'completion_date': 'date',
-    'Proposed Date':'date',
-    'Date of completion':'date',
-    'Proposed date of visit':'date',
-    'Actual Date  Visited':'date',
-    'Date_of_event_planned':'date',
-    'Date_of_completion':'date',
-    'Date planned':'date',
-    'Actual Date of lecture':'date',
-    'Completion Date of Event':'date',
-    'Date of Interview':'date',
-    'start_date':'date',
-    'end_date':'date',
-    'document':'file'
-
-  };
+  
 
   const handleSearch = () => {
     if (!searchColumn || !searchValue) {
@@ -238,7 +230,7 @@ function OtherFormsRecords() {
     writeFile(wb, fileName);
   };
   
-  
+  console.log(attributeTypes);
   return (
     <div className="container">
         <h1>{form.form_title}</h1>
@@ -310,7 +302,7 @@ function OtherFormsRecords() {
                     name === "id" ? <td key={attrIndex}>{index + 1}</td> :
                       <td key={attrIndex}>
                         {attributeTypes[name] === "date" ? formatDate(item[name]) : (
-                          (name === "website_link" || name==="website link" || name==="Website_Link") && item[name] ?
+                          (name === "website_link" || name==="website link" || name==="Website_Link" || name==="related_link") && item[name] ?
                             <a href={item[name]} target="_blank" rel="noopener noreferrer">Link</a>
                             : attributeTypes[name] === "file" ? (
                               <a href={`http://localhost:3000/${item.document}`} target="_blank" rel="noopener noreferrer">

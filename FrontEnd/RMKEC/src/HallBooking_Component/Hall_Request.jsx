@@ -9,12 +9,14 @@ import { DatePicker } from '@mui/x-date-pickers/DatePicker';
 import { TextField } from '@mui/material';
 import { TimePicker } from '@mui/x-date-pickers/TimePicker';
 import { useNavigate } from 'react-router-dom';
+import { getTokenData } from '../Pages/authUtils';
 
 const Hall_Request = () => {
   const [halls, setHalls] = useState([]);
   const [fvalue, setFvalue] = useState(null); 
   const [tvalue, setTvalue] = useState(null);
   const navigate = useNavigate();
+  const tokendata=getTokenData();
   const [formData, setFormData] = useState({
     name: '',
     speaker: '',
@@ -27,7 +29,7 @@ const Hall_Request = () => {
     incharge_faculty: '',
     facility_needed: '',
     emails: '',
-    department: window.localStorage.getItem("department") || ''
+    department: tokendata.department || ''
   });
 
   useEffect(() => {
@@ -68,29 +70,27 @@ const Hall_Request = () => {
 
       const formattedDate2 = dayjs(formData.event_date).format('MMMM DD, YYYY');
       const formContent = `
-You have a new hall booking approval request for the event "${formData.name}" scheduled on ${formattedDate2} from ${formattedStartTime} to ${formattedEndTime} at ${formData.hall_name}.
-Event Name: ${formData.name}
-Speaker: ${formData.speaker}
-Speaker Description: ${formData.speaker_description}
-Department: ${formData.department}
-Participants: ${formData.participants}
-In-charge Faculty: ${formData.incharge_faculty}
-Facilities Needed: ${formData.facility_needed}
-`;
+        You have a new hall booking approval request for the event "${formData.name}" scheduled on ${formattedDate2} from ${formattedStartTime} to ${formattedEndTime} at ${formData.hall_name}.
+        Event Name: ${formData.name}
+        Speaker: ${formData.speaker}
+        Speaker Description: ${formData.speaker_description}
+        Department: ${formData.department}
+        Participants: ${formData.participants}
+        In-charge Faculty: ${formData.incharge_faculty}
+        Facilities Needed: ${formData.facility_needed}
+        `;
 
       await axios.post(`http://localhost:3000/mail/notifyHOD`, {
         formSubject: formContent,
         department: capitalizeEachWord(formData.department),
         emails: formData.emails
       });  
-
       navigate("/dashboard");
     } catch (error) {
       console.error('Error submitting request:', error);
       alert('Error submitting request');
     }
   };
-
   return (
     <form className="Attendance_request">
       <h5>Name Of the Event</h5>

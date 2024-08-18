@@ -1,5 +1,5 @@
 import React, { useEffect } from "react";
-import { BrowserRouter as Router, Route, Routes, useLocation } from 'react-router-dom';
+import { BrowserRouter as Router, Routes,Route,useLocation } from 'react-router-dom';
 import './App.css';
 import Layout from './Components/Layout';
 import DashBoard from './Pages/DashBoard';
@@ -25,7 +25,7 @@ import Attendance_Log from "./Attendance_Component/Attendance_Log";
 import Todays_List from "./Attendance_Component/Todays_List";
 import Attendance_Analysis from "./Attendance_Component/Attendance_Analysis";
 import ViewOtherForms from "./Pages/ViewOtherForms";
-import AddOtherForm from "./Pages/AddOtherForm";
+import CreateNewForm from "./Pages/CreateNewForm";
 import AddNewRecord from "./Pages/AddNewRecord";
 import { ViewOtherFormRecord, EditOtherFormRecord } from "./Pages/ViewOtherFormRecord";
 import Attendance_Dashboard from "./Attendance_Component/Attendance_DB_Dept";
@@ -38,7 +38,7 @@ import Invalidpage from "./Pages/Invalidpage";
 import IV from "./Pages/IV";
 import OtherForms from "./Components/OtherForms";
 import OtherFormsRecords from "./Components/OtherFormsRecords";
-
+import ProtectedRoute from "./Pages/ProtectedRoute";
 function ScrollToTop() {
   const { pathname } = useLocation();
 
@@ -60,20 +60,20 @@ function App() {
             <Route path="/invalidpage" element={<Invalidpage />} />
             <Route path="/signup" element={<SignPage />} />
             <Route path="/dashboard/*" element={<Layout />}>
-              <Route index element={<DashBoard />} />
-              <Route path="club-activity" element={<Clubactivities />} />
-              <Route path="mail" element={<EmailNotification />} />
-              <Route path="guest-lecture" element={<Guestlecture />} />
+            <Route index element={<ProtectedRoute element={DashBoard} />} />
+              <Route path="club-activity" element={<ProtectedRoute element={Clubactivities} />} />
+              <Route path="mail" element={<ProtectedRoute element={EmailNotification} />} />
+              <Route path="guest-lecture" element={<ProtectedRoute element={Guestlecture} />}/>
               <Route path="faculty-details" element={<Facultydetails />} />
               <Route path="course-coverage" element={<Coursecoverage />} />
               <Route path="sports" element={<Sports />} />
               <Route path="achievements" element={<Achievements />} />
               <Route path="iv" element={<IV />} />
-              <Route path="view-other-forms" element={<ViewOtherForms />} />
-              <Route path="view-other-forms/new-form" element={<AddOtherForm />} />
+              {/* <Route path="view-other-forms" element={<ViewOtherForms />} />
+              <Route path="view-other-forms/new-form" element={<CreateNewForm/>} />
               <Route path="view-other-forms/new-record" element={<AddNewRecord />} />
               <Route path="view-other-forms/view-record" element={<ViewOtherFormRecord />} />
-              <Route path="view-other-forms/view-record/edit-form-record" element={<EditOtherFormRecord />} />
+              <Route path="view-other-forms/view-record/edit-form-record" element={<EditOtherFormRecord />} /> */}
               <Route path="placements" element={<Placements/>} />
               <Route path="Daily-Attendance" element={<Daily_Attendance />} />
               <Route path="Edit-Entry" element={<Edit_Entry />} />
@@ -90,6 +90,7 @@ function App() {
               <Route path="forms/form-records" element={<OtherFormsRecords/>} />
               <Route path="forms/form-records/edit-form" element={<EditForm/>} />
               <Route path="forms/form-records/add-form" element={<AddForm />} />
+              <Route path="forms/create-form" element={<CreateNewForm/>} />
               <Route path="faculty-details/edit-form" element={<EditForm/>} />
               <Route path="faculty-details/add-form" element={<AddForm />} />
               <Route path="*" element={<Invalidpage />} />

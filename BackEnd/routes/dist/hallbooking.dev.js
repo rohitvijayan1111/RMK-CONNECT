@@ -127,23 +127,24 @@ router.get('/halls', function _callee2(req, res) {
   }, null, null, [[1, 8]]);
 });
 router.post('/hall-request', function _callee3(req, res) {
-  var _req$body, name, speaker, speaker_description, event_date, start_time, end_time, hall_name, participants, incharge_faculty, facility_needed, department, emails, checkQuery, results, insertRequestQuery;
+  var _req$body, name, speaker, speaker_description, event_date, start_time, end_time, hall_name, participants, incharge_faculty, facility_needed, department, emails, hallAvailabilityQuery, hodApprovalQuery, hallAvailabilityResults, hodApprovalResults, insertRequestQuery;
 
   return regeneratorRuntime.async(function _callee3$(_context3) {
     while (1) {
       switch (_context3.prev = _context3.next) {
         case 0:
           _req$body = req.body, name = _req$body.name, speaker = _req$body.speaker, speaker_description = _req$body.speaker_description, event_date = _req$body.event_date, start_time = _req$body.start_time, end_time = _req$body.end_time, hall_name = _req$body.hall_name, participants = _req$body.participants, incharge_faculty = _req$body.incharge_faculty, facility_needed = _req$body.facility_needed, department = _req$body.department, emails = _req$body.emails;
-          checkQuery = "SELECT * FROM hall_allotment WHERE hall_name = ? AND event_date = ? AND (\n                        (start_time < ? AND end_time > ?) OR\n                        (start_time < ? AND end_time > ?) OR\n                        (start_time >= ? AND end_time <= ?))";
-          _context3.prev = 2;
-          _context3.next = 5;
-          return regeneratorRuntime.awrap(query(checkQuery, [hall_name, event_date, start_time, start_time, end_time, end_time, start_time, end_time]));
+          hallAvailabilityQuery = "\n      SELECT * FROM hall_allotment \n      WHERE hall_name = ? \n      AND event_date = ? \n      AND (\n          (start_time < ? AND end_time > ?) OR\n          (start_time < ? AND end_time > ?) OR\n          (start_time >= ? AND end_time <= ?)\n      )";
+          hodApprovalQuery = "\n      SELECT * FROM hall_request \n      WHERE hall_name = ? \n      AND event_date = ? \n      AND hod_approval = 1 \n      AND (\n          (start_time < ? AND end_time > ?) OR\n          (start_time < ? AND end_time > ?) OR\n          (start_time >= ? AND end_time <= ?)\n      )";
+          _context3.prev = 3;
+          _context3.next = 6;
+          return regeneratorRuntime.awrap(query(hallAvailabilityQuery, [hall_name, event_date, start_time, start_time, end_time, end_time, start_time, end_time]));
 
-        case 5:
-          results = _context3.sent;
+        case 6:
+          hallAvailabilityResults = _context3.sent;
 
-          if (!(results.length > 0)) {
-            _context3.next = 8;
+          if (!(hallAvailabilityResults.length > 0)) {
+            _context3.next = 9;
             break;
           }
 
@@ -151,30 +152,47 @@ router.post('/hall-request', function _callee3(req, res) {
             error: 'Hall is not available for the requested time and date.'
           }));
 
-        case 8:
-          insertRequestQuery = "INSERT INTO hall_request (name, speaker, speaker_description, event_date, start_time, end_time, hall_name, participants, incharge_faculty, facility_needed,department,emails)\n                                    VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?,?,?)";
+        case 9:
           _context3.next = 11;
-          return regeneratorRuntime.awrap(query(insertRequestQuery, [name, speaker, speaker_description, event_date, start_time, end_time, hall_name, participants, incharge_faculty, facility_needed, department, emails]));
+          return regeneratorRuntime.awrap(query(hodApprovalQuery, [hall_name, event_date, start_time, start_time, end_time, end_time, start_time, end_time]));
 
         case 11:
-          res.send('Hall request submitted');
-          _context3.next = 18;
-          break;
+          hodApprovalResults = _context3.sent;
+
+          if (!(hodApprovalResults.length > 0)) {
+            _context3.next = 14;
+            break;
+          }
+
+          return _context3.abrupt("return", res.status(400).json({
+            error: 'An approved request already exists for this hall and time.'
+          }));
 
         case 14:
-          _context3.prev = 14;
-          _context3.t0 = _context3["catch"](2);
+          // Insert new hall request
+          insertRequestQuery = "\n          INSERT INTO hall_request (\n              name, speaker, speaker_description, event_date, start_time, end_time, hall_name, \n              participants, incharge_faculty, facility_needed, department, emails\n          ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)";
+          _context3.next = 17;
+          return regeneratorRuntime.awrap(query(insertRequestQuery, [name, speaker, speaker_description, event_date, start_time, end_time, hall_name, participants, incharge_faculty, facility_needed, department, emails]));
+
+        case 17:
+          res.send('Hall request submitted successfully');
+          _context3.next = 24;
+          break;
+
+        case 20:
+          _context3.prev = 20;
+          _context3.t0 = _context3["catch"](3);
           console.error('Error processing hall request:', _context3.t0);
           res.status(500).json({
             error: getFriendlyErrorMessage(_context3.t0)
           });
 
-        case 18:
+        case 24:
         case "end":
           return _context3.stop();
       }
     }
-  }, null, null, [[2, 14]]);
+  }, null, null, [[3, 20]]);
 });
 router.post('/hall_requests_remove', function _callee4(req, res) {
   var id, sql, results;

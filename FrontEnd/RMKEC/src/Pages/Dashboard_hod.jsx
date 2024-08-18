@@ -5,9 +5,14 @@ import PieChartComponent from '../Components/Department-Component/FacultyCountPi
 import StudentCountPieChart from '../Components/Department-Component/StudentsCountPieChart';
 import PlacementBarGraph from '../Components/Department-Component/PlacementBarGraph';
 import {Link} from 'react-router-dom'; 
+import { getTokenData } from './authUtils';
 
 function DashBoard_hod() {
-  const department = window.localStorage.getItem('department') || '';
+  const tokenData = getTokenData();
+    if (!tokenData) {
+      return <Navigate to="/" />;
+    }
+    const {department} = tokenData;
   const [academicYears, setAcademicYears] = useState([]);
   const [selectedYear, setSelectedYear] = useState('');
   const [studentDetails, setStudentDetails] = useState([]);
@@ -66,7 +71,7 @@ function DashBoard_hod() {
       console.error('Error fetching staff data:', error);
     }
   };
-
+  //TO FIX HERE
   const transformStaffData = (data) => {
     return [
       { name: "Professor", value: data.Assistant_Professor},

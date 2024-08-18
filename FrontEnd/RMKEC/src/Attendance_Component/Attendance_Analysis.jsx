@@ -8,6 +8,7 @@ import dayjs from 'dayjs';
 import './Todays_List.css';
 import './Attendance_Analysis.css';
 import withAuthorization from '../Components/WithAuthorization';
+import { getTokenData } from '../Pages/authUtils';
 
 const UserGroupSelector = ({ setSelectedUserGroup }) => {
   const [selectedUserGroup, setSelectedUserGroupState] = useState('Student');
@@ -28,44 +29,19 @@ const UserGroupSelector = ({ setSelectedUserGroup }) => {
   );
 };
 
-const DepartmentSelector = ({ setSelectedDepartment }) => {
-  const handleDepartmentChange = (event) => {
-    const department = event.target.value;
-    setSelectedDepartment(department);
-  };
-
-  return (
-    <div>
-      <select id="departmentSelect" className='status-yr' onChange={handleDepartmentChange} required>
-        <option value="">Select Department</option>
-        <option value="All">All</option>
-        <option value="Artificial Intelligence and Data Science">Artificial Intelligence and Data Science</option>
-        <option value="Civil Engineering">Civil Engineering</option>
-        <option value="Computer Science and Business Systems">Computer Science and Business Systems</option>
-        <option value="Computer Science and Design">Computer Science and Design</option>
-        <option value="Computer Science and Engineering">Computer Science and Engineering</option>
-        <option value="Electrical and Electronics Engineering">Electrical and Electronics Engineering</option>
-        <option value="Electronics and Communication Engineering">Electronics and Communication Engineering</option>
-        <option value="Electronics and Instrumentation Engineering">Electronics and Instrumentation Engineering</option>
-        <option value="Information Technology">Information Technology</option>
-        <option value="Mechanical Engineering">Mechanical Engineering</option>
-      </select>
-    </div>
-  );
-};
-
 const Attendance_Analysis = () => {
   const [selectedUserGroup, setSelectedUserGroup] = useState('Student');
   const [data, setData] = useState([]);
   const [attributeNames, setAttributeNames] = useState([]);
   const [rollNumber, setRollNumber] = useState('');
-  const [selectedDepartment, setSelectedDepartment] = useState('');
-  const user = window.localStorage.getItem('userType');
+  const [selectedDepartment, setSelectedDepartment] = useState('All');
+  const tokendata=getTokenData();
+  const user = tokendata.role;
   const [name, setName] = useState('');
 
   const fetchData = async () => {
     try {
-      const departmentToFetch = (user === 'hod' || user === 'Attendance Manager') ? window.localStorage.getItem('department') : selectedDepartment;
+      const departmentToFetch = (user === 'hod' || user === 'Attendance Manager') ?tokendata.department : selectedDepartment;
       const response = await axios.post('http://localhost:3000/attendance/getindividual', {
         userGroup: selectedUserGroup,
         rollnumber: rollNumber,
@@ -102,17 +78,13 @@ const Attendance_Analysis = () => {
   };
 
   useEffect(() => {
-    // Reset data and name when the selected department or user group changes
     setData([]);
     setName("");
   }, [selectedDepartment, selectedUserGroup]);
 
   return (
     <div>
-      <div>
-        <UserGroupSelector setSelectedUserGroup={setSelectedUserGroup} />
-        {(user !== 'hod' && user !== 'Attendance Manager') && <DepartmentSelector setSelectedDepartment={setSelectedDepartment} />}
-      </div>
+      <UserGroupSelector setSelectedUserGroup={setSelectedUserGroup} />
       <div className='bb'>
         <form className='aa'>
           <input
@@ -131,7 +103,7 @@ const Attendance_Analysis = () => {
             <tr>
               <th>S.No</th>
               {attributeNames.map((attribute, index) => (
-                <th key={index}>{attribute}</th>
+                 <th key={index}>{attribute.replace(/_/g, ' ')}</th>
               ))}
             </tr>
           </thead>

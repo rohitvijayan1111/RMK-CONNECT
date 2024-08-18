@@ -4,11 +4,13 @@ import axios from 'axios';
 import { toast, ToastContainer, Zoom } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
 import './Past_Events.css';
+import { getTokenData } from '../Pages/authUtils';
 
 function Past_Events() {
   const [events, setEvents] = useState([]);
   const [loading, setLoading] = useState(true);
   const [name,setName]=useState("");
+  const tokendata=getTokenData();
   const notifyInfo = (error) => {
     toast.info(error, {
       position: "top-center",
@@ -39,8 +41,8 @@ function Past_Events() {
     async function fetchPastEvents() {
       try {
         const response = await axios.post('http://localhost:3000/hall/past-events', {
-              department:window.localStorage.getItem("department"),
-              role: window.localStorage.getItem("userType")
+              department:tokendata.department,
+              role: tokendata.role
       });
         setEvents(response.data);
         setLoading(false); 

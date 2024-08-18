@@ -13,29 +13,10 @@ import './EditForm.css';
 const EditForm = () => {
   const navigate = useNavigate();
   const location = useLocation();
-  const { table, attributenames, item } = location.state;
+  const { table, attributenames, item,attributeTypes} = location.state;
   const [data, setData] = useState(item);
   const [selectedFile, setSelectedFile] = useState(null);
   const [showFileUpload, setShowFileUpload] = useState(false);
-
-
-  const attributeTypes = {
-    'completion_date': 'date',
-    'Proposed Date': 'date',
-    'Date of completion': 'date',
-    'Proposed date of visit': 'date',
-    'Actual Date  Visited': 'date',
-    'Date_of_event_planned': 'date',
-    'Date_of_completion': 'date',
-    'Date planned': 'date',
-    'Actual Date of lecture': 'date',
-    'Completion Date of Event': 'date',
-    'Date of Interview': 'date',
-    'start_date': 'date',
-    'end_date': 'date',
-    'joining_date':'date',
-
-  };
 
   const notifysuccess = () => {
     toast.success('Record Edited Successfully!', {

@@ -1,14 +1,19 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import './LoginPage.css';
 import logo from '../assets/Logo.png';
 import axios from 'axios';
-import { ToastContainer, toast,Zoom} from 'react-toastify';
+import { ToastContainer, toast, Zoom } from 'react-toastify';
 import refresh from '../assets/refresh.png';
+import { jwtDecode } from 'jwt-decode';
+
 function LoginPage() {
   const [username, setUsername] = useState('');
   const [password, setPassword] = useState('');
+  const [random, setRandom] = useState('');
+  const [captcha, setCaptcha] = useState('');
   const navigate = useNavigate();
+
   const generateCaptcha = () => {
     const chars = 'abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789';
     let captcha = '';
@@ -18,13 +23,17 @@ function LoginPage() {
     }
     return captcha;
   };
-  const [random, setRandom] = useState('');
-  const [captcha, setCaptcha] = useState(generateCaptcha());
+
+  useEffect(() => {
+    setCaptcha(generateCaptcha());
+  }, []);
 
   const handleClick = () => {
     setCaptcha(generateCaptcha());
+    setRandom('');
   };
-  const notifysuccess = () =>{
+
+  const notifysuccess = () => {
     toast.success('Signed In Successfully!', {
       position: "top-center",
       autoClose: 1500,
@@ -35,10 +44,11 @@ function LoginPage() {
       progress: undefined,
       theme: "colored",
       transition: Zoom,
-      });
-  }
-  const notifyfailure=(error)=>{
-    toast.error(error, {
+    });
+  };
+
+  const notifyfailure = (error) => {
+    toast.error(error || 'An error occurred. Please try again.', {
       position: "top-center",
       autoClose: 5000,
       hideProgressBar: false,
@@ -48,27 +58,28 @@ function LoginPage() {
       progress: undefined,
       theme: "colored",
       transition: Zoom,
-      });
-  }
+    });
+  };
+
   const validateUser = async (userData) => {
     try {
       const response = await axios.post('http://localhost:3000/auth/login', userData);
-      window.localStorage.setItem('department',response.data.department); 
-      window.localStorage.setItem('userType', response.data.role);
-      window.localStorage.setItem('loggedIn', 'true');
+      const { token } = response.data;
+      sessionStorage.setItem('token', token);``
+      sessionStorage.setItem('loggedIn', 'true');
+      console.log('Token:', token);
+      const decodedToken = jwtDecode(token);
+      const role = decodedToken.role;
+      console.log('Decoded Role:', role);
       notifysuccess();
       setTimeout(() => {
         navigate('/dashboard');
       }, 1000);
     } catch (error) {
-      console.error('Error logging in:', error.response);
-      window.localStorage.setItem('loggedIn', 'false');
-      if (error.response && error.response.data) {
-        console.log('Error message from backend:', error.response.data);
-        notifyfailure(error.response.data);  
-      } else {
-        notifyfailure(error.response.data);
-      }
+      console.error('Error logging in:', error);
+      sessionStorage.setItem('loggedIn', 'false');
+      const errorMsg = error.response?.data || 'An error occurred. Please try again.';
+      notifyfailure(errorMsg);
     }
   };
 
@@ -76,7 +87,6 @@ function LoginPage() {
     event.preventDefault();
     if (random.toLowerCase() === captcha.toLowerCase()) {
       validateUser({ username: username.toLowerCase(), password });
-      console.log(`Username: ${username}, Password: ${password}`);
     } else {
       notifyfailure('Incorrect captcha. Please try again.');
       setCaptcha(generateCaptcha());
@@ -86,44 +96,53 @@ function LoginPage() {
 
   return (
     <div className='loginpage'>
-    <div className="login-form">
-      <div className="flower-logo">
-        <img src={logo} alt="Logo" />
-      </div>
-      <form onSubmit={handleSubmit}>
-        <div className="form-group">
-          <input
-            type="text"
-            id="username"
-            placeholder="USERNAME"
-            value={username}
-            onChange={(e) => setUsername(e.target.value)}
-          />
+      <div className="login-form">
+        <div className="flower-logo">
+          <img src={logo} alt="Logo" />
         </div>
-        <div className="form-group">
-          <input
-            type="password"
-            id="password"
-            placeholder="PASSWORD"
-            value={password}
-            onChange={(e) => setPassword(e.target.value)}
-          />
-        </div>
-        <div className="form-group">
-          <div className='captcha'>
-            {captcha}
-            <img src={refresh} onClick={handleClick} width="20px" height="20px" alt="refresh captcha"/>
+        <form onSubmit={handleSubmit}>
+          <div className="form-group">
+            <input
+              type="text"
+              id="username"
+              placeholder="USERNAME"
+              value={username}
+              onChange={(e) => setUsername(e.target.value)}
+            />
           </div>
-          <input type="text"
-            id="s"
-            placeholder="Enter Captch"
-            value={random} 
-        onChange={(e) => setRandom(e.target.value)}/>
-        </div>
-        <button type="submit">Sign in</button>
-      </form>
-    </div>
-    <ToastContainer />
+          <div className="form-group">
+            <input
+              type="password"
+              id="password"
+              placeholder="PASSWORD"
+              value={password}
+              onChange={(e) => setPassword(e.target.value)}
+            />
+          </div>
+          <div className="form-group">
+            <div className='captcha'>
+              {captcha}
+              <img
+                src={refresh}
+                onClick={handleClick}
+                width="20px"
+                height="20px"
+                alt="refresh captcha"
+                style={{ cursor: 'pointer' }}
+              />
+            </div>
+            <input
+              type="text"
+              id="s"
+              placeholder="Enter Captcha"
+              value={random}
+              onChange={(e) => setRandom(e.target.value)}
+            />
+          </div>
+          <button type="submit">Sign in</button>
+        </form>
+      </div>
+      <ToastContainer />
     </div>
   );
 }

@@ -7,6 +7,7 @@ import 'react-toastify/dist/ReactToastify.css';
 import './Todays_List.css';
 import withAuthorization from '../Components/WithAuthorization';
 import dayjs from 'dayjs';
+import { getTokenData } from '../Pages/authUtils';
 const UserGroupSelector = ({ setSelectedUserGroup }) => {
   const [selectedUserGroup, setSelectedUserGroupState] = useState('Student');
 
@@ -58,7 +59,9 @@ const Todays_List = () => {
   const [attributeNames, setAttributeNames] = useState([]);
   const [selectedDepartment, setSelectedDepartment] = useState('');
   const [name, setName] = useState('');
-  const user = window.localStorage.getItem('userType');
+  const tokendata=getTokenData();
+  const user = tokendata.role;
+  const department=tokendata.department;
   const todayDate = dayjs().format('DD-MM-YYYY');
   useEffect(() => {
     if (selectedUserGroup) {
@@ -70,7 +73,7 @@ const Todays_List = () => {
 
   const fetchData = async () => {
     try {
-      const departmentToFetch = (user === 'hod' || user === 'Attendance Manager') ? window.localStorage.getItem('department') : selectedDepartment;
+      const departmentToFetch = (user === 'hod' || user === 'Attendance Manager') ? department : selectedDepartment;
       console.log('Fetching data with department:', departmentToFetch);
 
       const response = await axios.post('http://localhost:3000/attendance/fetchtoday', {
@@ -114,7 +117,7 @@ const Todays_List = () => {
             <tr>
               <th>S.No</th>
               {attributeNames.map((attribute, index) => (
-                <th key={index}>{attribute}</th>
+                 <th key={index}>{attribute.replace(/_/g, ' ')}</th>
               ))}
             </tr>
           </thead>

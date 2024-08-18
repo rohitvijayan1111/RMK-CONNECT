@@ -9,6 +9,7 @@ import { DatePicker, LocalizationProvider } from '@mui/x-date-pickers';
 import { AdapterDayjs } from '@mui/x-date-pickers/AdapterDayjs';
 import TextField from '@mui/material/TextField';
 import withAuthorization from '../Components/WithAuthorization';
+import { getTokenData } from '../Pages/authUtils';
 
 const UserGroupSelector = ({ setSelectedUserGroup }) => {
   const [selectedUserGroup, setSelectedUserGroupState] = useState('Student');
@@ -61,14 +62,16 @@ const Attendance_Log = () => {
   const [attributeNames, setAttributeNames] = useState([]);
   const [selectedDate, setSelectedDate] = useState(null);
   const [selectedDepartment, setSelectedDepartment] = useState('');
-  const user = window.localStorage.getItem('userType');
+  const tokendata=getTokenData();
+  const user=tokendata.role;
+  const department=tokendata.department;
   const [name, setName] = useState("");
 
   const fetchData = async () => {
     try {
       const formattedDate = selectedDate ? selectedDate.format('YYYY-MM-DD') : null;
       const formattedDate2 = selectedDate ? selectedDate.format('DD-MM-YYYY') : null;
-      const departmentToFetch = (user === 'hod' || user === 'Attendance Manager') ? window.localStorage.getItem('department') : selectedDepartment;
+      const departmentToFetch = (user === 'hod' || user === 'Attendance Manager') ? department : selectedDepartment;
       console.log('Fetching data with department:', departmentToFetch);
 
       const response = await axios.post('http://localhost:3000/attendance/fetchdatedata', {
@@ -104,7 +107,6 @@ const Attendance_Log = () => {
   };
 
   useEffect(() => {
-    // Reset data and name when the selected department or user group changes
     setData([]);
     setName("");
   }, [selectedDepartment, selectedUserGroup]);
@@ -133,7 +135,7 @@ const Attendance_Log = () => {
             <tr>
               <th>S.No</th>
               {attributeNames.map((attribute, index) => (
-                <th key={index}>{attribute}</th>
+                 <th key={index}>{attribute.replace(/_/g, ' ')}</th>
               ))}
             </tr>
           </thead>

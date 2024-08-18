@@ -131,7 +131,7 @@ router.post('/addabsent', function _callee(req, res) {
 
         case 25:
           if (!data.student_id) {
-            _context.next = 52;
+            _context.next = 54;
             break;
           }
 
@@ -166,48 +166,51 @@ router.post('/addabsent', function _callee(req, res) {
           }));
 
         case 37:
-          if (!(studentDepartment !== data.department_name)) {
-            _context.next = 40;
+          console.log("Student Department is " + studentDepartment);
+          console.log("data department is " + data.department_name);
+
+          if (!(studentDepartment.toLowerCase() !== data.department_name.toLowerCase())) {
+            _context.next = 42;
             break;
           }
 
           console.error('Department mismatch for student');
           return _context.abrupt("return", res.status(400).json({
-            error: "Student is not part of ".concat(department, " Department")
+            error: "Student is not part of your Department"
           }));
 
-        case 40:
+        case 42:
           console.log('Data to insert:', data);
           insertQuery = 'INSERT INTO absent_attendance_records SET ?';
           console.log('Executing insert query:', insertQuery, data);
-          _context.next = 45;
+          _context.next = 47;
           return regeneratorRuntime.awrap(query(insertQuery, data));
 
-        case 45:
+        case 47:
           updateField = "todayabsentcount_year_".concat(year);
           updateQuery = "\n                UPDATE MemberCount \n                SET ".concat(updateField, " = ").concat(updateField, " + 1 \n                WHERE department_name = ?");
           console.log('Executing query:', updateQuery);
-          _context.next = 50;
+          _context.next = 52;
           return regeneratorRuntime.awrap(query(updateQuery, [data.department_name]));
 
-        case 50:
-          _context.next = 75;
+        case 52:
+          _context.next = 77;
           break;
 
-        case 52:
+        case 54:
           if (!data.staff_id) {
-            _context.next = 75;
+            _context.next = 77;
             break;
           }
 
-          _context.next = 55;
-          return regeneratorRuntime.awrap(query('SELECT department FROM staff WHERE id = ?', [data.staff_id]));
+          _context.next = 57;
+          return regeneratorRuntime.awrap(query('SELECT department FROM staffs WHERE id = ?', [data.staff_id]));
 
-        case 55:
+        case 57:
           staffDetails = _context.sent;
 
           if (!(!staffDetails || staffDetails.length === 0)) {
-            _context.next = 59;
+            _context.next = 61;
             break;
           }
 
@@ -216,22 +219,22 @@ router.post('/addabsent', function _callee(req, res) {
             error: 'Staff not found or missing department information'
           }));
 
-        case 59:
+        case 61:
           staffDepartment = staffDetails[0].department;
 
           if (staffDepartment) {
-            _context.next = 63;
+            _context.next = 65;
             break;
           }
 
           console.error('Department information missing for the staff');
           return _context.abrupt("return", res.status(404).json({
-            error: "Staff is not part of ".concat(department, " Department")
+            error: "Staff is not part of your Department"
           }));
 
-        case 63:
-          if (!(staffDepartment !== data.department_name)) {
-            _context.next = 66;
+        case 65:
+          if (!(staffDepartment.toLowerCase() !== data.department_name.toLowerCase())) {
+            _context.next = 68;
             break;
           }
 
@@ -240,40 +243,40 @@ router.post('/addabsent', function _callee(req, res) {
             error: 'Department mismatch for staff'
           }));
 
-        case 66:
+        case 68:
           console.log('Data to insert:', data);
           _insertQuery = 'INSERT INTO absent_attendance_records SET ?';
           console.log('Executing insert query:', _insertQuery, data);
-          _context.next = 71;
+          _context.next = 73;
           return regeneratorRuntime.awrap(query(_insertQuery, data));
 
-        case 71:
+        case 73:
           _updateQuery = "\n                UPDATE MemberCount \n                SET todayabsentcount_staff = todayabsentcount_staff + 1 \n                WHERE department_name = ?";
           console.log('Executing query:', _updateQuery);
-          _context.next = 75;
+          _context.next = 77;
           return regeneratorRuntime.awrap(query(_updateQuery, [data.department_name]));
 
-        case 75:
+        case 77:
           res.json({
             message: 'Record inserted and count updated successfully'
           });
-          _context.next = 82;
+          _context.next = 84;
           break;
 
-        case 78:
-          _context.prev = 78;
+        case 80:
+          _context.prev = 80;
           _context.t0 = _context["catch"](5);
           console.error('Error inserting record or updating count:', _context.t0);
           res.status(500).json({
             error: 'Internal Server Error'
           });
 
-        case 82:
+        case 84:
         case "end":
           return _context.stop();
       }
     }
-  }, null, null, [[5, 78]]);
+  }, null, null, [[5, 80]]);
 });
 
 function getStudentYear(student_id) {
@@ -426,7 +429,7 @@ router.post('/removeabsent', function _callee2(req, res) {
           userDepartment = staffDetails[0].department;
 
         case 35:
-          if (!(userDepartment !== department_name)) {
+          if (!(userDepartment.toLowerCase() !== department_name.toLowerCase())) {
             _context3.next = 37;
             break;
           }
@@ -581,7 +584,7 @@ router.post('/getindividual', function _callee3(req, res) {
           }
 
           return _context4.abrupt("return", res.status(400).json({
-            error: "".concat(userGroup, " doesn't belong to ").concat(department, " department or doesn't exist")
+            error: "".concat(userGroup, " doesn't belong to your department or doesn't exist")
           }));
 
         case 14:
