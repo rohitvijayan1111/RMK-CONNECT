@@ -1,7 +1,11 @@
 # RMKConnect
 
 **RMKConnect** is a comprehensive web application designed exclusively for the Heads of Departments (HODs) and faculty members of our college. This platform facilitates seamless management of various academic and administrative tasks within the college.<br>
-<br>![image](https://github.com/user-attachments/assets/0dde477c-c223-4d29-a546-fc2b18e3c5f0)
+<div align="center">
+    <a href="https://youtu.be/nUlGVAmJivs">
+        <img src="https://img.youtube.com/vi/nUlGVAmJivs/hqdefault.jpg" alt="RMKCONNECT Demo">
+    </a>
+</div>
 
 ## What We Have in RMKConnect
 
@@ -162,6 +166,11 @@ Once it has finally approved by **Principal**, the event is listed in upcoming e
 
 ##### Constraint:
  **Unique Bookings:** No two requests can have the same date, time, and hall. Submission is blocked if the hall is already booked.
+
+ ### Tech Stack:
+<br><div align="center">
+    <img src="https://github.com/user-attachments/assets/6b44bd77-3b49-4f3b-b62a-2bcfc1e8dc7d" alt="TechStack" height="400px" >
+  </div> 
 
 ## Conclusion
 
