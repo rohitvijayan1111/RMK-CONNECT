@@ -72,3 +72,11 @@
   .content-container p:nth-child(5) {
     color: #5cb85c; 
   }
+
+  .component{
+    margin-left: 3%;
+  }
+
+  .content{
+    display: flex;
+  }

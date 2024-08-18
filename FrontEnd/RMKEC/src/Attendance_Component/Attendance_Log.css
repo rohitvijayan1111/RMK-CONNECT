@@ -22,4 +22,12 @@
 .btm:hover{
     background-color: #45a049;
 }
+.image
+{
+    padding-top: 30px;
+}
 
+.ddbtt
+{
+    display: flex;
+}

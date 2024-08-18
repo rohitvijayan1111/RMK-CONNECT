@@ -49,7 +49,7 @@ router.post('/notifyHOD', async (req, res) => {
   console.log(emailList)
   const mailOptions = {
     from: { name: 'RMKEC HALL UPDATES', address: 'rohitvijayandrive@gmail.com' },
-    to: emailList, 
+    to: 'likesh12.7.2004@gmail.com', 
     subject: `Notification: New Hall Booking Request`,
     text: `${formSubject}` 
   };
@@ -71,7 +71,7 @@ router.post('/approveEventByHOD', async (req, res) => {
   console.log(emailList)
   const mailOptions = {
     from: { name: 'RMKEC HALL UPDATES', address: 'rohitvijayandrive@gmail.com' },
-    to: ['broh22012.it@rmkec.ac.in'], 
+    to: ['like22050.it@rmkec.ac.in'], 
     subject: `Notification: New Hall Booking Form Approved by ${department} HOD`,
     text: `${formSubject}`,
     cc: emailList 
@@ -92,7 +92,7 @@ router.post('/approveEventByAcademicCoordinator', async (req, res) => {
   emailList.push(hodEmailMapping[department]);
   const mailOptions = {
     from: { name: 'RMKEC HALL UPDATES', address: 'rohitvijayandrive@gmail.com' },
-    to: 'like22050.it@rmkec.ac.in',
+    to: 'likeshkr2004@gmail.com',
     cc: emailList,
     subject: `Notification: Hall Booking Form Approved by Academic Coordinator`,
     text: `The hall booking form "${formSubject}" has been approved by Academic Coordinator.`
@@ -113,7 +113,7 @@ router.post('/approveEventByPrincipal', async (req, res) => {
   emailList.push(hodEmailMapping[department]);
   const mailOptions = {
     from: { name: 'RMKEC HALL UPDATES', address: 'rohitvijayandrive@gmail.com' },
-    to: emailList, 
+    to: 'likesh12.7.2004@gmail.com', 
     cc: ['broh22012.it@rmkec.ac.in','like22050.it@rmkec.ac.in'], 
     subject: `Notification: Hall Booking Form Approved by Principal`,
     text: `The hall booking form "${formSubject}" has been approved by Principal.`

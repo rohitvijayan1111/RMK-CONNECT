@@ -8,6 +8,7 @@ import dayjs from 'dayjs';
 import './Todays_List.css';
 import './Attendance_Analysis.css';
 import withAuthorization from '../Components/WithAuthorization';
+import analysis from '../assets/student_analysis.png';
 import { getTokenData } from '../Pages/authUtils';
 
 const UserGroupSelector = ({ setSelectedUserGroup }) => {
@@ -96,7 +97,10 @@ const Attendance_Analysis = () => {
         </form>
         <input type='submit' className='bmt' value="Fetch" onClick={handleFetchClick} />
       </div>
-      {name && <h1>{name}</h1>}
+      {name && 
+        <div className='image'>
+          <img src={analysis} width="70%" height="80%"/>
+        </div>}
       {data.length > 0 && attributeNames.length > 0 && (
         <Table striped bordered hover>
           <thead>

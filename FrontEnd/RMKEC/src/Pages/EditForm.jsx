@@ -59,6 +59,7 @@ const EditForm = () => {
   const handleSubmit = async (e) => {
     e.preventDefault();
     try {
+      // Format the date before submitting if it's a date attribute
       const formattedData = { ...data };
       for (const attribute of attributenames) {
         if (attributeTypes[attribute] === 'date' && formattedData[attribute]) {

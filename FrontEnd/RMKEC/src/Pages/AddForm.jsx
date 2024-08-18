@@ -16,7 +16,7 @@ const AddForm = () => {
   const { table, attributenames,attributeTypes } = location.state;
   const [data, setData] = useState({ department: tokendata.department });
   const [file, setFile] = useState(null);
-  const [fileInputKey, setFileInputKey] = useState(Date.now()); // Add key state for file input
+  const [fileInputKey, setFileInputKey] = useState(Date.now());
 
   
   const notifysuccess = () => {
@@ -51,6 +51,8 @@ const AddForm = () => {
     const formattedDate = date ? dayjs(date).format('YYYY-MM-DD') : '';
     setData({ ...data, [attribute]: formattedDate });
   };
+
+
 
   const handleFileChange = (e) => {
     const selectedFile = e.target.files[0];
@@ -89,7 +91,31 @@ const AddForm = () => {
       notifyfailure(error.response.data.error || 'Error inserting record');
     }
   };
+  const handleChange = (attribute, value) => {
+    setData(prevData => {
+      const newData = { ...prevData, [attribute]: value };
+      if (attribute === 'No_of_Students_Registered_for_Placement' || attribute === 'No_of_Students_Placed') {
+        const totalStudents = parseFloat(newData['No_of_Students_Registered_for_Placement']);
+        const placedStudents = parseFloat(newData['No_of_Students_Placed']);
+        if (totalStudents && placedStudents) {
+          newData['Placement_Percentage'] = ((placedStudents / totalStudents) * 100).toFixed(2);
+        } else {
+          newData['Placement_Percentage'] = '0.00';
+        }
+      }
+      if (attribute === 'No_of_Students_Opted_for_Higher_Studies' || attribute === 'No_of_Students_Admitted_to_Higher_Studies') {
+        const totalStudents = parseFloat(newData['No_of_Students_Opted_for_Higher_Studies']);
+        const placedStudents = parseFloat(newData['No_of_Students_Admitted_to_Higher_Studies']);
+        if (totalStudents && placedStudents) {
+          newData['Percentage_of_Higher_Studies'] = ((placedStudents / totalStudents) * 100).toFixed(2);
+        } else {
+          newData['Percentage_of_Higher_Studies'] = '0.00';
+        }
+      }
 
+      return newData;
+    });
+  };
   return (
     <div className="cnt">
       <h2>Add Record</h2>
@@ -123,17 +149,74 @@ const AddForm = () => {
                       className="cntr"
                       id={attribute}
                       onChange={handleFileChange}
-                      key={fileInputKey} // Add the key prop to re-render the input
+                      key={fileInputKey} 
                       required
                     />
                     <button type="button" onClick={handleFileReset}>Reset File</button>
                   </>
-                ) : (
+                ) : attributeTypes[attribute] === 'Placement_Percentage' ?( 
+                  <>
+                  <input
+                      type="text"
+                      className="cntr"
+                      id={attribute}
+                      onChange={(e) => setData({ ...data, [attribute]: (data[No_of_Students_Placed]/data[Total_No_of_Students])/100 })}
+                      value={data[attribute]  || ''}
+                      readOnly
+                      required
+                    />
+                  </>
+                ):attributeTypes[attribute] === 'Percentage_of_Higher_Studies' ?( 
+                  <>
+                  <input
+                      type="text"
+                      className="cntr"
+                      id={attribute}
+                      onChange={(e) => setData({ ...data, [attribute]: (data[No_of_Students_Admitted_to_Higher_Studies]/data[No_of_Students_Opted_for_Higher_Studies])/100  })}
+                      value={data[attribute] || ''}
+                      readOnly
+                      required
+                    />
+                  </>
+
+                ):attributeTypes[attribute] === 'company_details' ?( 
+                  <>
+                  <div className='company'>
+                  <input
+                    type="text"
+                    className="cmp"
+                    id={attribute}
+                    onChange={(e) => handleChange(attribute, e.target.value)}
+                    value={data[attribute] || ''}
+                    required
+                  />
+                  <input
+                    type="text"
+                    className="cmp"
+                    id={attribute}
+                    onChange={(e) => handleChange(attribute, e.target.value)}
+                    value={data[attribute] || ''}
+                    required
+                  />
+                  <input
+                    type="text"
+                    className="cmp"
+                    id={attribute}
+                    onChange={(e) => handleChange(attribute, e.target.value)}
+                    value={data[attribute] || ''}
+                    required
+                  />
+                  </div>
+                  <button className='cmp-btt'>
+                    ADD
+                  </button>
+                </>
+                ): (
                   <input
                     type="text"
                     className="cntr"
                     id={attribute}
-                    onChange={(e) => setData({ ...data, [attribute]: e.target.value })}
+                    onChange={(e) => handleChange(attribute, e.target.value)}
                     value={data[attribute] || ''}
                     required
                   />

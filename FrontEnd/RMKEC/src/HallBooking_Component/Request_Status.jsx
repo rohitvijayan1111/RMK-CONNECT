@@ -1,10 +1,12 @@
 import React, { useEffect, useState, useRef } from 'react';
+import React, { useEffect, useState, useRef } from 'react';
 import axios from 'axios';
 import EventDetails from './EventDetails';
 import { toast, ToastContainer, Zoom } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
 import './Request_Status.css';
 import dayjs from 'dayjs';
+import pending from '../assets/pending.png';
 import { getTokenData } from '../Pages/authUtils';
 
 const Request_Status = () => {
@@ -14,6 +16,7 @@ const Request_Status = () => {
   const department = tokendata.department;
   const [name, setName] = useState("");
   const fetchEventDataRef = useRef(false);
+  const [hasError, setHasError] = useState(false);
   const rolemapping = {
     'hod': "HOD",
     "academic_coordinator": "Academic Coordinator",
@@ -61,13 +64,16 @@ const Request_Status = () => {
           role
         });
         setEventData(response.data);
+        setHasError(false); // Reset error state when data is successfully fetched
       } catch (error) {
         console.error('Error fetching data', error);
         if (error.response && error.response.data && error.response.data.error) {
-          notifyFailure(error.response.data.error);
+          
           setName(error.response.data.error);
+          setHasError(true); // Set error state to true if there's an error
         } else {
           notifyFailure('An unexpected error occurred.');
+          setHasError(true); // Set error state to true for unexpected errors
         }
       }
     };
@@ -124,6 +130,22 @@ const Request_Status = () => {
           )}
         </div>
       ))}
+      
+      {hasError ? (
+        <div style={{ textAlign: 'center',width:'100%', height:'100%'}}>
+          <img src={pending} alt="Error occurred" style={{ width: '50%', height: '50%'}} />
+        </div>
+      ) : (
+        eventData.map((event, index) => (
+          <div className='event-container' key={index}>
+            {((role === 'hod' || role === 'Event Coordinator') ||
+              (role === 'academic_coordinator' && event.approvals.hod) ||
+              (role === 'Principal' && event.approvals.hod && event.approvals.academic_coordinator)) && (
+                <EventDetails needbutton={true} checkall={false} eventData={event} showdelete={true} onDelete={() => handleDelete(event.id)} />
+              )}
+          </div>
+        ))
+      )}
       <ToastContainer />
     </div>
   );

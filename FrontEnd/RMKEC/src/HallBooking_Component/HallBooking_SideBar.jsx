@@ -19,25 +19,25 @@ function HallBooking_SideBar() {
   return (
     <div className="sidebarhb">
       <ul>
-        <li className={isActive('/dashboard/Attendance_DB_Dept')}>
+        <li className={isActive('/dashboard/DashBoard-Hall')}>
           <Link to="/dashboard/DashBoard-Hall">
           <img src={dashboard} width="40px" height="40px" alt="Dashboard" />
             Dashboard
           </Link>
         </li>
-        <li className={isActive('/dashboard/Daily-Attendance')}>
+        <li className={isActive('/dashboard/Hall-Request')}>
           <Link to="/dashboard/Hall-Request">
           <img src={Hall} width="50px" height="50px" alt="Hall Request" />
             Hall Request
           </Link>
         </li>
-        <li className={isActive('/dashboard/Edit_Entry')}>
+        <li className={isActive('/dashboard/Request-Status')}>
           <Link to="/dashboard/Request-Status">
           <img src={Status} width="40px" height="40px" alt="Request Status" />
             Request Status
           </Link>
         </li>
-        <li className={isActive('/dashboard/Todays-List')}>
+        <li className={isActive('/dashboard/Past-Events')}>
           <Link to="/dashboard/Past-Events">
           <img src={past} width="40px" height="40px" alt="Past Events" />
             Past Events

@@ -581,7 +581,7 @@ router.post('/attendance-graph', async (req, res) => {
     }
 
     try {
-        const results = await query(`SELECT attendance_date as date, count(*) as total FROM absent_attendance_records WHERE department_name = ? AND ${column} IS NOT NULL GROUP BY date LIMIT 7`, [department]);
+        const results = await query(`SELECT attendance_date as date, count(*) as total FROM absent_attendance_records WHERE department_name = ? AND ${column} IS NOT NULL GROUP BY date ORDER BY date desc LIMIT 7`, [department]);
         console.log('Query results:', results);
 
         if (results.length === 0) {

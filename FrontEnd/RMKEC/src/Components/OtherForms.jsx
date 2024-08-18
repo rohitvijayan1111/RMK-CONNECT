@@ -73,8 +73,9 @@ const OtherForms = () => {
    }
 
     return (
+        <>
+        <h1>Form List</h1>
         <Container>
-                <h1>Form List</h1>
                 {role === 'IQAC' && (
                     <Button type="button" onClick={handleAdd} className="btn btn-primary">Add Form</Button>
                 )}
@@ -106,6 +107,7 @@ const OtherForms = () => {
             </Table>
             <ToastContainer />
         </Container>
+        </>
     );
 };
 
