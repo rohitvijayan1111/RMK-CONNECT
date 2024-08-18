@@ -5,6 +5,7 @@ import { toast, ToastContainer, Zoom } from 'react-toastify';
 import dayjs from 'dayjs';
 import 'react-toastify/dist/ReactToastify.css';
 import './DashBoard_Hall.css';
+import events from '../assets/events.png';
 
 function DashBoard_Hall() {
   const [upcomingEvents, setUpcomingEvents] = useState([]);
@@ -88,7 +89,7 @@ function DashBoard_Hall() {
         if (error.response && error.response.data) {
           console.log('Error message from backend:', error.response.data);
           setName(error.response.data.error);
-          notifyFailure(error.response.data.error);
+
         } else {
           notifyFailure('An unexpected error occurred.');
         }
@@ -107,7 +108,9 @@ function DashBoard_Hall() {
     <div className="dashboard-hall">
       <h1>Upcoming Events</h1>
       {upcomingEvents.length === 0 ? (
-        <h2 style={{paddingTop:"10%"}}>No Upcoming Events.</h2>
+        <div className='image'>
+          <img src={events} width="50%" height="50%"/>
+        </div>
       ) : (
         upcomingEvents.map((event, index) => (
           <div className="event-container" key={index}>

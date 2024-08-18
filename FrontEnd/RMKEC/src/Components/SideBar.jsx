@@ -25,18 +25,23 @@ function SideBar() {
   const location = useLocation();
   const sidebarRef = useRef(null);
 
-  const isActive = (path) => {
-    return location.pathname === path ? 'active' : '';
-  };
-
-  const [showExtraLinks, setShowExtraLinks] = useState(false);
   const [showAttendanceLinks, setShowAttendanceLinks] = useState(false);
   const [showHallBookingLinks, setShowHallBookingLinks] = useState(false);
+
+  const isActive = (path, exact = false) => {
+    if (exact) {
+      return location.pathname === path ? 'active' : '';
+    }
+    return location.pathname.startsWith(path) ? 'active' : '';
+  };
+
+  const isParentActive = (childPaths) => {
+    return childPaths.some(path => location.pathname.startsWith(path));
+  };
 
   useEffect(() => {
     const handleClickOutside = (event) => {
       if (sidebarRef.current && !sidebarRef.current.contains(event.target)) {
-        setShowExtraLinks(false);
         setShowAttendanceLinks(false);
         setShowHallBookingLinks(false);
       }
@@ -49,18 +54,9 @@ function SideBar() {
   }, []);
 
   useEffect(() => {
-    setShowExtraLinks(false);
     setShowAttendanceLinks(false);
     setShowHallBookingLinks(false);
   }, [location]);
-
-  const handleMouseEnterExtraLinks = () => {
-    setShowExtraLinks(true);
-  };
-
-  const handleMouseLeaveExtraLinks = () => {
-    setShowExtraLinks(false);
-  };
 
   const handleMouseEnterAttendanceLinks = () => {
     setShowAttendanceLinks(true);
@@ -81,38 +77,43 @@ function SideBar() {
   return (
     <div className="sidebar" ref={sidebarRef}>
       <ul>
-        <li className={isActive('/dashboard')}>
+        <li className={isActive('/dashboard', true)}>
           <Link to="/dashboard">
             <img src={dashboard} width="40px" height="40px" alt="Dashboard" />
             Dashboard
           </Link>
         </li>
-        <li className='attendance_icon' onMouseEnter={handleMouseEnterAttendanceLinks} onMouseLeave={handleMouseLeaveAttendanceLinks}>
+        <li className={`attendance_icon ${isParentActive([
+          '/dashboard/Attendance_DB_Dept',
+          '/dashboard/Todays-List',
+          '/dashboard/Attendance-Log',
+          '/dashboard/Attendance-Analysis'
+        ]) ? 'active' : ''}`} onMouseEnter={handleMouseEnterAttendanceLinks} onMouseLeave={handleMouseLeaveAttendanceLinks}>
           <p>
             <img src={att} width="40px" height="40px" alt="Attendance" />
             Attendance
           </p>
           {showAttendanceLinks && (
             <div className="extra-links-container-att" onMouseEnter={handleMouseEnterAttendanceLinks} onMouseLeave={handleMouseLeaveAttendanceLinks}>
-              <li className={isActive('/dashboard/Attendance_DB_Dept')}>
+              <li>
                 <Link to="/dashboard/Attendance_DB_Dept">
-                  <img src={statistics} width="30px" height="30px" alt="Faculty Details" />
+                  <img src={statistics} width="30px" height="30px" alt="Statistics" />
                   Statistics
                 </Link>
               </li>
-              <li className={isActive('/dashboard/Todays-List')}>
+              <li>
                 <Link to="/dashboard/Todays-List">
-                  <img src={today} width="30px" height="30px" alt="Today" />
+                  <img src={today} width="30px" height="30px" alt="Absentees" />
                   Absentees
                 </Link>
               </li>
-              <li className={isActive('/dashboard/Attendance-Log')}>
+              <li>
                 <Link to="/dashboard/Attendance-Log">
-                  <img src={past} width="30px" height="30px" alt="Past" />
+                  <img src={past} width="30px" height="30px" alt="Lecture" />
                   Lecture
                 </Link>
               </li>
-              <li className={isActive('/dashboard/Attendance-Analysis')}>
+              <li>
                 <Link to="/dashboard/Attendance-Analysis">
                   <img src={analysis} width="30px" height="30px" alt="Analysis" />
                   Analysis
@@ -121,41 +122,45 @@ function SideBar() {
             </div>
           )}
         </li>
-        <li className='attendance_icon' onMouseEnter={handleMouseEnterHallBookingLinks} onMouseLeave={handleMouseLeaveHallBookingLinks}>
+        <li className={`attendance_icon ${isParentActive([
+          '/dashboard/DashBoard-Hall',
+          '/dashboard/Request-Status',
+          '/dashboard/Past-Events',
+          '/dashboard/Available-Halls'
+        ]) ? 'active' : ''}`} onMouseEnter={handleMouseEnterHallBookingLinks} onMouseLeave={handleMouseLeaveHallBookingLinks}>
           <p>
-            <img src={reserve} width="40px" height="40px" alt="reserve" />
+            <img src={reserve} width="40px" height="40px" alt="Hall Booking" />
             Hall Booking
           </p>
           {showHallBookingLinks && (
             <div className="extra-links-container" onMouseEnter={handleMouseEnterHallBookingLinks} onMouseLeave={handleMouseLeaveHallBookingLinks}>
-              <li className={isActive('/dashboard/DashBoard-Hall')}>
+              <li>
                 <Link to="/dashboard/DashBoard-Hall">
-                  <img src={upcoming} width="30px" height="30px" alt="upcoming" />
+                  <img src={upcoming} width="30px" height="30px" alt="Upcoming" />
                   Upcoming
                 </Link>
               </li>
-              <li className={isActive('/dashboard/Request-Status')}>
+              <li>
                 <Link to="/dashboard/Request-Status">
                   <img src={Status} width="30px" height="30px" alt="Request Status" />
                   Req Status
                 </Link>
               </li>
-              <li className={isActive('/dashboard/Todays-List')}>
+              <li>
                 <Link to="/dashboard/Past-Events">
                   <img src={past} width="30px" height="30px" alt="Past Events" />
                   Past Events
                 </Link>
               </li>
-              <li className={isActive('/dashboard/Available-Halls')}>
+              <li>
                 <Link to="/dashboard/Available-Halls">
-                  <img src={Available} width="30px" height="30px" alt="Available Hall" />
+                  <img src={Available} width="30px" height="30px" alt="Available Halls" />
                   Halls
                 </Link>
               </li>
             </div>
           )}
         </li>
-
         <li className={isActive('/dashboard/faculty-details')}>
           <Link to="/dashboard/faculty-details">
             <img src={faculty} width="40px" height="40px" alt="Faculty Details" />
@@ -168,9 +173,9 @@ function SideBar() {
             Mail
           </Link>
         </li>
-        <li className={isActive('/dashboard/other-forms')}>
+        <li className={isActive('/dashboard/forms')}>
           <Link to="/dashboard/forms">
-            <img src={others} width="40px" height="40px" alt="other forms" />
+            <img src={others} width="40px" height="40px" alt="Other Forms" />
             Other Forms
           </Link>
         </li>

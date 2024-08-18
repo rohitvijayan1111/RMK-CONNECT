@@ -7,6 +7,8 @@ import 'react-toastify/dist/ReactToastify.css';
 import './Todays_List.css';
 import withAuthorization from '../Components/WithAuthorization';
 import dayjs from 'dayjs';
+import present from '../assets/absent.png';
+
 const UserGroupSelector = ({ setSelectedUserGroup }) => {
   const [selectedUserGroup, setSelectedUserGroupState] = useState('Student');
 
@@ -52,21 +54,43 @@ const DepartmentSelector = ({ setSelectedDepartment }) => {
   );
 };
 
+const TypeSelector = ({ setSelectedType }) => {
+  const [selectedType, setSelectedTypeState] = useState('All');
+
+  const handleTypeChange = (event) => {
+    const type = event.target.value;
+    setSelectedTypeState(type);
+    setSelectedType(type);
+  };
+
+  return (
+    <div>
+      <select id="typeSelect" className='status-yr' onChange={handleTypeChange} value={selectedType} required>
+        <option value="All">All</option>
+        <option value="Hosteller">Hosteller</option>
+        <option value="Day Scholar">Day Scholar</option>
+      </select>
+    </div>
+  );
+};
+
 const Todays_List = () => {
   const [selectedUserGroup, setSelectedUserGroup] = useState('Student');
   const [data, setData] = useState([]);
   const [attributeNames, setAttributeNames] = useState([]);
   const [selectedDepartment, setSelectedDepartment] = useState('');
+  const [selectedType, setSelectedType] = useState('All');
   const [name, setName] = useState('');
   const user = window.localStorage.getItem('userType');
   const todayDate = dayjs().format('DD-MM-YYYY');
+
   useEffect(() => {
     if (selectedUserGroup) {
       setData([]);
       setAttributeNames([]);
       fetchData();
     }
-  }, [selectedUserGroup, selectedDepartment]);
+  }, [selectedUserGroup, selectedDepartment, selectedType]);
 
   const fetchData = async () => {
     try {
@@ -76,6 +100,7 @@ const Todays_List = () => {
       const response = await axios.post('http://localhost:3000/attendance/fetchtoday', {
         selectedUserGroup,
         department: departmentToFetch,
+        type: selectedType, // Include the selected type in the request
       });
 
       console.log('Response data:', response.data);
@@ -85,7 +110,7 @@ const Todays_List = () => {
         setAttributeNames(keys);
         setName('');  
       } else {
-        setName("No Absenties Today");
+        setName("No Absentees Today");
         setAttributeNames([]);
       }
     } catch (error) {
@@ -100,14 +125,17 @@ const Todays_List = () => {
 
   return (
     <div>
-      <h1>{todayDate}</h1>
       <div className='holder'>
         <UserGroupSelector setSelectedUserGroup={setSelectedUserGroup} />
+        <TypeSelector setSelectedType={setSelectedType} />
         {(user !== 'hod' && user !== 'Attendance Manager') && (
           <DepartmentSelector setSelectedDepartment={setSelectedDepartment} />
         )}
       </div>
-      {name && <h1>{name}</h1>}
+      {name && 
+        <div className='image'>
+          <img src={present} width="60%" height="80%"/>
+        </div>}
       {data.length > 0 && (
         <Table striped bordered hover>
           <thead>

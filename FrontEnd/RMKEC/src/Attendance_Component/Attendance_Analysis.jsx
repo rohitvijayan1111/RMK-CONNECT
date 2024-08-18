@@ -8,7 +8,7 @@ import dayjs from 'dayjs';
 import './Todays_List.css';
 import './Attendance_Analysis.css';
 import withAuthorization from '../Components/WithAuthorization';
-
+import analysis from '../assets/student_analysis.png';
 const UserGroupSelector = ({ setSelectedUserGroup }) => {
   const [selectedUserGroup, setSelectedUserGroupState] = useState('Student');
 
@@ -28,38 +28,12 @@ const UserGroupSelector = ({ setSelectedUserGroup }) => {
   );
 };
 
-const DepartmentSelector = ({ setSelectedDepartment }) => {
-  const handleDepartmentChange = (event) => {
-    const department = event.target.value;
-    setSelectedDepartment(department);
-  };
-
-  return (
-    <div>
-      <select id="departmentSelect" className='status-yr' onChange={handleDepartmentChange} required>
-        <option value="">Select Department</option>
-        <option value="All">All</option>
-        <option value="Artificial Intelligence and Data Science">Artificial Intelligence and Data Science</option>
-        <option value="Civil Engineering">Civil Engineering</option>
-        <option value="Computer Science and Business Systems">Computer Science and Business Systems</option>
-        <option value="Computer Science and Design">Computer Science and Design</option>
-        <option value="Computer Science and Engineering">Computer Science and Engineering</option>
-        <option value="Electrical and Electronics Engineering">Electrical and Electronics Engineering</option>
-        <option value="Electronics and Communication Engineering">Electronics and Communication Engineering</option>
-        <option value="Electronics and Instrumentation Engineering">Electronics and Instrumentation Engineering</option>
-        <option value="Information Technology">Information Technology</option>
-        <option value="Mechanical Engineering">Mechanical Engineering</option>
-      </select>
-    </div>
-  );
-};
 
 const Attendance_Analysis = () => {
   const [selectedUserGroup, setSelectedUserGroup] = useState('Student');
   const [data, setData] = useState([]);
   const [attributeNames, setAttributeNames] = useState([]);
   const [rollNumber, setRollNumber] = useState('');
-  const [selectedDepartment, setSelectedDepartment] = useState('');
   const user = window.localStorage.getItem('userType');
   const [name, setName] = useState('');
 
@@ -101,17 +75,10 @@ const Attendance_Analysis = () => {
     return dayjs(dateString).format('DD/MM/YYYY');
   };
 
-  useEffect(() => {
-    // Reset data and name when the selected department or user group changes
-    setData([]);
-    setName("");
-  }, [selectedDepartment, selectedUserGroup]);
-
   return (
     <div>
       <div>
         <UserGroupSelector setSelectedUserGroup={setSelectedUserGroup} />
-        {(user !== 'hod' && user !== 'Attendance Manager') && <DepartmentSelector setSelectedDepartment={setSelectedDepartment} />}
       </div>
       <div className='bb'>
         <form className='aa'>
@@ -124,7 +91,10 @@ const Attendance_Analysis = () => {
         </form>
         <input type='submit' className='bmt' value="Fetch" onClick={handleFetchClick} />
       </div>
-      {name && <h1>{name}</h1>}
+      {name && 
+        <div className='image'>
+          <img src={analysis} width="70%" height="80%"/>
+        </div>}
       {data.length > 0 && attributeNames.length > 0 && (
         <Table striped bordered hover>
           <thead>

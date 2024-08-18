@@ -161,8 +161,9 @@ const Daily_Attendance = () => {
 
   return (
     <div>
-      <UserGroupSelector setSelectedUserGroup={setSelectedUserGroup} />
-
+      <div className='contents'>
+        <UserGroupSelector setSelectedUserGroup={setSelectedUserGroup} />
+      </div>
       <div className='attendance'>
         <h1>Attendance</h1>
         <h4>{formattedDate}</h4>

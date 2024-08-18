@@ -9,6 +9,7 @@ import { DatePicker, LocalizationProvider } from '@mui/x-date-pickers';
 import { AdapterDayjs } from '@mui/x-date-pickers/AdapterDayjs';
 import TextField from '@mui/material/TextField';
 import withAuthorization from '../Components/WithAuthorization';
+import log from '../assets/log.png';
 
 const UserGroupSelector = ({ setSelectedUserGroup }) => {
   const [selectedUserGroup, setSelectedUserGroupState] = useState('Student');
@@ -55,12 +56,30 @@ const DepartmentSelector = ({ setSelectedDepartment }) => {
   );
 };
 
+const HostellerDayScholarSelector = ({ setSelectedHostellerDayScholar }) => {
+  const handleHostellerDayScholarChange = (event) => {
+    const hostellerDayScholar = event.target.value;
+    setSelectedHostellerDayScholar(hostellerDayScholar);
+  };
+
+  return (
+    <div>
+      <select id="hostellerDayScholarSelect" className='status-yr' onChange={handleHostellerDayScholarChange} required>
+        <option value="All">All</option>
+        <option value="Hosteller">Hosteller</option>
+        <option value="Day Scholar">Day Scholar</option>
+      </select>
+    </div>
+  );
+};
+
 const Attendance_Log = () => {
   const [selectedUserGroup, setSelectedUserGroup] = useState('Student');
   const [data, setData] = useState([]);
   const [attributeNames, setAttributeNames] = useState([]);
   const [selectedDate, setSelectedDate] = useState(null);
   const [selectedDepartment, setSelectedDepartment] = useState('');
+  const [selectedHostellerDayScholar, setSelectedHostellerDayScholar] = useState('All');
   const user = window.localStorage.getItem('userType');
   const [name, setName] = useState("");
 
@@ -75,7 +94,8 @@ const Attendance_Log = () => {
         selectedUserGroup,
         date: formattedDate,
         department: departmentToFetch,
-        date2:formattedDate2
+        date2: formattedDate2,
+        hostellerDayScholar: selectedHostellerDayScholar
       });
       console.log('Response data:', response.data);
       setData(response.data.data);
@@ -100,20 +120,31 @@ const Attendance_Log = () => {
     setData([]);
     setName("");
     setAttributeNames([]);
+
+    if (!selectedDate) {
+      toast.error("Please select a date before fetching data.");
+      return;
+    }
+  
+    if ((user !== 'hod' && user !== 'Attendance Manager') && !selectedDepartment) {
+      toast.error("Please select a department before fetching data.");
+      return;
+    }
     fetchData();
   };
+  
 
   useEffect(() => {
-    // Reset data and name when the selected department or user group changes
     setData([]);
     setName("");
-  }, [selectedDepartment, selectedUserGroup]);
+  }, [selectedDepartment, selectedUserGroup, selectedHostellerDayScholar]);
 
   return (
     <div className='hon'>
-      <div>
+      <div className='ddbtt'>
         <UserGroupSelector setSelectedUserGroup={setSelectedUserGroup} />
         {(user !== 'hod' && user !== 'Attendance Manager') && <DepartmentSelector setSelectedDepartment={setSelectedDepartment} />}
+        <HostellerDayScholarSelector setSelectedHostellerDayScholar={setSelectedHostellerDayScholar} />
       </div>
       <div className='conte'>
         <LocalizationProvider dateAdapter={AdapterDayjs}>
@@ -126,7 +157,10 @@ const Attendance_Log = () => {
         </LocalizationProvider>
         <input type='submit' value="Fetch" className='btm' onClick={handleFetchClick} />
       </div>
-      {name && <h1>{name}</h1>}
+      {name && 
+        <div className='image'>
+          <img src={log} width="70%" height="80%"/>
+        </div>}
       {data.length > 0 && (
         <Table striped bordered hover>
           <thead>

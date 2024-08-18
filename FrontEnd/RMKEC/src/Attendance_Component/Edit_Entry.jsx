@@ -118,7 +118,10 @@ const Edit_Entry = () => {
 
   return (
     <div>
-      <UserGroupSelector setSelectedUserGroup={setSelectedUserGroup} />
+      <div className='ddb'>
+        <UserGroupSelector setSelectedUserGroup={setSelectedUserGroup} />
+      </div>
+      
       <div className="faculty">
         <h1>Edit Attendance</h1>
         <h4>{formattedDate}</h4>
