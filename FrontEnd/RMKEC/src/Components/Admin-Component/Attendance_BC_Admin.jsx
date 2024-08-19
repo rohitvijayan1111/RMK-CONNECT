@@ -18,7 +18,7 @@ const CustomTooltip = ({ active, payload, label }) => {
         <div className="custom-tooltip-pbg">
           <p className="tooltip-value-pbg">
           {payload.map((entry, index) => (
-            <p key={`item-${index}`} className="intro" style={{ color: entry.color }}>
+            <p key={`item-${index}`} className="intro" style={{ color: entry.color,fontSize:"16px" }}>
               {`${entry.value}`}
             </p>
           ))}
@@ -41,16 +41,16 @@ export default function Attendance_BC_Admin({data}) {
         data={data}
         margin={{
           top: 20,
-          right: 30,
-          left: 20,
-          bottom: 5,
+            right: 20,
+            left: -20,
+            bottom: 5,
         }}
       >
         <CartesianGrid stroke="white" strokeDasharray="3 3" />
         <XAxis dataKey="name" /> 
         <YAxis />
         <Tooltip content={<CustomTooltip />} />
-        <Legend />
+        <Legend wrapperStyle={{ fontSize: "16px" }}/>
         <Bar dataKey="present" stackId="a" fill="#8884d8" barSize="15" animationBegin={0} animationDuration={1400} />
         <Bar dataKey="absent" stackId="a" fill="#82ca9d" barSize="15" animationBegin={0} animationDuration={1400}/>
       </BarChart>

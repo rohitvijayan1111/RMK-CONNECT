@@ -27,6 +27,33 @@ const BatchSelector = ({ onBatchSelect }) => {
     </div>
   );
 };
+const DepartmentSelector = ({ setSelectedDepartment }) => {
+  const handleDepartmentChange = (event) => {
+    const department = event.target.value;
+    setSelectedDepartment(department);
+  };
+
+  return (
+    <div>
+      <select id="departmentSelect" className='status-yr' onChange={handleDepartmentChange} required>
+        <option value="">Select Department</option>
+        <option value="All">All</option>
+        <option value="Artificial Intelligence and Data Science">Artificial Intelligence and Data Science</option>
+        <option value="Civil Engineering">Civil Engineering</option>
+        <option value="Computer Science and Business Systems">Computer Science and Business Systems</option>
+        <option value="Computer Science and Design">Computer Science and Design</option>
+        <option value="Computer Science and Engineering">Computer Science and Engineering</option>
+        <option value="Electrical and Electronics Engineering">Electrical and Electronics Engineering</option>
+        <option value="Electronics and Communication Engineering">Electronics and Communication Engineering</option>
+        <option value="Electronics and Instrumentation Engineering">Electronics and Instrumentation Engineering</option>
+        <option value="Information Technology">Information Technology</option>
+        <option value="Mechanical Engineering">Mechanical Engineering</option>
+      </select>
+    </div>
+  );
+};
+
+
 
 const TypeSelector = ({ onTypeSelect }) => {
   const [selectedType, setSelectedType] = useState('All');
@@ -166,7 +193,9 @@ export function Attendance_DB_Admin() {
   const [data, setData] = useState([]);
   const [countdata, setCountData] = useState(null);
   const [linedata, setLineData] = useState([]);
+  const user = window.localStorage.getItem('userType');
   const todayDate = dayjs().format('DD-MM-YYYY');
+  const [selectedDepartment, setSelectedDepartment] = useState('');
   const departmentMapping = {
     'Artificial Intelligence and Data Science': 'AI',
     'Civil Engineering': 'CE',
@@ -229,7 +258,7 @@ export function Attendance_DB_Admin() {
       }
     }
     getData();
-  }, [selectedYearGroup, selectedType]);
+  }, [selectedYearGroup, selectedDepartment, selectedType]);
 
   const handleYearGroupSelect = (yearGroup) => {
     setSelectedYearGroup(yearGroup);
@@ -246,6 +275,9 @@ export function Attendance_DB_Admin() {
       <div className='selector'>
         <BatchSelector onBatchSelect={handleYearGroupSelect} />
         <TypeSelector onTypeSelect={handleTypeSelect} />
+        {(user !== 'hod' && user !== 'Attendance Manager') && (
+          <DepartmentSelector setSelectedDepartment={setSelectedDepartment} />
+        )}
       </div>
       <div className='component'>
         <h1>{todayDate}</h1>

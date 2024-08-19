@@ -24,16 +24,16 @@ function PrincipalBC({data}) {
         data={data}
         margin={{
           top: 20,
-          right: 0,
-          left: 0,
-          bottom: 5,
+          right: 10,
+          left: -20,
+          bottom: -20,
         }}
       >
         <CartesianGrid stroke="white" strokeDasharray="3 3" />
-        <XAxis dataKey="name" tick={{ fontSize: 12 }} />
-        <YAxis />
+        <XAxis dataKey="name" tick={{ fontSize: 16 }} />
+        <YAxis tick={{ fontSize: 16 }} />
         <Tooltip content={<CustomTooltip />}/>
-        <Legend />
+        <Legend wrapperStyle={{ fontSize: "16px" }}/>
         <Bar dataKey="Placed" barSize={15} stackId="a" fill="#82ca9d" animationDuration={1500}/>
         <Bar dataKey="NotPlaced" stackId="a" fill="#8884d8" animationDuration={1500} />
         <Bar dataKey="HS" stackId="a" fill="pink" animationDuration={1500}/>

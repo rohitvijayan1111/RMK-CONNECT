@@ -4,7 +4,7 @@ import { Container, Table, Button, Row } from 'react-bootstrap';
 import { useNavigate } from 'react-router-dom';
 import Swal from 'sweetalert2';
 import { ToastContainer, toast, Zoom } from 'react-toastify';
-
+import './OtherForms.css'
 const OtherForms = () => {
     const navigate = useNavigate();
     const [forms, setForms] = useState([]);
@@ -74,8 +74,8 @@ const OtherForms = () => {
         <>
         <h1>Form List</h1>
         <Container>
-                {role === 'IQAC' && (
-                    <Button type="button" onClick={handleAdd} className="btn btn-primary">Add Form</Button>
+                {role === 'IQAC' && (  
+                    <div className="below" onClick={handleAdd} >Add Form</div>
                 )}
             <Table striped bordered hover>
                 <thead>

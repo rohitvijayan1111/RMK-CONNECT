@@ -1,5 +1,5 @@
 import axios from 'axios';
-import React, { useState } from 'react';
+import React, { useState, useRef } from 'react';
 import { useLocation, useNavigate } from 'react-router-dom';
 import { AdapterDayjs } from '@mui/x-date-pickers/AdapterDayjs';
 import { LocalizationProvider } from '@mui/x-date-pickers/LocalizationProvider';
@@ -16,8 +16,8 @@ const EditForm = () => {
   const { table, attributenames, item } = location.state;
   const [data, setData] = useState(item);
   const [selectedFile, setSelectedFile] = useState(null);
-  const [showFileUpload, setShowFileUpload] = useState(false);
-
+  const [fileInputKey, setFileInputKey] = useState(Date.now());
+  const fileInputRef = useRef(null); // Ref for file input
 
   const attributeTypes = {
     'completion_date': 'date',
@@ -33,8 +33,8 @@ const EditForm = () => {
     'Date of Interview': 'date',
     'start_date': 'date',
     'end_date': 'date',
-    'joining_date':'date',
-
+    'joining_date': 'date',
+    'document': 'file',
   };
 
   const notifysuccess = () => {
@@ -71,21 +71,31 @@ const EditForm = () => {
   };
 
   const handleChange = (attribute, value) => {
-    console.log("data is changed "+value);
     setData({ ...data, [attribute]: value });
+  };
+
+  const handleFileChange = (e) => {
+    const file = e.target.files[0];
+    setSelectedFile(file);
+    setData({ ...data, document: file.name }); // Update the file name in the state
+  };
+
+  const handleFileReset = () => {
+    setSelectedFile(null);
+    setFileInputKey(Date.now()); // Reset file input by changing the key
+    setData({ ...data, document: 'No file selected' });
   };
 
   const handleSubmit = async (e) => {
     e.preventDefault();
     try {
-      // Format the date before submitting if it's a date attribute
       const formattedData = { ...data };
       for (const attribute of attributenames) {
         if (attributeTypes[attribute] === 'date' && formattedData[attribute]) {
           formattedData[attribute] = dayjs(formattedData[attribute]).format('YYYY-MM-DD');
         }
       }
-  
+
       const formData = new FormData();
       formData.append('id', data.id);
       formData.append('table', table);
@@ -93,73 +103,73 @@ const EditForm = () => {
       if (selectedFile) {
         formData.append('file', selectedFile);
       }
-  
+
       const response = await axios.post("http://localhost:3000/tables/updaterecord", formData, {
         headers: {
           'Content-Type': 'multipart/form-data'
         }
       });
-      console.log(response.data);
       notifysuccess();
       setTimeout(() => {
         navigate(-1);
       }, 1500);
     } catch (error) {
-      notifyfailure(error.response?.data?.error || 'Error inserting record');
+      notifyfailure(error.response?.data?.error || 'Error updating record');
     }
   };
-  
+
   return (
-  <div className="cnt">
-    <h2>Edit Form</h2>
-    {attributenames && attributenames.length > 0 ? (
-      <form className='edt' onSubmit={handleSubmit}>
-        {attributenames.map((attribute, index) => (
-          attribute !== "id" && attribute !== "department" && (
-            <div className="frm" key={index}>
-              <label htmlFor={attribute} className="lbl">{attribute.replace(/_/g, ' ')}:</label>
-              {attributeTypes[attribute] === 'date' ? (
-                <LocalizationProvider dateAdapter={AdapterDayjs}>
-                  <DatePicker
-                    label=''
-                    value={data[attribute] ? dayjs(data[attribute]) : null}
-                    onChange={(date) => handleDateChange(attribute, date)}
-                    renderInput={(params) => (
-                      <TextField
-                        {...params}
-                        variant="outlined"
-                        className="cntr"
-                        id={attribute}
-                        required
-                      />
-                    )}
-                  />
-                </LocalizationProvider>
-              ) : (
-                attribute === "document" ? (
+    <div className="cnt">
+      <h2>Edit Form</h2>
+      {attributenames && attributenames.length > 0 ? (
+        <form className='edt' onSubmit={handleSubmit}>
+          {attributenames.map((attribute, index) => (
+            attribute !== "id" && attribute !== "department" && (
+              <div className="frm" key={index}>
+                <label htmlFor={attribute} className="lbl">{attribute.replace(/_/g, ' ')}:</label>
+                {attributeTypes[attribute] === 'date' ? (
+                  <LocalizationProvider dateAdapter={AdapterDayjs}>
+                    <DatePicker
+                      label=''
+                      value={data[attribute] ? dayjs(data[attribute]) : null}
+                      onChange={(date) => handleDateChange(attribute, date)}
+                      renderInput={(params) => (
+                        <TextField
+                          {...params}
+                          variant="outlined"
+                          className="cntr"
+                          id={attribute}
+                          required
+                        />
+                      )}
+                    />
+                  </LocalizationProvider>
+                ) : attribute === "document" ? (
                   <div>
-                    {data.document && (
-                      <div>
-                        <a href={`http://localhost:3000/${data.document}`} target="_blank" rel="noopener noreferrer">
-                          View Current Document
-                        </a>
-                        <button
-                          type="button"
-                          class="change-button"
-                          onClick={() => setShowFileUpload(true) }
-                        >
-                          Change
-                        </button>
-                      </div>
-                    )}
-                    {showFileUpload && (
+                    <div className="file-upload-container">
                       <input
-                        type="file"
+                        type="text"
                         className="cntr"
-                        id="document"
-                        onChange={(e) => setSelectedFile(e.target.files[0])}
+                        value={data[attribute] || 'No file selected'}
+                        readOnly
                       />
-                    )}
+                    </div>
+                    <div className='bttns'>
+                      <label htmlFor={attribute} className="custom-file-upload">
+                        Choose File
+                      </label>
+                      <button type="button" className="custom-file-upload" onClick={handleFileReset}>Reset File</button>
+                    </div>
+                    <input
+                      type="file"
+                      id={attribute}
+                      className="custom-file-upload"
+                      onChange={handleFileChange}
+                      key={fileInputKey}
+                      ref={fileInputRef} // Attach ref to file input
+                      style={{ display: 'none' }}
+                      required={!data.document || data.document === 'No file selected'}
+                    />
                   </div>
                 ) : (
                   <input
@@ -170,20 +180,20 @@ const EditForm = () => {
                     value={data[attribute] || ''}
                     required
                   />
-                )
-              )}
-            </div>
-          )
-        ))}
-        <div className="holder">
-          <input type='submit' value="Submit" className='btt' />
-        </div>
-      </form>
-    ) : (
-      <p>Loading...</p>
-    )}
-    <ToastContainer />
-  </div>
-);
+                )}
+              </div>
+            )
+          ))}
+          <div className="holder">
+            <input type='submit' value="Submit" className='btt' />
+          </div>
+        </form>
+      ) : (
+        <p>Loading...</p>
+      )}
+      <ToastContainer />
+    </div>
+  );
 }
+
 export default EditForm;

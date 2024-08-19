@@ -80,3 +80,8 @@
   .content{
     display: flex;
   }
+
+  .selector
+  {
+    display: flex;
+  }

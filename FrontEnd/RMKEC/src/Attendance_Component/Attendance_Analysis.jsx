@@ -9,6 +9,7 @@ import './Todays_List.css';
 import './Attendance_Analysis.css';
 import withAuthorization from '../Components/WithAuthorization';
 import analysis from '../assets/student_analysis.png';
+
 const UserGroupSelector = ({ setSelectedUserGroup }) => {
   const [selectedUserGroup, setSelectedUserGroupState] = useState('Student');
 
@@ -28,7 +29,6 @@ const UserGroupSelector = ({ setSelectedUserGroup }) => {
   );
 };
 
-
 const Attendance_Analysis = () => {
   const [selectedUserGroup, setSelectedUserGroup] = useState('Student');
   const [data, setData] = useState([]);
@@ -36,6 +36,20 @@ const Attendance_Analysis = () => {
   const [rollNumber, setRollNumber] = useState('');
   const user = window.localStorage.getItem('userType');
   const [name, setName] = useState('');
+
+  const notifyfailure = (error) => {
+    toast.error(error, {
+      position: "top-center",
+      autoClose: 5000,
+      hideProgressBar: false,
+      closeOnClick: true,
+      pauseOnHover: true,
+      draggable: true,
+      progress: undefined,
+      theme: "colored",
+      transition: Zoom,
+    });
+  };
 
   const fetchData = async () => {
     try {
@@ -61,6 +75,10 @@ const Attendance_Analysis = () => {
   };
 
   const handleFetchClick = () => {
+    if (!rollNumber.trim()) {
+      notifyfailure('Please enter a valid roll number');
+      return;
+    }
     setData([]);
     setName("");
     setAttributeNames([]);
@@ -93,7 +111,7 @@ const Attendance_Analysis = () => {
       </div>
       {name && 
         <div className='image'>
-          <img src={analysis} width="70%" height="80%"/>
+          <img src={analysis} width="70%" height="80%" alt="Analysis"/>
         </div>}
       {data.length > 0 && attributeNames.length > 0 && (
         <Table striped bordered hover>

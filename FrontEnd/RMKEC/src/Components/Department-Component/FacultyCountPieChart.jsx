@@ -57,17 +57,22 @@ const FacultyCountPieChart = ({ data }) => {
         justifyContent: 'center',
         alignItems: 'center',
       }}>
-        <PieChart width={400} height={400}>
+        <PieChart width={400} height={400} margin={{
+          top: -10,
+          right: 0,
+          left: 0,
+          bottom: 0,
+        }}>
           <Pie
             data={data}
             cx={200}
             cy={200}
             labelLine={false}
             label={renderCustomizedLabel}
-            outerRadius={120}
+            outerRadius={140}
             fill="#8884d8"
             dataKey="value"
-            animationDuration={1000}
+            animationDuration={1400}
           >
             {data.map((entry, index) => (
               <Cell key={`cell-${index}`} fill={COLORS[index % COLORS.length]} />

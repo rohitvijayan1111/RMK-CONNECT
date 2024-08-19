@@ -9,8 +9,18 @@ import {
 } from "recharts";
 import "./PrincipalFPC.css";
 
-const COLORS = ["#0088FE", "#00C49F", "#FFBB28", "#FF8042","#77D8FF","#6EBE64","#F7D154","#B291E5","#FFA02D","#FF6666"];
-
+const COLORS = [
+  "#FF6666",
+  "#FFB366", 
+  "#FF9933", 
+  "#80E6B3",
+  "#66CCCC", 
+  "#9999FF", 
+  "#FF66FF", 
+  "#66FF66", 
+  "#FFB300", 
+  "#FF80AA"  
+];
 const renderCustomizedLabel = ({
   cx,
   cy,
@@ -72,14 +82,19 @@ const PrincipalFPC = ({data}) => (
   justifyContent: 'center',
   alignItems: 'center',
 }}>
-    <PieChart width={400} height={400}>
+    <PieChart width={400} height={400} margin={{
+          top: -10,
+          right: 0,
+          left: 0,
+          bottom: 0,
+        }}>
       <Pie
         data={data}
         cx={200}
         cy={200}
         labelLine={false}
         label={renderCustomizedLabel}
-        outerRadius={120}
+        outerRadius={140}
         fill="#8884d8"
         dataKey="value"
         animationDuration={1000}
@@ -89,7 +104,7 @@ const PrincipalFPC = ({data}) => (
         ))}
       </Pie>
       <Tooltip content={<CustomTooltip />} />
-      <Legend />
+      <Legend wrapperStyle={{ fontSize: "16px" }} />
     </PieChart>      
     </div>
 
