@@ -191,7 +191,7 @@ router.post('/updaterecord', upload.single('file'), async (req, res) => {
       data.document = newFilePath;
     }
 
-    // Construct the SET clause dynamically with proper escaping
+    // Construct the SET clause dynamically with proper  escaping
     const setClause = Object.keys(data).map(key => `\`${key}\` = ?`).join(', ');
     const values = Object.values(data);
 
