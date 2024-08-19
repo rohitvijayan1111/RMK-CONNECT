@@ -1,5 +1,4 @@
 import React, { useEffect, useState, useRef } from 'react';
-import React, { useEffect, useState, useRef } from 'react';
 import axios from 'axios';
 import EventDetails from './EventDetails';
 import { toast, ToastContainer, Zoom } from 'react-toastify';

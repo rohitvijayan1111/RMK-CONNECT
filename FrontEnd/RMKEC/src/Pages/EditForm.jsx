@@ -13,10 +13,29 @@ import './EditForm.css';
 const EditForm = () => {
   const navigate = useNavigate();
   const location = useLocation();
-  const { table, attributenames, item,attributeTypes} = location.state;
+  const { table, attributenames, item } = location.state;
   const [data, setData] = useState(item);
   const [selectedFile, setSelectedFile] = useState(null);
-  const [showFileUpload, setShowFileUpload] = useState(false);
+  const [fileInputKey, setFileInputKey] = useState(Date.now());
+  const fileInputRef = useRef(null);
+
+  const attributeTypes = {
+    'completion_date': 'date',
+    'Proposed Date': 'date',
+    'Date of completion': 'date',
+    'Proposed date of visit': 'date',
+    'Actual Date  Visited': 'date',
+    'Date_of_event_planned': 'date',
+    'Date_of_completion': 'date',
+    'Date planned': 'date',
+    'Actual Date of lecture': 'date',
+    'Completion Date of Event': 'date',
+    'Date of Interview': 'date',
+    'start_date': 'date',
+    'end_date': 'date',
+    'joining_date': 'date',
+    'document': 'file',
+  };
 
   const notifysuccess = () => {
     toast.success('Record Edited Successfully!', {
@@ -76,7 +95,16 @@ const EditForm = () => {
           formattedData[attribute] = dayjs(formattedData[attribute]).format('YYYY-MM-DD');
         }
       }
-
+  
+      // If a new file is selected, delete the old file if necessary
+      if (selectedFile && data.document && data.document !== 'No file selected') {
+        // Ensure that the old file is correctly identified and deleted
+        await axios.delete('http://localhost:3000/deletefile', {
+          data: { id: data.id, table, filename: data.document },
+          headers: { 'Content-Type': 'application/json' }
+        });
+      }
+  
       const formData = new FormData();
       formData.append('id', data.id);
       formData.append('table', table);
@@ -84,12 +112,13 @@ const EditForm = () => {
       if (selectedFile) {
         formData.append('file', selectedFile);
       }
-
+  
       const response = await axios.post("http://localhost:3000/tables/updaterecord", formData, {
         headers: {
           'Content-Type': 'multipart/form-data'
         }
       });
+  
       notifysuccess();
       setTimeout(() => {
         navigate(-1);
@@ -98,6 +127,8 @@ const EditForm = () => {
       notifyfailure(error.response?.data?.error || 'Error updating record');
     }
   };
+  
+  
 
   return (
     <div className="cnt">
@@ -136,7 +167,7 @@ const EditForm = () => {
                       />
                     </div>
                     <div className='bttns'>
-                      <label htmlFor={attribute} className="custom-file-upload">
+                      <label htmlFor={attribute} className="custom-file-upload" onClick={() => fileInputRef.current.click()}>
                         Choose File
                       </label>
                       <button type="button" className="custom-file-upload" onClick={handleFileReset}>Reset File</button>
