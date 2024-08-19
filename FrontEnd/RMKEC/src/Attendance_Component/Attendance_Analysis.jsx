@@ -9,6 +9,7 @@ import './Todays_List.css';
 import './Attendance_Analysis.css';
 import withAuthorization from '../Components/WithAuthorization';
 import analysis from '../assets/student_analysis.png';
+import { getTokenData } from '../Pages/authUtils';
 
 const UserGroupSelector = ({ setSelectedUserGroup }) => {
   const [selectedUserGroup, setSelectedUserGroupState] = useState('Student');
@@ -34,7 +35,9 @@ const Attendance_Analysis = () => {
   const [data, setData] = useState([]);
   const [attributeNames, setAttributeNames] = useState([]);
   const [rollNumber, setRollNumber] = useState('');
-  const user = window.localStorage.getItem('userType');
+  const [selectedDepartment, setSelectedDepartment] = useState('All');
+  const tokendata=getTokenData();
+  const user = tokendata.role;
   const [name, setName] = useState('');
 
   const notifyfailure = (error) => {
@@ -53,7 +56,7 @@ const Attendance_Analysis = () => {
 
   const fetchData = async () => {
     try {
-      const departmentToFetch = (user === 'hod' || user === 'Attendance Manager') ? window.localStorage.getItem('department') : selectedDepartment;
+      const departmentToFetch = (user === 'hod' || user === 'Attendance Manager') ?tokendata.department : selectedDepartment;
       const response = await axios.post('http://localhost:3000/attendance/getindividual', {
         userGroup: selectedUserGroup,
         rollnumber: rollNumber,
@@ -93,11 +96,14 @@ const Attendance_Analysis = () => {
     return dayjs(dateString).format('DD/MM/YYYY');
   };
 
+  useEffect(() => {
+    setData([]);
+    setName("");
+  }, [selectedDepartment, selectedUserGroup]);
+
   return (
     <div>
-      <div>
-        <UserGroupSelector setSelectedUserGroup={setSelectedUserGroup} />
-      </div>
+      <UserGroupSelector setSelectedUserGroup={setSelectedUserGroup} />
       <div className='bb'>
         <form className='aa'>
           <input
@@ -119,7 +125,7 @@ const Attendance_Analysis = () => {
             <tr>
               <th>S.No</th>
               {attributeNames.map((attribute, index) => (
-                <th key={index}>{attribute}</th>
+                 <th key={index}>{attribute.replace(/_/g, ' ')}</th>
               ))}
             </tr>
           </thead>

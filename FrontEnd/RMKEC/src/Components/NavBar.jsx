@@ -1,12 +1,16 @@
 import React from 'react'
 import './NavBar.css'
 import logo from '../assets/RMK.png'
-import logout from '../assets/logout.png'
+import { getTokenData } from '../Pages/authUtils';
+//import logout from '../assets/logout.png'
 
 function NavBar() {
+  const tokenData = getTokenData();
+  const department = tokenData ? tokenData.department : '';
+  
   const handleLogout = () => {
-    window.localStorage.setItem('loggedIn', false);
-    window.localStorage.removeItem('userType');
+    sessionStorage.removeItem('token');
+    sessionStorage.removeItem('loggedIn');
     window.location.href = '/';
   }
   function capitalizeWords(str) {
@@ -26,7 +30,7 @@ function NavBar() {
 
       </nav>
       <div className='alig'>
-        <h5>{capitalizeWords(window.localStorage.getItem('department'))}</h5>
+        <h5>{capitalizeWords(department)}</h5>
         <button className="logout-button" onClick={handleLogout}>Logout</button>
       </div>
       

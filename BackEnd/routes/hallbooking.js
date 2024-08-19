@@ -66,39 +66,76 @@ router.get('/halls', async (req, res) => {
 });
 
 router.post('/hall-request', async (req, res) => {
-    const {
-        name, speaker, speaker_description, event_date, start_time,
-        end_time, hall_name, participants, incharge_faculty, facility_needed,department,emails
-    } = req.body;
+  const {
+      name, speaker, speaker_description, event_date, start_time,
+      end_time, hall_name, participants, incharge_faculty, facility_needed, department, emails
+  } = req.body;
 
-    const checkQuery = `SELECT * FROM hall_allotment WHERE hall_name = ? AND event_date = ? AND (
-                        (start_time < ? AND end_time > ?) OR
-                        (start_time < ? AND end_time > ?) OR
-                        (start_time >= ? AND end_time <= ?))`;
+  const hallAvailabilityQuery = `
+      SELECT * FROM hall_allotment 
+      WHERE hall_name = ? 
+      AND event_date = ? 
+      AND (
+          (start_time < ? AND end_time > ?) OR
+          (start_time < ? AND end_time > ?) OR
+          (start_time >= ? AND end_time <= ?)
+      )`;
 
-    try {
-        const results = await query(checkQuery, [hall_name, event_date, start_time, start_time, end_time, end_time, start_time, end_time]);
-        if (results.length > 0) {
-            return res.status(400).json({ error: 'Hall is not available for the requested time and date.' });
-        }
+  const hodApprovalQuery = `
+      SELECT * FROM hall_request 
+      WHERE hall_name = ? 
+      AND event_date = ? 
+      AND hod_approval = 1 
+      AND (
+          (start_time < ? AND end_time > ?) OR
+          (start_time < ? AND end_time > ?) OR
+          (start_time >= ? AND end_time <= ?)
+      )`;
 
-        const insertRequestQuery = `INSERT INTO hall_request (name, speaker, speaker_description, event_date, start_time, end_time, hall_name, participants, incharge_faculty, facility_needed,department,emails)
-                                    VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?,?,?)`;
+  try {
+      // Check hall availability
+      const hallAvailabilityResults = await query(hallAvailabilityQuery, [
+          hall_name, event_date, start_time, start_time, end_time, end_time, start_time, end_time
+      ]);
 
-        await query(insertRequestQuery, [name, speaker, speaker_description, event_date, start_time, end_time, hall_name, participants, incharge_faculty, facility_needed,department,emails]);
-        res.send('Hall request submitted');
-    } catch (err) {
-        console.error('Error processing hall request:', err);
-        res.status(500).json({ error: getFriendlyErrorMessage(err)});
-    }
+      if (hallAvailabilityResults.length > 0) {
+          return res.status(400).json({ error: 'Hall is not available for the requested time and date.' });
+      }
+
+      // Check HOD approval
+      const hodApprovalResults = await query(hodApprovalQuery, [
+          hall_name, event_date, start_time, start_time, end_time, end_time, start_time, end_time
+      ]);
+
+      if (hodApprovalResults.length > 0) {
+          return res.status(400).json({ error: 'An approved request already exists for this hall and time.' });
+      }
+
+      // Insert new hall request
+      const insertRequestQuery = `
+          INSERT INTO hall_request (
+              name, speaker, speaker_description, event_date, start_time, end_time, hall_name, 
+              participants, incharge_faculty, facility_needed, department, emails
+          ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`;
+
+      await query(insertRequestQuery, [
+          name, speaker, speaker_description, event_date, start_time, end_time, hall_name, 
+          participants, incharge_faculty, facility_needed, department, emails
+      ]);
+
+      res.send('Hall request submitted successfully');
+  } catch (err) {
+      console.error('Error processing hall request:', err);
+      res.status(500).json({ error: getFriendlyErrorMessage(err) });
+  }
 });
+
 router.post('/hall_requests_remove', async (req, res) => {
   const { id } = req.body;
   const sql = 'DELETE FROM hall_request WHERE id = ?';
 
   try {
     const results = await query(sql, [id]);
-
     if (results.affectedRows === 0) {
       return res.status(404).json({ error: "No Records Removed" });
     }
@@ -115,7 +152,6 @@ router.post('/hall_requests_remove_admin', async (req, res) => {
 
   try {
     const results = await query(sql, [id]);
-
     if (results.affectedRows === 0) {
       return res.status(404).json({ error: "No Records Removed" });
     }

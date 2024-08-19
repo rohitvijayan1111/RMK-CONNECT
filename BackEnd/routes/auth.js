@@ -1,10 +1,10 @@
 const express = require('express');
 const bcrypt = require('bcryptjs');
 const db = require('../config/db');
-
+const jwt = require('jsonwebtoken');
 const router = express.Router();
 
-
+const jwtSecret = 'your_jwt_secret_key';
 router.post('/register', async (req, res) => {
   const { username, password, role,department} = req.body;
   console.log(department);
@@ -59,15 +59,33 @@ router.post('/login', (req, res) => {
     if (!isMatch) {
       return res.status(400).send('Invalid credentials' );
     }
-    const responseData = {
-      username: user.username,
-      role: user.role,
-      department:user.department
-    };
-    
-    
-    res.status(200).json(responseData);
+    const token = jwt.sign(
+      { userId: user.id, username: user.username, role: user.role, department: user.department },
+      jwtSecret,
+      { expiresIn: '1h' } 
+    );
+
+    res.status(200).json({ token });
   });
 });
 
+function verifyToken(req, res, next) {
+  const token = req.headers['authorization'];
+  
+  if (!token) {
+    return res.status(403).send('Token is required for authentication');
+  }
+
+  try {
+    const decoded = jwt.verify(token.split(' ')[1], jwtSecret);
+    req.user = decoded;
+    next();
+  } catch (err) {
+    return res.status(401).send('Invalid or expired token');
+  }
+}
+
+router.get('/protected', verifyToken, (req, res) => {
+  res.status(200).send(`Welcome, ${req.user.username}. You are authenticated as ${req.user.role}.`);
+});
 module.exports = router;

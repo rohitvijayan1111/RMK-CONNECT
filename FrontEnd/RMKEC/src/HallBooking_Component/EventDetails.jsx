@@ -1,14 +1,16 @@
 import React, { useState } from 'react';
 import './EventDetails.css';
-import { FaUser, FaCalendarAlt, FaClock, FaMapMarkerAlt, FaUsers, FaChalkboardTeacher, FaTools, FaCheckCircle, FaTimes } from 'react-icons/fa';
+import { FaUser, FaCalendarAlt, FaClock, FaMapMarkerAlt,FaBuilding, FaUsers, FaChalkboardTeacher, FaTools, FaCheckCircle, FaTimes, } from 'react-icons/fa';
 import axios from 'axios';
 import { toast, ToastContainer, Zoom } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
 import dayjs from 'dayjs';
 import Swal from 'sweetalert2';
+import { getTokenData } from '../Pages/authUtils';
 
 const EventDetails = ({ eventData, needbutton, checkall,onDelete,showdelete}) => {
-  const user = window.localStorage.getItem("userType");
+  const tokendata=getTokenData();
+  const user = tokendata.role;
   console.log(eventData.department);
   const [approvals, setApprovals] = useState({
     hod: eventData.approvals.hod,
@@ -128,7 +130,6 @@ Facilities Needed: ${eventData.facility_needed}
   };
 
   const formattedDate = dayjs(eventData.event_date).format('MMMM DD, YYYY');
-
   return (
     <div className="event-detail">
       <div className="event-header">
@@ -189,6 +190,13 @@ Facilities Needed: ${eventData.facility_needed}
             <div>
               <h4>Facilities Needed</h4>
               <p>{eventData.facility_needed}</p>
+            </div>
+          </div>
+          <div className="event-item">
+            <FaBuilding className="icon" />
+            <div>
+              <h4>Organised By</h4>
+              <p>{eventData.department}</p>
             </div>
           </div>
         </div>

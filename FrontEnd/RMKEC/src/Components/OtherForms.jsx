@@ -4,12 +4,15 @@ import { Container, Table, Button, Row } from 'react-bootstrap';
 import { useNavigate } from 'react-router-dom';
 import Swal from 'sweetalert2';
 import { ToastContainer, toast, Zoom } from 'react-toastify';
+import { getTokenData } from '../Pages/authUtils';
 import './OtherForms.css'
+
 const OtherForms = () => {
     const navigate = useNavigate();
     const [forms, setForms] = useState([]);
     const [lockedStatus, setLockedStatus] = useState({});
-    const role = window.localStorage.getItem('userType');
+    const tokendata=getTokenData();
+    const role = tokendata.role;
     
     const notifyfailure = (error) => {
         toast.error(error, {
@@ -26,7 +29,7 @@ const OtherForms = () => {
     };
 
     const handleAdd = () => {
-        navigate("/dashboard/view-other-forms/new-form");
+        navigate("create-form");
     };
 
     useEffect(() => {

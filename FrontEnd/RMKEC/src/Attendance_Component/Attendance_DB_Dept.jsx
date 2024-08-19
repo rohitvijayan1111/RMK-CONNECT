@@ -8,7 +8,7 @@ import Attendance_BC from './Attendance_BC';
 import Attendance_BC_Admin from '../Components/Admin-Component/Attendance_BC_Admin';
 import withAuthorization from '../Components/WithAuthorization';
 import dayjs from 'dayjs';
-
+import { getTokenData } from '../Pages/authUtils';
 const BatchSelector = ({ onBatchSelect }) => {
   const [selectedBatch, setSelectedBatch] = useState('');
 
@@ -91,7 +91,8 @@ export function Attendance_DB_Dept() {
   const [countdata, setCountData] = useState(null);
   const [linedata, setLineData] = useState([]);
   const todayDate = dayjs().format('DD-MM-YYYY');
-
+  const tokendata=getTokenData();
+  const department=tokendata.department;
   const notifyFailure = (error) => {
     toast.error(error.message, {
       position: "top-center",
@@ -109,15 +110,15 @@ export function Attendance_DB_Dept() {
   useEffect(() => {
     async function getData() {
       try {
-        const response = await axios.post("http://localhost:3000/attendance/attendance-summary", { department: window.localStorage.getItem("department"), type: selectedType });
+        const response = await axios.post("http://localhost:3000/attendance/attendance-summary", { department: department,type: selectedType});
         console.log('Attendance summary data:', response.data);
         setData(response.data);
 
-        const response2 = await axios.post("http://localhost:3000/attendance/attendance-count-summary", { department: window.localStorage.getItem("department"), user: selectedYearGroup, type: selectedType });
+        const response2 = await axios.post("http://localhost:3000/attendance/attendance-count-summary", { department: department, user: selectedYearGroup, type: selectedType });
         console.log('Attendance count summary data:', response2.data);
         setCountData(response2.data);
 
-        const response3 = await axios.post("http://localhost:3000/attendance/attendance-graph", { department: window.localStorage.getItem("department"), user: selectedYearGroup, type: selectedType });
+        const response3 = await axios.post("http://localhost:3000/attendance/attendance-graph", { department: department, user: selectedYearGroup,type: selectedType });
         console.log('Attendance graph data:', response3.data);
         setLineData(response3.data);
       } catch (error) {
@@ -314,7 +315,8 @@ export function Attendance_DB_Admin() {
 }
 
 const Attendance_Dashboard = () => {
-  const user=window.localStorage.getItem("userType");
+  const tokendata=getTokenData();
+  const user=tokendata.role;
   return (
     (user==="hod" || user==="Attendance Manager") ? <Attendance_DB_Dept /> : <Attendance_DB_Admin />
   );

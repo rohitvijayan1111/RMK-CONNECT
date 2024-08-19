@@ -4,6 +4,7 @@ import { ToastContainer, toast, Zoom } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
 import './Daily-Attendance.css';
 import withAuthorization from '../Components/WithAuthorization';
+import { getTokenData } from '../Pages/authUtils';
 
 const LeaveTypeDropdown = ({ onLeaveTypeSelect }) => {
   const handleLeaveTypeChange = (event) => {
@@ -51,6 +52,8 @@ const Daily_Attendance = () => {
   const [rollNumber, setRollNumber] = useState('');
   const [reason, setReason] = useState('');
   const [name, setName] = useState('');
+  const tokendata=getTokenData();
+  const dname=tokendata.department;
   const notifysuccess = (message) => {
     toast.success(message, {
       position: "top-center",
@@ -102,7 +105,7 @@ const Daily_Attendance = () => {
     }
   };
 
-  const department = capitalizeEachWord(window.localStorage.getItem('department'));
+  const department = capitalizeEachWord(dname);
   useEffect(() => {
     if (rollNumber) {
       fetchUserName(rollNumber);

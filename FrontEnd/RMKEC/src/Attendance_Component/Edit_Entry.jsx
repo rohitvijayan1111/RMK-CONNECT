@@ -4,6 +4,7 @@ import { ToastContainer, toast, Zoom } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
 import './Edit_Entry.css';
 import withAuthorization from '../Components/WithAuthorization';
+import { getTokenData } from '../Pages/authUtils';
 
 const UserGroupSelector = ({ setSelectedUserGroup }) => {
   const [selectedUserGroup, setSelectedUserGroupState] = useState('Student');
@@ -30,7 +31,8 @@ const Edit_Entry = () => {
   const month = String(currentDate.getMonth() + 1).padStart(2, '0'); 
   const year = currentDate.getFullYear();
   const formattedDate = `${year}-${month}-${day}`;
-  
+  const tokenData=getTokenData();
+  const dname=tokenData.department;
   const capitalizeEachWord = (str) => {
     if (typeof str !== 'string') {
       return '';
@@ -41,7 +43,7 @@ const Edit_Entry = () => {
     }).join(' ');
   };
   
-  const department = capitalizeEachWord(window.localStorage.getItem('department'));
+  const department = capitalizeEachWord(dname);
   const [selectedUserGroup, setSelectedUserGroup] = useState('Student');
   const [rollNumber, setRollNumber] = useState('');
 

@@ -12,9 +12,10 @@ import './Clubactivities.css';
 
 function IV() {
   const navigate = useNavigate();
+  const tokendata=getTokenData();
   const [table] = useState('Industrial_visit');
-  const [dept, setDept] = useState(window.localStorage.getItem('department'));
-  const role = window.localStorage.getItem('userType');
+  const [dept, setDept] = useState(tokendata.department);
+  const role = tokendata.role;
   const [data, setData] = useState([]);
   const [originalData, setOriginalData] = useState([]);
   const [attributenames, setAttributenames] = useState([]);
@@ -298,5 +299,6 @@ function IV() {
   );
 }
 import './Clubactivities.css';
+import { getTokenData } from './authUtils';
 
 export default IV;

@@ -9,12 +9,14 @@ import { BsPencilSquare, BsFillTrashFill } from 'react-icons/bs';
 import { IconContext } from 'react-icons';
 import { utils, writeFile } from 'xlsx';
 import './Clubactivities.css';
+import { getTokenData } from './authUtils';
 
 function Guestlecture() {
   const navigate = useNavigate();
+  const tokendata=getTokenData();
   const [table] = useState('guest_lecture');
-  const [dept, setDept] = useState(window.localStorage.getItem('department'));
-  const role = window.localStorage.getItem('userType');
+  const [dept, setDept] = useState(tokendata.department);
+  const role =tokendata.role;
   const [data, setData] = useState([]);
   const [originalData, setOriginalData] = useState([]);
   const [attributenames, setAttributenames] = useState([]);

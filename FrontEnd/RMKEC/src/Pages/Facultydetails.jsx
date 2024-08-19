@@ -9,12 +9,14 @@ import { BsPencilSquare, BsFillTrashFill } from 'react-icons/bs';
 import { IconContext } from 'react-icons';
 import { utils, writeFile } from 'xlsx';
 import './Facultydetails.css';
+import { getTokenData } from './authUtils';
 
 function Facultydetails() {
   const navigate = useNavigate();
   const [table] = useState('staffs');
-  const role = window.localStorage.getItem('userType');
-  const [dept, setDept] = useState(role === 'hod' ? window.localStorage.getItem('department') : 'All');
+  const tokendata=getTokenData();
+  const role = tokendata.role;
+  const [dept, setDept] = useState(role === 'hod' ? tokendata.department : 'All');
   const [data, setData] = useState([]);
   const [originalData, setOriginalData] = useState([]);
   const [attributenames, setAttributenames] = useState([]);

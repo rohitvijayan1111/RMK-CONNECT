@@ -41,38 +41,84 @@ const getFriendlyErrorMessage = (errCode) => {
 router.post('/gettable', async (req, res) => {
   console.log("Received request:", req.body);
   const table = req.body.table;
-  const department = req.body.department; 
+  const department = req.body.department;
 
   if (!table || !department) {
     return res.status(400).send("Please provide both table and department parameters.");
   }
+
   let recordSql = 'SELECT * FROM ?? ';
-  if(department!=="All")
-  {
-    recordSql+='WHERE department = ?';
-  }
-  recordSql+='ORDER BY department'     
   const columnSql = 'SHOW COLUMNS FROM ??';
-  
+  const recordValues = [table];
   const columnValues = [table];
-  const recordValues = [table, department];
+
+  if (department !== "All") {
+    recordSql += 'WHERE department = ? ';
+    recordValues.push(department);
+  }
+
+  recordSql += 'ORDER BY department';
 
   try {
     const columnResults = await query(columnSql, columnValues);
-    const columnNames = columnResults.map(col => col.Field);
+    const columnDataTypes = columnResults.reduce((acc, col) => {
+      acc[col.Field] = col.Type;
+      return acc;
+    }, {});
 
+    // Fetch table records
     const recordResults = await query(recordSql, recordValues);
-    
+
     if (recordResults.length === 0) {
-      return res.status(200).json({ columnNames, data: [] });
+      return res.status(200).json({ columnDataTypes, data: [] });
     }
 
-    res.status(200).json({ columnNames, data: recordResults });
+    res.status(200).json({ columnDataTypes, data: recordResults });
   } catch (err) {
-    console.error(err.message);
-    return res.status(500).json({ error: getFriendlyErrorMessage(error.code) });
+    console.error('Error fetching data:', err.message);
+    return res.status(500).json({ error: getFriendlyErrorMessage(err.code) });
   }
 });
+router.post('/create-table', async (req, res) => {
+  const { formName, attributes } = req.body;
+
+  if (!formName || !attributes || !Array.isArray(attributes)) {
+    return res.status(400).send('Invalid request data');
+  }
+
+  // Construct table name and columns
+  const tableName = formName.replace(/\s+/g, '_').toLowerCase(); // Convert form name to a valid table name
+  let columns = 'id INT AUTO_INCREMENT PRIMARY KEY, ';
+  attributes.forEach((attr) => {
+    const type = attr.type === 'text' ? 'VARCHAR(255)' :
+                 attr.type === 'number' ? 'INT' :
+                 attr.type === 'date' ? 'DATE' :
+                 attr.type === 'boolean' ? 'BOOLEAN' :
+                 attr.type === 'file' ? 'VARCHAR(255)' : // File type, storing file name or path
+                 attr.type === 'link' ? 'VARCHAR(255)' : 'TEXT'; // Link type, storing URL or related link
+    columns += `${attr.name.replace(/\s+/g, '_').toLowerCase()} ${type}, `;
+  });
+
+  // Remove trailing comma and space
+  columns = columns.slice(0, -2);
+
+  const createTableQuery = `CREATE TABLE ${tableName} (${columns})`;
+
+  try {
+    // Create the new table
+    await query(createTableQuery);
+
+    // Insert a record into the form_locks table
+    const insertLockQuery = `INSERT INTO form_locks (form_table_name, form_title, is_locked) VALUES (?, ?, ?)`;
+    await query(insertLockQuery, [tableName, formName, 0]); // Initially, set is_locked to 0 (unlocked)
+
+    res.send(`Table ${tableName} created successfully`);
+  } catch (err) {
+    console.error('Error:', err.message);
+    res.status(500).send('Error creating table and inserting record');
+  }
+});
+
 const storage = multer.diskStorage({
   destination: async (req, file, cb) => {
     const table = req.body.table;

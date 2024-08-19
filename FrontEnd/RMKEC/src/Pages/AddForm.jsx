@@ -8,35 +8,17 @@ import { ToastContainer, toast, Zoom } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
 import './EditForm.css';
 import dayjs from 'dayjs';
-
+import { getTokenData } from './authUtils';
 const AddForm = () => {
   const navigate = useNavigate();
   const location = useLocation();
-  const { table, attributenames } = location.state;
-  const [data, setData] = useState({ department: window.localStorage.getItem('department') });
+  const tokendata=getTokenData();
+  const { table, attributenames,attributeTypes } = location.state;
+  const [data, setData] = useState({ department: tokendata.department });
   const [file, setFile] = useState(null);
-  const [fileInputKey, setFileInputKey] = useState(Date.now()); 
-  const attributeTypes = {
-    'completion_date': 'date',
-    'Proposed Date': 'date',
-    'Date of completion': 'date',
-    'Proposed date of visit': 'date',
-    'Actual Date  Visited': 'date',
-    'Date_of_event_planned': 'date',
-    'Date_of_completion': 'date',
-    'Date planned': 'date',
-    'Actual Date of lecture': 'date',
-    'Completion Date of Event': 'date',
-    'Date of Interview': 'date',
-    'document': 'file',
-    'start_date': 'date',
-    'end_date': 'date',
-    'joining_date':'date',
-    'Placement_Percentage':'Placement_Percentage',
-    'Percentage_of_Higher_Studies':'Percentage_of_Higher_Studies',
-    'company_details':'company_details'
-  };
+  const [fileInputKey, setFileInputKey] = useState(Date.now());
 
+  
   const notifysuccess = () => {
     toast.success('Added Record Successfully!', {
       position: "top-center",

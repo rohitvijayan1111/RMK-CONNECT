@@ -6,8 +6,10 @@ var bcrypt = require('bcryptjs');
 
 var db = require('../config/db');
 
-var router = express.Router(); 
+var jwt = require('jsonwebtoken');
 
+var router = express.Router();
+var jwtSecret = 'your_jwt_secret_key';
 router.post('/register', function _callee2(req, res) {
   var _req$body, username, password, role, department;
 
@@ -84,8 +86,7 @@ router.post('/register', function _callee2(req, res) {
       }
     }
   });
-}); 
-
+});
 router.post('/login', function (req, res) {
   var _req$body2 = req.body,
       username = _req$body2.username,
@@ -98,7 +99,7 @@ router.post('/login', function (req, res) {
 
   var sql = 'SELECT * FROM users WHERE username = ?';
   db.query(sql, [username], function _callee3(err, results) {
-    var user, isMatch, responseData;
+    var user, isMatch, token;
     return regeneratorRuntime.async(function _callee3$(_context3) {
       while (1) {
         switch (_context3.prev = _context3.next) {
@@ -135,13 +136,17 @@ router.post('/login', function (req, res) {
             return _context3.abrupt("return", res.status(400).send('Invalid credentials'));
 
           case 11:
-            responseData = {
+            token = jwt.sign({
+              userId: user.id,
               username: user.username,
               role: user.role,
               department: user.department
-            }; 
-
-            res.status(200).json(responseData);
+            }, jwtSecret, {
+              expiresIn: '1h'
+            });
+            res.status(200).json({
+              token: token
+            });
 
           case 13:
           case "end":
@@ -150,5 +155,25 @@ router.post('/login', function (req, res) {
       }
     });
   });
+});
+
+function verifyToken(req, res, next) {
+  var token = req.headers['authorization'];
+
+  if (!token) {
+    return res.status(403).send('Token is required for authentication');
+  }
+
+  try {
+    var decoded = jwt.verify(token.split(' ')[1], jwtSecret);
+    req.user = decoded;
+    next();
+  } catch (err) {
+    return res.status(401).send('Invalid or expired token');
+  }
+}
+
+router.get('/protected', verifyToken, function (req, res) {
+  res.status(200).send("Welcome, ".concat(req.user.username, ". You are authenticated as ").concat(req.user.role, "."));
 });
 module.exports = router;
