@@ -1,54 +1,44 @@
-import React, { useState } from 'react';
 import axios from 'axios';
+import React, { useState, useRef } from 'react';
+import { useLocation, useNavigate } from 'react-router-dom';
+import { AdapterDayjs } from '@mui/x-date-pickers/AdapterDayjs';
+import { LocalizationProvider } from '@mui/x-date-pickers/LocalizationProvider';
+import { DatePicker } from '@mui/x-date-pickers/DatePicker';
 import { ToastContainer, toast, Zoom } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
+import TextField from '@mui/material/TextField';
+import dayjs from 'dayjs';
 import './EditForm.css';
-import withAuthorization from '../Components/WithAuthorization';
-import { getTokenData } from '../Pages/authUtils';
 
-const UserGroupSelector = ({ setSelectedUserGroup }) => {
-  const [selectedUserGroup, setSelectedUserGroupState] = useState('Student');
+const EditForm = () => {
+  const navigate = useNavigate();
+  const location = useLocation();
+  const { table, attributenames, item } = location.state;
+  const [data, setData] = useState(item);
+  const [selectedFile, setSelectedFile] = useState(null);
+  const [fileInputKey, setFileInputKey] = useState(Date.now());
+  const fileInputRef = useRef(null);
 
-  const handleUserGroupChange = (event) => {
-    const userGroup = event.target.value;
-    setSelectedUserGroupState(userGroup);
-    setSelectedUserGroup(userGroup);
+  const attributeTypes = {
+    'completion_date': 'date',
+    'Proposed Date': 'date',
+    'Date of completion': 'date',
+    'Proposed date of visit': 'date',
+    'Actual Date  Visited': 'date',
+    'Date_of_event_planned': 'date',
+    'Date_of_completion': 'date',
+    'Date planned': 'date',
+    'Actual Date of lecture': 'date',
+    'Completion Date of Event': 'date',
+    'Date of Interview': 'date',
+    'start_date': 'date',
+    'end_date': 'date',
+    'joining_date': 'date',
+    'document': 'file',
   };
 
-  return (
-    <div>
-      <select id="userGroupSelect" className='status-yr' onChange={handleUserGroupChange} value={selectedUserGroup} required>
-        <option value="Student">Student</option>
-        <option value="Staff">Staff</option>
-      </select>
-    </div>
-  );
-};
-
-const Edit_Entry = () => {
-  const currentDate = new Date();
-  const day = String(currentDate.getDate()).padStart(2, '0');
-  const month = String(currentDate.getMonth() + 1).padStart(2, '0'); 
-  const year = currentDate.getFullYear();
-  const formattedDate = `${year}-${month}-${day}`;
-  const tokenData=getTokenData();
-  const dname=tokenData.department;
-  const capitalizeEachWord = (str) => {
-    if (typeof str !== 'string') {
-      return '';
-    }
-  
-    return str.split(' ').map(word => {
-      return word.charAt(0).toUpperCase() + word.slice(1).toLowerCase();
-    }).join(' ');
-  };
-  
-  const department = capitalizeEachWord(dname);
-  const [selectedUserGroup, setSelectedUserGroup] = useState('Student');
-  const [rollNumber, setRollNumber] = useState('');
-
-  const notifysuccess = (message) => {
-    toast.success(message, {
+  const notifysuccess = () => {
+    toast.success('Record Edited Successfully!', {
       position: "top-center",
       autoClose: 3000,
       hideProgressBar: false,
@@ -75,69 +65,147 @@ const Edit_Entry = () => {
     });
   };
 
+  const handleDateChange = (attribute, date) => {
+    const formattedDate = date ? dayjs(date).format('YYYY-MM-DD') : '';
+    setData({ ...data, [attribute]: formattedDate });
+  };
+
+  const handleChange = (attribute, value) => {
+    setData({ ...data, [attribute]: value });
+  };
+
+  const handleFileChange = (e) => {
+    const file = e.target.files[0];
+    setSelectedFile(file);
+    setData({ ...data, document: file.name }); // Update the file name in the state
+  };
+
+  const handleFileReset = () => {
+    setSelectedFile(null);
+    setFileInputKey(Date.now()); // Reset file input by changing the key
+    setData({ ...data, document: 'No file selected' });
+  };
+
   const handleSubmit = async (e) => {
     e.preventDefault();
-    if (!selectedUserGroup) {
-      notifyfailure("Select User Group Type");
-      return;
-    }
-
-    if (!rollNumber) {
-      notifyfailure("Enter Roll/Enrollment Number");
-      return;
-    }
-
-    console.log('Capitalized Department Name:', department);
-
-    let payload = {
-      date: formattedDate,
-      rollnumber: rollNumber,
-      department_name: department,
-      userGroup: selectedUserGroup
-    };
-
     try {
-      const response = await axios.post("http://localhost:3000/attendance/removeabsent", payload);
-      console.log(response.data);
-      if (response.data.error) {
-        notifyfailure(error.response?.data?.error);
-      } else {
-        notifysuccess(response.data.message);
-        setRollNumber('')
+      const formattedData = { ...data };
+      for (const attribute of attributenames) {
+        if (attributeTypes[attribute] === 'date' && formattedData[attribute]) {
+          formattedData[attribute] = dayjs(formattedData[attribute]).format('YYYY-MM-DD');
+        }
       }
+  
+      // If a new file is selected, delete the old file if necessary
+      if (selectedFile && data.document && data.document !== 'No file selected') {
+        // Ensure that the old file is correctly identified and deleted
+        await axios.delete('http://localhost:3000/deletefile', {
+          data: { id: data.id, table, filename: data.document },
+          headers: { 'Content-Type': 'application/json' }
+        });
+      }
+  
+      const formData = new FormData();
+      formData.append('id', data.id);
+      formData.append('table', table);
+      formData.append('data', JSON.stringify(formattedData));
+      if (selectedFile) {
+        formData.append('file', selectedFile);
+      }
+  
+      const response = await axios.post("http://localhost:3000/tables/updaterecord", formData, {
+        headers: {
+          'Content-Type': 'multipart/form-data'
+        }
+      });
+  
+      notifysuccess();
+      setTimeout(() => {
+        navigate(-1);
+      }, 1500);
     } catch (error) {
-      if (error.response) {
-        notifyfailure(error.response?.data?.error);
-      } else {
-        notifyfailure('Error removing record: ' + error.message);
-      }
+      notifyfailure(error.response?.data?.error || 'Error updating record');
     }
   };
-
-  const handleRollNumberChange = (e) => {
-    setRollNumber(e.target.value);
-  };
+  
+  
 
   return (
-    <div>
-      <div className='ddb'>
-        <UserGroupSelector setSelectedUserGroup={setSelectedUserGroup} />
-      </div>
-      
-      <div className="faculty">
-        <h1>Edit Attendance</h1>
-        <h4>{formattedDate}</h4>
-        <form className='edit-att'>
-          <label>{(selectedUserGroup === 'Student') ? "Roll Number" : "Enrollment Number"}</label>
-          <input type='number' name='rollNumber' value={rollNumber} onChange={handleRollNumberChange} required />
-          <div className="bttcnt">
-            <button onClick={handleSubmit} className='gh'>Mark as Present</button>
+    <div className="cnt">
+      <h2>Edit Form</h2>
+      {attributenames && attributenames.length > 0 ? (
+        <form className='edt' onSubmit={handleSubmit}>
+          {attributenames.map((attribute, index) => (
+            attribute !== "id" && attribute !== "department" && (
+              <div className="frm" key={index}>
+                <label htmlFor={attribute} className="lbl">{attribute.replace(/_/g, ' ')}:</label>
+                {attributeTypes[attribute] === 'date' ? (
+                  <LocalizationProvider dateAdapter={AdapterDayjs}>
+                    <DatePicker
+                      label=''
+                      value={data[attribute] ? dayjs(data[attribute]) : null}
+                      onChange={(date) => handleDateChange(attribute, date)}
+                      renderInput={(params) => (
+                        <TextField
+                          {...params}
+                          variant="outlined"
+                          className="cntr"
+                          id={attribute}
+                          required
+                        />
+                      )}
+                    />
+                  </LocalizationProvider>
+                ) : attribute === "document" ? (
+                  <div>
+                    <div className="file-upload-container">
+                      <input
+                        type="text"
+                        className="cntr"
+                        value={data[attribute] || 'No file selected'}
+                        readOnly
+                      />
+                    </div>
+                    <div className='bttns'>
+                      <label htmlFor={attribute} className="custom-file-upload" onClick={() => fileInputRef.current.click()}>
+                        Choose File
+                      </label>
+                      <button type="button" className="custom-file-upload" onClick={handleFileReset}>Reset File</button>
+                    </div>
+                    <input
+                      type="file"
+                      id={attribute}
+                      className="custom-file-upload"
+                      onChange={handleFileChange}
+                      key={fileInputKey}
+                      ref={fileInputRef} // Attach ref to file input
+                      style={{ display: 'none' }}
+                      required={!data.document || data.document === 'No file selected'}
+                    />
+                  </div>
+                ) : (
+                  <input
+                    type="text"
+                    className="cntr"
+                    id={attribute}
+                    onChange={(e) => handleChange(attribute, e.target.value)}
+                    value={data[attribute] || ''}
+                    required
+                  />
+                )}
+              </div>
+            )
+          ))}
+          <div className="holder">
+            <input type='submit' value="Submit" className='btt' />
           </div>
         </form>
-      </div>
+      ) : (
+        <p>Loading...</p>
+      )}
       <ToastContainer />
     </div>
   );
-};
+}
 
-export default withAuthorization(['Attendance Manager'])(Edit_Entry);
+export default EditForm;
