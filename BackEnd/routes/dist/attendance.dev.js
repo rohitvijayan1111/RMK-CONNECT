@@ -16,6 +16,9 @@ var timezone = require('dayjs/plugin/timezone');
 
 var utc = require('dayjs/plugin/utc');
 
+var _require = require('http'),
+    request = _require.request;
+
 dayjs.extend(utc);
 dayjs.extend(timezone);
 
@@ -61,7 +64,7 @@ var getFriendlyErrorMessage = function getFriendlyErrorMessage(errCode) {
 
 var query = util.promisify(db.query).bind(db);
 router.post('/addabsent', function _callee(req, res) {
-  var data, existingRecord, studentDetails, year, studentDepartment, insertQuery, updateField, updateQuery, staffDetails, staffDepartment, _insertQuery, _updateQuery;
+  var data, existingRecord, studentDetails, year, studentDepartment, studentType, insertQuery, updateField, updateQuery, staffDetails, staffDepartment, _insertQuery, _updateQuery;
 
   return regeneratorRuntime.async(function _callee$(_context) {
     while (1) {
@@ -131,12 +134,12 @@ router.post('/addabsent', function _callee(req, res) {
 
         case 25:
           if (!data.student_id) {
-            _context.next = 54;
+            _context.next = 56;
             break;
           }
 
           _context.next = 28;
-          return regeneratorRuntime.awrap(query('SELECT year, department FROM students WHERE id = ?', [data.student_id]));
+          return regeneratorRuntime.awrap(query('SELECT year, department, studentType FROM students WHERE id = ?', [data.student_id]));
 
         case 28:
           studentDetails = _context.sent;
@@ -154,9 +157,10 @@ router.post('/addabsent', function _callee(req, res) {
         case 32:
           year = studentDetails[0].year;
           studentDepartment = studentDetails[0].department;
+          studentType = studentDetails[0].studentType;
 
           if (!(!year || !studentDepartment)) {
-            _context.next = 37;
+            _context.next = 38;
             break;
           }
 
@@ -165,12 +169,12 @@ router.post('/addabsent', function _callee(req, res) {
             error: 'Year or department information missing for the student'
           }));
 
-        case 37:
+        case 38:
           console.log("Student Department is " + studentDepartment);
-          console.log("data department is " + data.department_name);
+          console.log("Data department is " + data.department_name);
 
           if (!(studentDepartment.toLowerCase() !== data.department_name.toLowerCase())) {
-            _context.next = 42;
+            _context.next = 43;
             break;
           }
 
@@ -179,38 +183,40 @@ router.post('/addabsent', function _callee(req, res) {
             error: "Student is not part of your Department"
           }));
 
-        case 42:
+        case 43:
+          // Add the studentType to the data to be inserted
+          data.studentType = studentType;
           console.log('Data to insert:', data);
           insertQuery = 'INSERT INTO absent_attendance_records SET ?';
           console.log('Executing insert query:', insertQuery, data);
-          _context.next = 47;
+          _context.next = 49;
           return regeneratorRuntime.awrap(query(insertQuery, data));
 
-        case 47:
+        case 49:
           updateField = "todayabsentcount_year_".concat(year);
           updateQuery = "\n                UPDATE MemberCount \n                SET ".concat(updateField, " = ").concat(updateField, " + 1 \n                WHERE department_name = ?");
           console.log('Executing query:', updateQuery);
-          _context.next = 52;
+          _context.next = 54;
           return regeneratorRuntime.awrap(query(updateQuery, [data.department_name]));
 
-        case 52:
-          _context.next = 77;
+        case 54:
+          _context.next = 79;
           break;
 
-        case 54:
+        case 56:
           if (!data.staff_id) {
-            _context.next = 77;
+            _context.next = 79;
             break;
           }
 
-          _context.next = 57;
+          _context.next = 59;
           return regeneratorRuntime.awrap(query('SELECT department FROM staffs WHERE id = ?', [data.staff_id]));
 
-        case 57:
+        case 59:
           staffDetails = _context.sent;
 
           if (!(!staffDetails || staffDetails.length === 0)) {
-            _context.next = 61;
+            _context.next = 63;
             break;
           }
 
@@ -219,11 +225,11 @@ router.post('/addabsent', function _callee(req, res) {
             error: 'Staff not found or missing department information'
           }));
 
-        case 61:
+        case 63:
           staffDepartment = staffDetails[0].department;
 
           if (staffDepartment) {
-            _context.next = 65;
+            _context.next = 67;
             break;
           }
 
@@ -232,9 +238,9 @@ router.post('/addabsent', function _callee(req, res) {
             error: "Staff is not part of your Department"
           }));
 
-        case 65:
+        case 67:
           if (!(staffDepartment.toLowerCase() !== data.department_name.toLowerCase())) {
-            _context.next = 68;
+            _context.next = 70;
             break;
           }
 
@@ -243,40 +249,40 @@ router.post('/addabsent', function _callee(req, res) {
             error: 'Department mismatch for staff'
           }));
 
-        case 68:
+        case 70:
           console.log('Data to insert:', data);
           _insertQuery = 'INSERT INTO absent_attendance_records SET ?';
           console.log('Executing insert query:', _insertQuery, data);
-          _context.next = 73;
+          _context.next = 75;
           return regeneratorRuntime.awrap(query(_insertQuery, data));
 
-        case 73:
+        case 75:
           _updateQuery = "\n                UPDATE MemberCount \n                SET todayabsentcount_staff = todayabsentcount_staff + 1 \n                WHERE department_name = ?";
           console.log('Executing query:', _updateQuery);
-          _context.next = 77;
+          _context.next = 79;
           return regeneratorRuntime.awrap(query(_updateQuery, [data.department_name]));
 
-        case 77:
+        case 79:
           res.json({
             message: 'Record inserted and count updated successfully'
           });
-          _context.next = 84;
+          _context.next = 86;
           break;
 
-        case 80:
-          _context.prev = 80;
+        case 82:
+          _context.prev = 82;
           _context.t0 = _context["catch"](5);
           console.error('Error inserting record or updating count:', _context.t0);
           res.status(500).json({
             error: 'Internal Server Error'
           });
 
-        case 84:
+        case 86:
         case "end":
           return _context.stop();
       }
     }
-  }, null, null, [[5, 80]]);
+  }, null, null, [[5, 82]]);
 });
 
 function getStudentYear(student_id) {
@@ -538,7 +544,7 @@ router.post('/removeabsent', function _callee2(req, res) {
   }, null, null, [[12, 69]]);
 });
 router.post('/getindividual', function _callee3(req, res) {
-  var _req$body2, rollnumber, userGroup, department, column, userTable, departmentCheckQuery, departmentCheckParams, departmentCheckResult, attendanceQuery, attendanceResult;
+  var _req$body2, rollnumber, userGroup, department, column, userTable, departmentCheckQuery, departmentCheckParams, departmentCheckResult, _departmentCheckResul, name, studentType, year, attendanceQuery, attendanceResult, response;
 
   return regeneratorRuntime.async(function _callee3$(_context4) {
     while (1) {
@@ -563,12 +569,12 @@ router.post('/getindividual', function _callee3(req, res) {
           departmentCheckParams = [];
 
           if (department !== 'All') {
-            // Check if the roll number belongs to the specified department
-            departmentCheckQuery = "SELECT * FROM ".concat(userTable, " WHERE id= ? AND department= ?");
+            // Check if the roll number belongs to the specified department and fetch student details
+            departmentCheckQuery = "SELECT id, name, studentType, year FROM ".concat(userTable, " WHERE id = ? AND department = ?");
             departmentCheckParams = [rollnumber, department];
           } else {
-            // Check if the roll number exists in the table
-            departmentCheckQuery = "SELECT * FROM ".concat(userTable, " WHERE id= ?");
+            // Check if the roll number exists in the table and fetch student details
+            departmentCheckQuery = "SELECT id, name, studentType, year FROM ".concat(userTable, " WHERE id = ?");
             departmentCheckParams = [rollnumber];
           }
 
@@ -588,16 +594,18 @@ router.post('/getindividual', function _callee3(req, res) {
           }));
 
         case 14:
-          // Fetch attendance records
+          // Extract student details
+          _departmentCheckResul = departmentCheckResult[0], name = _departmentCheckResul.name, studentType = _departmentCheckResul.studentType, year = _departmentCheckResul.year; // Fetch attendance records
+
           attendanceQuery = "SELECT * FROM absent_attendance_records WHERE ".concat(column, " = ?");
-          _context4.next = 17;
+          _context4.next = 18;
           return regeneratorRuntime.awrap(query(attendanceQuery, [rollnumber]));
 
-        case 17:
+        case 18:
           attendanceResult = _context4.sent;
 
           if (!(attendanceResult.length === 0)) {
-            _context4.next = 20;
+            _context4.next = 21;
             break;
           }
 
@@ -605,25 +613,32 @@ router.post('/getindividual', function _callee3(req, res) {
             error: 'No Absent Record Exists For The Given Roll Number'
           }));
 
-        case 20:
-          res.json(attendanceResult);
-          _context4.next = 27;
+        case 21:
+          // Combine attendance records with student details
+          response = {
+            name: name,
+            studentType: studentType,
+            year: year,
+            attendanceRecords: attendanceResult
+          };
+          res.json(response);
+          _context4.next = 29;
           break;
 
-        case 23:
-          _context4.prev = 23;
+        case 25:
+          _context4.prev = 25;
           _context4.t0 = _context4["catch"](5);
           console.error('Error fetching data:', _context4.t0);
           res.status(500).json({
             error: 'Error fetching data'
           });
 
-        case 27:
+        case 29:
         case "end":
           return _context4.stop();
       }
     }
-  }, null, null, [[5, 23]]);
+  }, null, null, [[5, 25]]);
 });
 router.post('/fetchtoday', function _callee4(req, res) {
   var userGroup, department, timeZone, currentDate, formattedDate, queryStr, params, results;
@@ -882,15 +897,17 @@ router.post('/fetchdatedata', function _callee5(req, res) {
   }, null, null, [[37, 46]]);
 });
 router.post('/attendance-summary', function _callee6(req, res) {
-  var department, results, row, data;
+  var _req$body3, user, type, department, results, data, row;
+
   return regeneratorRuntime.async(function _callee6$(_context7) {
     while (1) {
       switch (_context7.prev = _context7.next) {
         case 0:
-          department = req.body.department;
+          _req$body3 = req.body, user = _req$body3.user, type = _req$body3.type, department = _req$body3.department;
+          console.log(req.body);
 
           if (department) {
-            _context7.next = 3;
+            _context7.next = 4;
             break;
           }
 
@@ -898,16 +915,16 @@ router.post('/attendance-summary', function _callee6(req, res) {
             error: 'Department is required'
           }));
 
-        case 3:
-          _context7.prev = 3;
-          _context7.next = 6;
+        case 4:
+          _context7.prev = 4;
+          _context7.next = 7;
           return regeneratorRuntime.awrap(query('SELECT * FROM membercount WHERE department_name = ?', [department]));
 
-        case 6:
+        case 7:
           results = _context7.sent;
 
           if (!(results.length === 0)) {
-            _context7.next = 9;
+            _context7.next = 10;
             break;
           }
 
@@ -915,55 +932,109 @@ router.post('/attendance-summary', function _callee6(req, res) {
             error: 'Department not found'
           }));
 
-        case 9:
+        case 10:
+          data = [];
           row = results[0];
-          data = [{
-            name: "I YR",
-            present: row.year_I_count - row.todayabsentcount_year_I,
-            absent: row.todayabsentcount_year_I
-          }, {
-            name: "II YR",
-            present: row.year_II_count - row.todayabsentcount_year_II,
-            absent: row.todayabsentcount_year_II
-          }, {
-            name: "III YR",
-            present: row.year_III_count - row.todayabsentcount_year_III,
-            absent: row.todayabsentcount_year_III
-          }, {
-            name: "IV YR",
-            present: row.year_IV_count - row.todayabsentcount_year_IV,
-            absent: row.todayabsentcount_year_IV
-          }, {
-            name: 'Staff',
-            present: row.staff_count - row.todayabsentcount_staff,
-            absent: row.todayabsentcount_staff
-          }];
+          console.log("ROWWW IS");
+          console.log(row);
+
+          if (type === "All") {
+            data = [{
+              name: "I YR",
+              present: row.year_I_count - row.todayabsentcount_year_I,
+              absent: row.todayabsentcount_year_I
+            }, {
+              name: "II YR",
+              present: row.year_II_count - row.todayabsentcount_year_II,
+              absent: row.todayabsentcount_year_II
+            }, {
+              name: "III YR",
+              present: row.year_III_count - row.todayabsentcount_year_III,
+              absent: row.todayabsentcount_year_III
+            }, {
+              name: "IV YR",
+              present: row.year_IV_count - row.todayabsentcount_year_IV,
+              absent: row.todayabsentcount_year_IV
+            }, {
+              name: 'Staff',
+              present: row.staff_count - row.todayabsentcount_staff,
+              absent: row.todayabsentcount_staff
+            }];
+          } else if (type === "Hostel") {
+            data = [{
+              name: "I YR",
+              present: row.hostel_year_I_count - row.hostellercount_year_I,
+              absent: row.hostel_year_I_count
+            }, {
+              name: "II YR",
+              present: row.hostel_year_II_count - row.hostellercount_year_II,
+              absent: row.hostel_year_II_count
+            }, {
+              name: "III YR",
+              present: row.hostel_year_III_count - row.hostellercount_year_III,
+              absent: row.hostel_year_III_count
+            }, {
+              name: "IV YR",
+              present: row.hostel_year_IV_count - row.hostellercount_year_IV,
+              absent: row.hostel_year_IV_count
+            }, {
+              name: 'Staff',
+              present: row.staff_count - row.todayabsentcount_staff,
+              absent: row.todayabsentcount_staff
+            }];
+          } else if (type === "Day Scholar") {
+            data = [{
+              name: "I YR",
+              present: row.year_I_count - row.todayabsentcount_year_I - row.hostellercount_year_I,
+              absent: row.todayabsentcount_year_I - row.hostellercount_year_I
+            }, {
+              name: "II YR",
+              present: row.year_II_count - row.todayabsentcount_year_II - row.hostellercount_year_II,
+              absent: row.todayabsentcount_year_II - row.hostellercount_year_II
+            }, {
+              name: "III YR",
+              present: row.year_III_count - row.todayabsentcount_year_III - row.hostellercount_year_III,
+              absent: row.todayabsentcount_year_III - row.hostellercount_year_III
+            }, {
+              name: "IV YR",
+              present: row.year_IV_count - row.todayabsentcount_year_IV - row.hostellercount_year_IV,
+              absent: row.todayabsentcount_year_IV - row.hostellercount_year_IV
+            }, {
+              name: 'Staff',
+              present: row.staff_count - row.todayabsentcount_staff,
+              absent: row.todayabsentcount_staff
+            }];
+          }
+
+          console.log(type);
+          console.log(data);
           res.json(data);
-          _context7.next = 18;
+          _context7.next = 24;
           break;
 
-        case 14:
-          _context7.prev = 14;
-          _context7.t0 = _context7["catch"](3);
+        case 20:
+          _context7.prev = 20;
+          _context7.t0 = _context7["catch"](4);
           console.error('Error fetching attendance summary:', _context7.t0);
           res.status(500).json({
             error: 'Internal Server Error'
           });
 
-        case 18:
+        case 24:
         case "end":
           return _context7.stop();
       }
     }
-  }, null, null, [[3, 14]]);
+  }, null, null, [[4, 20]]);
 });
 router.post('/attendance-count-summary', function _callee7(req, res) {
-  var department, results, row, total_student, absent_student, total_staff, absent_staff, data;
+  var _req$body4, type, user, department, results, row, total_student, absent_student, total_staff, absent_staff, hostel_total_student, hostel_absent_student, data;
+
   return regeneratorRuntime.async(function _callee7$(_context8) {
     while (1) {
       switch (_context8.prev = _context8.next) {
         case 0:
-          department = req.body.department;
+          _req$body4 = req.body, type = _req$body4.type, user = _req$body4.user, department = _req$body4.department;
 
           if (department) {
             _context8.next = 3;
@@ -997,41 +1068,66 @@ router.post('/attendance-count-summary', function _callee7(req, res) {
           absent_student = row.todayabsentcount_year_I + row.todayabsentcount_year_II + row.todayabsentcount_year_III + row.todayabsentcount_year_IV;
           total_staff = row.staff_count;
           absent_staff = row.todayabsentcount_staff;
-          data = {
-            Total_students: total_student,
-            Student_Present: total_student - absent_student,
-            Student_Absent: absent_student,
-            Total_staff: total_staff,
-            Staff_Present: total_staff - absent_staff,
-            Staff_Absent: absent_staff
-          };
+          hostel_total_student = row.hostel_year_I_count + row.hostel_year_II_count + row.hostel_year_III_count + row.hostel_year_IV_count;
+          hostel_absent_student = row.hostellercount_year_I + row.hostellercount_year_II + row.hostellercount_year_III + row.hostellercount_year_IV;
+          data = [];
+
+          if (type == "All") {
+            data = {
+              Total_students: total_student,
+              Student_Present: total_student - absent_student,
+              Student_Absent: absent_student,
+              Total_staff: total_staff,
+              Staff_Present: total_staff - absent_staff,
+              Staff_Absent: absent_staff
+            };
+          } else if (type == "Hostel") {
+            data = {
+              Total_students: hostel_total_student,
+              Student_Present: hostel_total_student - hostel_absent_student,
+              Student_Absent: hostel_absent_student,
+              Total_staff: total_staff,
+              Staff_Present: total_staff - absent_staff,
+              Staff_Absent: absent_staff
+            };
+          } else if (type == "Day Scholar") {
+            data = {
+              Total_students: total_student - hostel_total_student,
+              Student_Present: total_student - hostel_total_student - (absent_student - hostel_absent_student),
+              Student_Absent: absent_student - hostel_absent_student,
+              Total_staff: total_staff,
+              Staff_Present: total_staff - absent_staff,
+              Staff_Absent: absent_staff
+            };
+          }
+
           res.json(data);
-          _context8.next = 22;
+          _context8.next = 25;
           break;
 
-        case 18:
-          _context8.prev = 18;
+        case 21:
+          _context8.prev = 21;
           _context8.t0 = _context8["catch"](3);
           console.error('Error fetching attendance summary:', _context8.t0);
           res.status(500).json({
             error: 'Internal Server Error'
           });
 
-        case 22:
+        case 25:
         case "end":
           return _context8.stop();
       }
     }
-  }, null, null, [[3, 18]]);
+  }, null, null, [[3, 21]]);
 });
 router.post('/attendance-graph', function _callee8(req, res) {
-  var _req$body3, user, department, column, results, currentDate, formattedDate, formattedResults;
+  var _req$body5, user, type, department, column, typeCondition, results, currentDate, formattedDate, formattedResults;
 
   return regeneratorRuntime.async(function _callee8$(_context9) {
     while (1) {
       switch (_context9.prev = _context9.next) {
         case 0:
-          _req$body3 = req.body, user = _req$body3.user, department = _req$body3.department;
+          _req$body5 = req.body, user = _req$body5.user, type = _req$body5.type, department = _req$body5.department;
           console.log(req.body);
 
           if (!(!department || !user)) {
@@ -1044,22 +1140,31 @@ router.post('/attendance-graph', function _callee8(req, res) {
           }));
 
         case 4:
+          typeCondition = '';
+
           if (user === 'Student') {
-            column = "student_id";
+            column = "student_id"; // Add the type condition based on the value of 'type'
+
+            if (type === 'Hostel') {
+              typeCondition = "AND studentType = 'Hostel'";
+            } else if (type === 'Day Scholar') {
+              typeCondition = "AND studentType = 'Day Scholar'";
+            } // If type is 'All', no additional condition is needed.
+
           } else {
             column = "staff_id";
           }
 
-          _context9.prev = 5;
-          _context9.next = 8;
-          return regeneratorRuntime.awrap(query("SELECT attendance_date as date, count(*) as total FROM absent_attendance_records WHERE department_name = ? AND ".concat(column, " IS NOT NULL GROUP BY date LIMIT 7"), [department]));
+          _context9.prev = 6;
+          _context9.next = 9;
+          return regeneratorRuntime.awrap(query("SELECT date, total\n            FROM (\n                SELECT attendance_date as date, COUNT(*) as total \n                FROM absent_attendance_records \n                WHERE department_name = ? \n                AND ".concat(column, " IS NOT NULL \n                ").concat(typeCondition, " \n                GROUP BY attendance_date\n                ORDER BY attendance_date DESC\n                LIMIT 7\n            ) AS subquery\n            ORDER BY date ASC;\n            "), [department]));
 
-        case 8:
+        case 9:
           results = _context9.sent;
           console.log('Query results:', results);
 
           if (!(results.length === 0)) {
-            _context9.next = 14;
+            _context9.next = 15;
             break;
           }
 
@@ -1070,7 +1175,7 @@ router.post('/attendance-graph', function _callee8(req, res) {
             absent: 0
           }));
 
-        case 14:
+        case 15:
           formattedResults = results.map(function (row) {
             var date = new Date(row.date);
             var formattedDate = "".concat(date.getDate(), "/").concat(date.getMonth() + 1);
@@ -1080,31 +1185,32 @@ router.post('/attendance-graph', function _callee8(req, res) {
             };
           });
           res.json(formattedResults);
-          _context9.next = 22;
+          _context9.next = 23;
           break;
 
-        case 18:
-          _context9.prev = 18;
-          _context9.t0 = _context9["catch"](5);
+        case 19:
+          _context9.prev = 19;
+          _context9.t0 = _context9["catch"](6);
           console.error('Error fetching attendance summary:', _context9.t0);
           res.status(500).json({
             error: 'Internal Server Error'
           });
 
-        case 22:
+        case 23:
         case "end":
           return _context9.stop();
       }
     }
-  }, null, null, [[5, 18]]);
+  }, null, null, [[6, 19]]);
 });
 router.post('/admin-attendance-summary', function _callee9(req, res) {
-  var user, queryStr, presentField, absentField, results, data;
+  var _req$body6, user, type, department, queryStr, presentField, absentField, results, data;
+
   return regeneratorRuntime.async(function _callee9$(_context10) {
     while (1) {
       switch (_context10.prev = _context10.next) {
         case 0:
-          user = req.body.user;
+          _req$body6 = req.body, user = _req$body6.user, type = _req$body6.type, department = _req$body6.department;
 
           if (user) {
             _context10.next = 3;
@@ -1117,43 +1223,54 @@ router.post('/admin-attendance-summary', function _callee9(req, res) {
 
         case 3:
           if (!(user.toLowerCase() === 'student')) {
-            _context10.next = 9;
+            _context10.next = 7;
             break;
           }
 
-          queryStr = "\n            SELECT \n                department_name, \n                (SUM(year_I_count) + SUM(year_II_count) + SUM(year_III_count) + SUM(year_IV_count)) AS total_students, \n                (SUM(todayabsentcount_year_I) + SUM(todayabsentcount_year_II) + SUM(todayabsentcount_year_III) + SUM(todayabsentcount_year_IV)) AS total_absent_students\n            FROM membercount \n            GROUP BY department_name\n        ";
-          presentField = 'total_students';
-          absentField = 'total_absent_students';
-          _context10.next = 16;
+          if (type === "All") {
+            queryStr = "\n                SELECT \n                    department_name, \n                    (SUM(year_I_count) + SUM(year_II_count) + SUM(year_III_count) + SUM(year_IV_count)) AS total_students, \n                    (SUM(todayabsentcount_year_I) + SUM(todayabsentcount_year_II) + SUM(todayabsentcount_year_III) + SUM(todayabsentcount_year_IV)) AS total_absent_students\n                FROM membercount \n                GROUP BY department_name\n            ";
+            presentField = 'total_students';
+            absentField = 'total_absent_students';
+          } else if (type === "Hostel") {
+            queryStr = "\n                SELECT \n                    department_name, \n                    (SUM(hostel_year_I_count) + SUM(hostel_year_II_count) + SUM(hostel_year_III_count) + SUM(hostel_year_IV_count)) AS total_hostel_students, \n                    (SUM(hostellercount_year_I) + SUM(hostellercount_year_II) + SUM(hostellercount_year_III) + SUM(hostellercount_year_IV)) AS total_absent_hostel_students\n                FROM membercount \n                GROUP BY department_name\n            ";
+            presentField = 'total_hostel_students';
+            absentField = 'total_absent_hostel_students';
+          } else if (type === "Day Scholar") {
+            queryStr = "\n                SELECT \n                    department_name, \n                    (SUM(year_I_count) + SUM(year_II_count) + SUM(year_III_count) + SUM(year_IV_count)) AS total_day_scholar_students, \n                    (SUM(todayabsentcount_year_I) + SUM(todayabsentcount_year_II) + SUM(todayabsentcount_year_III) + SUM(todayabsentcount_year_IV)) -\n                    (SUM(hostellercount_year_I) + SUM(hostellercount_year_II) + SUM(hostellercount_year_III) + SUM(hostellercount_year_IV)) AS total_absent_day_scholar_students\n                FROM membercount \n                GROUP BY department_name\n            ";
+            presentField = 'total_day_scholar_students';
+            absentField = 'total_absent_day_scholar_students';
+          }
+
+          _context10.next = 14;
           break;
 
-        case 9:
+        case 7:
           if (!(user.toLowerCase() === 'faculty')) {
-            _context10.next = 15;
+            _context10.next = 13;
             break;
           }
 
           queryStr = "\n            SELECT \n                department_name, \n                SUM(staff_count) AS total_staff, \n                SUM(todayabsentcount_staff) AS total_absent_staff\n            FROM membercount \n            GROUP BY department_name\n        ";
           presentField = 'total_staff';
           absentField = 'total_absent_staff';
-          _context10.next = 16;
+          _context10.next = 14;
           break;
 
-        case 15:
+        case 13:
           return _context10.abrupt("return", res.status(400).json({
             error: 'Invalid user type'
           }));
 
-        case 16:
-          _context10.prev = 16;
-          _context10.next = 19;
+        case 14:
+          _context10.prev = 14;
+          _context10.next = 17;
           return regeneratorRuntime.awrap(query(queryStr));
 
-        case 19:
+        case 17:
           results = _context10.sent;
 
           if (!(results.length === 0)) {
-            _context10.next = 22;
+            _context10.next = 20;
             break;
           }
 
@@ -1161,7 +1278,7 @@ router.post('/admin-attendance-summary', function _callee9(req, res) {
             error: 'No departments found'
           }));
 
-        case 22:
+        case 20:
           data = results.map(function (row) {
             return {
               name: row.department_name,
@@ -1170,40 +1287,42 @@ router.post('/admin-attendance-summary', function _callee9(req, res) {
             };
           });
           res.json(data);
-          _context10.next = 30;
+          _context10.next = 28;
           break;
 
-        case 26:
-          _context10.prev = 26;
-          _context10.t0 = _context10["catch"](16);
+        case 24:
+          _context10.prev = 24;
+          _context10.t0 = _context10["catch"](14);
           console.error('Error fetching attendance summary:', _context10.t0);
           res.status(500).json({
             error: 'Internal Server Error'
           });
 
-        case 30:
+        case 28:
         case "end":
           return _context10.stop();
       }
     }
-  }, null, null, [[16, 26]]);
+  }, null, null, [[14, 24]]);
 });
 router.post('/admin-attendance-count-summary', function _callee10(req, res) {
-  var results, total_student, absent_student, total_staff, absent_staff, data;
+  var type, results, total_student, absent_student, total_staff, absent_staff, hostel_total_student, hostel_absent_student, data;
   return regeneratorRuntime.async(function _callee10$(_context11) {
     while (1) {
       switch (_context11.prev = _context11.next) {
         case 0:
-          _context11.prev = 0;
+          type = req.body.type; // Assuming 'type' is sent in the request body
+
+          _context11.prev = 1;
           console.log("INNN");
-          _context11.next = 4;
+          _context11.next = 5;
           return regeneratorRuntime.awrap(query('SELECT * FROM membercount'));
 
-        case 4:
+        case 5:
           results = _context11.sent;
 
           if (!(results.length === 0)) {
-            _context11.next = 7;
+            _context11.next = 8;
             break;
           }
 
@@ -1211,51 +1330,80 @@ router.post('/admin-attendance-count-summary', function _callee10(req, res) {
             error: 'No departments found'
           }));
 
-        case 7:
+        case 8:
           total_student = 0;
           absent_student = 0;
           total_staff = 0;
           absent_staff = 0;
+          hostel_total_student = 0;
+          hostel_absent_student = 0;
           results.forEach(function (row) {
             total_student += row.year_I_count + row.year_II_count + row.year_III_count + row.year_IV_count;
             absent_student += row.todayabsentcount_year_I + row.todayabsentcount_year_II + row.todayabsentcount_year_III + row.todayabsentcount_year_IV;
             total_staff += row.staff_count;
             absent_staff += row.todayabsentcount_staff;
+            hostel_total_student += row.hostel_year_I_count + row.hostel_year_II_count + row.hostel_year_III_count + row.hostel_year_IV_count;
+            hostel_absent_student += row.hostellercount_year_I + row.hostellercount_year_II + row.hostellercount_year_III + row.hostellercount_year_IV;
           });
-          data = {
-            Total_students: total_student,
-            Student_Present: total_student - absent_student,
-            Student_Absent: absent_student,
-            Total_staff: total_staff,
-            Staff_Present: total_staff - absent_staff,
-            Staff_Absent: absent_staff
-          };
+          data = {};
+
+          if (type === "All") {
+            data = {
+              Total_students: total_student,
+              Student_Present: total_student - absent_student,
+              Student_Absent: absent_student,
+              Total_staff: total_staff,
+              Staff_Present: total_staff - absent_staff,
+              Staff_Absent: absent_staff
+            };
+          } else if (type === "Hostel") {
+            data = {
+              Total_students: hostel_total_student,
+              Student_Present: hostel_total_student - hostel_absent_student,
+              Student_Absent: hostel_absent_student,
+              Total_staff: total_staff,
+              Staff_Present: total_staff - absent_staff,
+              Staff_Absent: absent_staff
+            };
+          } else if (type === "Day Scholar") {
+            data = {
+              Total_students: total_student - hostel_total_student,
+              Student_Present: total_student - hostel_total_student - (absent_student - hostel_absent_student),
+              Student_Absent: absent_student - hostel_absent_student,
+              Total_staff: total_staff,
+              Staff_Present: total_staff - absent_staff,
+              Staff_Absent: absent_staff
+            };
+          }
+
           res.json(data);
-          _context11.next = 20;
+          _context11.next = 24;
           break;
 
-        case 16:
-          _context11.prev = 16;
-          _context11.t0 = _context11["catch"](0);
+        case 20:
+          _context11.prev = 20;
+          _context11.t0 = _context11["catch"](1);
           console.error('Error fetching attendance summary:', _context11.t0);
           res.status(500).json({
             error: 'Internal Server Error'
           });
 
-        case 20:
+        case 24:
         case "end":
           return _context11.stop();
       }
     }
-  }, null, null, [[0, 16]]);
+  }, null, null, [[1, 20]]);
 });
 router.post('/admin-attendance-graph', function _callee11(req, res) {
-  var user, column, results, currentDate, formattedDate, formattedResults;
+  var _req$body7, user, type, column, typeCondition, results, currentDate, formattedDate, formattedResults;
+
   return regeneratorRuntime.async(function _callee11$(_context12) {
     while (1) {
       switch (_context12.prev = _context12.next) {
         case 0:
-          user = req.body.user;
+          _req$body7 = req.body, user = _req$body7.user, type = _req$body7.type; // Extract type from req.body
+
           console.log(req.body);
 
           if (user) {
@@ -1268,22 +1416,31 @@ router.post('/admin-attendance-graph', function _callee11(req, res) {
           }));
 
         case 4:
+          typeCondition = '';
+
           if (user === 'Student') {
-            column = "student_id";
+            column = "student_id"; // Add the type condition based on the value of 'type'
+
+            if (type === 'Hostel') {
+              typeCondition = "AND studentType = 'Hostel'";
+            } else if (type === 'Day Scholar') {
+              typeCondition = "AND studentType = 'Day Scholar'";
+            } // If type is 'All', no additional condition is needed.
+
           } else {
             column = "staff_id";
           }
 
-          _context12.prev = 5;
-          _context12.next = 8;
-          return regeneratorRuntime.awrap(query("SELECT attendance_date as date, count(*) as total FROM absent_attendance_records WHERE ".concat(column, " IS NOT NULL GROUP BY date LIMIT 7")));
+          _context12.prev = 6;
+          _context12.next = 9;
+          return regeneratorRuntime.awrap(query("SELECT date, total\n            FROM (\n                SELECT attendance_date AS date, COUNT(*) AS total\n                FROM absent_attendance_records\n                WHERE ".concat(column, " IS NOT NULL\n                ").concat(typeCondition, "\n                GROUP BY attendance_date\n                ORDER BY attendance_date DESC\n                LIMIT 7\n            ) AS subquery\n            ORDER BY date ASC;\n            ")));
 
-        case 8:
+        case 9:
           results = _context12.sent;
           console.log('Query results:', results);
 
           if (!(results.length === 0)) {
-            _context12.next = 14;
+            _context12.next = 15;
             break;
           }
 
@@ -1294,7 +1451,7 @@ router.post('/admin-attendance-graph', function _callee11(req, res) {
             absent: 0
           }));
 
-        case 14:
+        case 15:
           formattedResults = results.map(function (row) {
             var date = new Date(row.date);
             var formattedDate = "".concat(date.getDate(), "/").concat(date.getMonth() + 1);
@@ -1304,32 +1461,32 @@ router.post('/admin-attendance-graph', function _callee11(req, res) {
             };
           });
           res.json(formattedResults);
-          _context12.next = 22;
+          _context12.next = 23;
           break;
 
-        case 18:
-          _context12.prev = 18;
-          _context12.t0 = _context12["catch"](5);
+        case 19:
+          _context12.prev = 19;
+          _context12.t0 = _context12["catch"](6);
           console.error('Error fetching attendance summary:', _context12.t0);
           res.status(500).json({
             error: 'Internal Server Error'
           });
 
-        case 22:
+        case 23:
         case "end":
           return _context12.stop();
       }
     }
-  }, null, null, [[5, 18]]);
+  }, null, null, [[6, 19]]);
 });
 router.post('/getname', function _callee12(req, res) {
-  var _req$body4, userId, userType, table, queryStr, result;
+  var _req$body8, userId, userType, table, queryStr, result;
 
   return regeneratorRuntime.async(function _callee12$(_context13) {
     while (1) {
       switch (_context13.prev = _context13.next) {
         case 0:
-          _req$body4 = req.body, userId = _req$body4.userId, userType = _req$body4.userType;
+          _req$body8 = req.body, userId = _req$body8.userId, userType = _req$body8.userType;
           console.log(req.body);
 
           if (!(!userId || !userType)) {

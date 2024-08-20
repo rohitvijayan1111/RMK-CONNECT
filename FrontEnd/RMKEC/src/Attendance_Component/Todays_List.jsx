@@ -10,6 +10,7 @@ import dayjs from 'dayjs';
 import present from '../assets/absent.png';
 
 import { getTokenData } from '../Pages/authUtils';
+
 const UserGroupSelector = ({ setSelectedUserGroup }) => {
   const [selectedUserGroup, setSelectedUserGroupState] = useState('Student');
 
@@ -82,9 +83,9 @@ const Todays_List = () => {
   const [selectedDepartment, setSelectedDepartment] = useState('');
   const [selectedType, setSelectedType] = useState('All');
   const [name, setName] = useState('');
-  const tokendata=getTokenData();
+  const tokendata = getTokenData();
   const user = tokendata.role;
-  const department=tokendata.department;
+  const department = tokendata.department;
   const todayDate = dayjs().format('DD-MM-YYYY');
 
   useEffect(() => {
@@ -112,7 +113,6 @@ const Todays_List = () => {
         const keys = extractAttributeNames(response.data.data[0]);
         setAttributeNames(keys);
         setName('');  
-        setName('');  
       } else {
         setName("No Absentees Today");
         setAttributeNames([]);
@@ -131,7 +131,9 @@ const Todays_List = () => {
     <div>
       <div className='holder'>
         <UserGroupSelector setSelectedUserGroup={setSelectedUserGroup} />
-        <TypeSelector setSelectedType={setSelectedType} />
+        {selectedUserGroup === "Student" && (
+          <TypeSelector setSelectedType={setSelectedType} />
+        )}
         {(user !== 'hod' && user !== 'Attendance Manager') && (
           <DepartmentSelector setSelectedDepartment={setSelectedDepartment} />
         )}
@@ -146,7 +148,6 @@ const Todays_List = () => {
             <tr>
               <th>S.No</th>
               {attributeNames.map((attribute, index) => (
-                 <th key={index}>{attribute.replace(/_/g, ' ')}</th>
                  <th key={index}>{attribute.replace(/_/g, ' ')}</th>
               ))}
             </tr>

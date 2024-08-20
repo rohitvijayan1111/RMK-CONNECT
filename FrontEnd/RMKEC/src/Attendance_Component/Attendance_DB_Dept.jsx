@@ -41,7 +41,7 @@ const TypeSelector = ({ onTypeSelect }) => {
     <div>
       <select id="typeSelect" className='status-yr' value={selectedType} onChange={handleTypeChange}>
         <option value="All">All</option>
-        <option value="Hosteller">Hosteller</option>
+        <option value="Hostel">Hosteller</option>
         <option value="Day Scholar">Day Scholar</option>
       </select>
     </div>

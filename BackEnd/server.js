@@ -42,7 +42,11 @@ cron.schedule('0 0 * * *', () => {
       todayabsentcount_year_II = 0,
       todayabsentcount_year_III = 0,
       todayabsentcount_year_IV = 0,
-      todayabsentcount_staff = 0;
+      todayabsentcount_staff = 0,
+      hostellercount_year_I=0,
+      hostellercount_year_II=0,
+      hostellercount_year_III=0,
+      hostellercount_year_IV=0;
   `;
 
   db.query(resetQuery, (error, results, fields) => {

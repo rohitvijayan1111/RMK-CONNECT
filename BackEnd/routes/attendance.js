@@ -6,6 +6,7 @@ const moment = require('moment');
 const dayjs = require('dayjs');
 const timezone = require('dayjs/plugin/timezone');
 const utc = require('dayjs/plugin/utc');
+const { request } = require('http');
 
 dayjs.extend(utc);
 dayjs.extend(timezone);
@@ -69,8 +70,7 @@ router.post('/addabsent', async (req, res) => {
         }
 
         if (data.student_id) {
-            
-            const studentDetails = await query('SELECT year, department FROM students WHERE id = ?', [data.student_id]);
+            const studentDetails = await query('SELECT year, department, studentType FROM students WHERE id = ?', [data.student_id]);
 
             if (!studentDetails || studentDetails.length === 0) {
                 console.error('Student not found or missing year/department information');
@@ -79,18 +79,22 @@ router.post('/addabsent', async (req, res) => {
 
             const year = studentDetails[0].year;
             const studentDepartment = studentDetails[0].department;
+            const studentType = studentDetails[0].studentType;
 
             if (!year || !studentDepartment) {
                 console.error('Year or department information missing for the student');
                 return res.status(404).json({ error: 'Year or department information missing for the student' });
             }
 
-            console.log("Student Department is "+studentDepartment);
-            console.log("data department is "+data.department_name);
+            console.log("Student Department is " + studentDepartment);
+            console.log("Data department is " + data.department_name);
             if (studentDepartment.toLowerCase() !== data.department_name.toLowerCase()) {
                 console.error('Department mismatch for student');
                 return res.status(400).json({ error: `Student is not part of your Department` });
             }
+
+            // Add the studentType to the data to be inserted
+            data.studentType = studentType;
 
             console.log('Data to insert:', data);
             const insertQuery = 'INSERT INTO absent_attendance_records SET ?';
@@ -106,7 +110,6 @@ router.post('/addabsent', async (req, res) => {
             await query(updateQuery, [data.department_name]);
 
         } else if (data.staff_id) {
-            
             const staffDetails = await query('SELECT department FROM staffs WHERE id = ?', [data.staff_id]);
 
             if (!staffDetails || staffDetails.length === 0) {
@@ -121,7 +124,6 @@ router.post('/addabsent', async (req, res) => {
                 return res.status(404).json({ error: `Staff is not part of your Department` });
             }
 
-            
             if (staffDepartment.toLowerCase() !== data.department_name.toLowerCase()) {
                 console.error('Department mismatch for staff');
                 return res.status(400).json({ error: 'Department mismatch for staff' });
@@ -140,7 +142,7 @@ router.post('/addabsent', async (req, res) => {
             await query(updateQuery, [data.department_name]);
         }
 
-        res.json({ message:'Record inserted and count updated successfully' });
+        res.json({ message: 'Record inserted and count updated successfully' });
     } catch (error) {
         console.error('Error inserting record or updating count:', error);
         res.status(500).json({ error: 'Internal Server Error' });
@@ -254,48 +256,60 @@ router.post('/removeabsent', async (req, res) => {
 
 router.post('/getindividual', async (req, res) => {
     const { rollnumber, userGroup, department } = req.body;
-  
+
     if (!rollnumber || !userGroup || !department) {
-      return res.status(400).json({ error: 'Roll Number, User Group, and Department are required' });
+        return res.status(400).json({ error: 'Roll Number, User Group, and Department are required' });
     }
-  
+
     const column = userGroup === 'Student' ? 'student_id' : 'staff_id';
     const userTable = userGroup === 'Student' ? 'students' : 'staffs';
-  
+
     try {
-      let departmentCheckQuery = '';
-      let departmentCheckParams = [];
-  
-      if (department !== 'All') {
-        // Check if the roll number belongs to the specified department
-        departmentCheckQuery = `SELECT * FROM ${userTable} WHERE id= ? AND department= ?`;
-        departmentCheckParams = [rollnumber, department];
-      } else {
-        // Check if the roll number exists in the table
-        departmentCheckQuery = `SELECT * FROM ${userTable} WHERE id= ?`;
-        departmentCheckParams = [rollnumber];
-      }
-  
-      const departmentCheckResult = await query(departmentCheckQuery, departmentCheckParams);
-  
-      if (departmentCheckResult.length === 0) {
-        return res.status(400).json({ error: `${userGroup} doesn't belong to your department or doesn't exist` });
-      }
-  
-      // Fetch attendance records
-      const attendanceQuery = `SELECT * FROM absent_attendance_records WHERE ${column} = ?`;
-      const attendanceResult = await query(attendanceQuery, [rollnumber]);
-  
-      if (attendanceResult.length === 0) {
-        return res.status(400).json({ error: 'No Absent Record Exists For The Given Roll Number' });
-      }
-  
-      res.json(attendanceResult);
+        let departmentCheckQuery = '';
+        let departmentCheckParams = [];
+
+        if (department !== 'All') {
+            // Check if the roll number belongs to the specified department and fetch student details
+            departmentCheckQuery = `SELECT id, name, studentType, year FROM ${userTable} WHERE id = ? AND department = ?`;
+            departmentCheckParams = [rollnumber, department];
+        } else {
+            // Check if the roll number exists in the table and fetch student details
+            departmentCheckQuery = `SELECT id, name, studentType, year FROM ${userTable} WHERE id = ?`;
+            departmentCheckParams = [rollnumber];
+        }
+
+        const departmentCheckResult = await query(departmentCheckQuery, departmentCheckParams);
+
+        if (departmentCheckResult.length === 0) {
+            return res.status(400).json({ error: `${userGroup} doesn't belong to your department or doesn't exist` });
+        }
+
+        // Extract student details
+        const { name, studentType, year } = departmentCheckResult[0];
+
+        // Fetch attendance records
+        const attendanceQuery = `SELECT * FROM absent_attendance_records WHERE ${column} = ?`;
+        const attendanceResult = await query(attendanceQuery, [rollnumber]);
+
+        if (attendanceResult.length === 0) {
+            return res.status(400).json({ error: 'No Absent Record Exists For The Given Roll Number' });
+        }
+
+        // Combine attendance records with student details
+        const response = {
+            name,
+            studentType,
+            year,
+            attendanceRecords: attendanceResult,
+        };
+
+        res.json(response);
     } catch (error) {
-      console.error('Error fetching data:', error);
-      res.status(500).json({ error: 'Error fetching data' });
+        console.error('Error fetching data:', error);
+        res.status(500).json({ error: 'Error fetching data' });
     }
-  });
+});
+
 router.post('/fetchtoday', async (req, res) => {
     console.log('Received request body:', req.body);
     const userGroup = req.body.selectedUserGroup;
@@ -489,47 +503,111 @@ router.post('/fetchdatedata', async (req, res) => {
     }
 });
 router.post('/attendance-summary', async (req, res) => {
-    const { department} = req.body;
-    
+    const { user, type, department } = req.body;
+    console.log(req.body);
+
     if (!department) {
         return res.status(400).json({ error: 'Department is required' });
     }
-   
+
     try {
         const results = await query('SELECT * FROM membercount WHERE department_name = ?', [department]);
-        
+
         if (results.length === 0) {
             return res.status(404).json({ error: 'Department not found' });
         }
 
+        let data = [];
         const row = results[0];
-        const data = [
-            {
-                name: "I YR",
-                present: row.year_I_count - row.todayabsentcount_year_I,
-                absent: row.todayabsentcount_year_I,
-            },
-            {
-                name: "II YR",
-                present: row.year_II_count - row.todayabsentcount_year_II,
-                absent: row.todayabsentcount_year_II,
-            },
-            {
-                name: "III YR",
-                present: row.year_III_count - row.todayabsentcount_year_III,
-                absent: row.todayabsentcount_year_III,
-            },
-            {
-                name: "IV YR",
-                present: row.year_IV_count - row.todayabsentcount_year_IV,
-                absent: row.todayabsentcount_year_IV,
-            },
-            {
-                name:'Staff',
-                present:row. staff_count-row.todayabsentcount_staff,
-                absent:row.todayabsentcount_staff
-            }
-        ];
+        console.log("ROWWW IS");
+        console.log(row);
+        if (type === "All") {
+            data = [
+                {
+                    name: "I YR",
+                    present: row.year_I_count - row.todayabsentcount_year_I,
+                    absent: row.todayabsentcount_year_I,
+                },
+                {
+                    name: "II YR",
+                    present: row.year_II_count - row.todayabsentcount_year_II,
+                    absent: row.todayabsentcount_year_II,
+                },
+                {
+                    name: "III YR",
+                    present: row.year_III_count - row.todayabsentcount_year_III,
+                    absent: row.todayabsentcount_year_III,
+                },
+                {
+                    name: "IV YR",
+                    present: row.year_IV_count - row.todayabsentcount_year_IV,
+                    absent: row.todayabsentcount_year_IV,
+                },
+                {
+                    name: 'Staff',
+                    present: row.staff_count - row.todayabsentcount_staff,
+                    absent: row.todayabsentcount_staff
+                }
+            ];
+        } else if (type ==="Hostel") {
+            data = [
+                {
+                    name: "I YR",
+                    present: row.hostel_year_I_count - row.hostellercount_year_I,
+                    absent: row.hostel_year_I_count,
+                },
+                {
+                    name: "II YR",
+                    present: row.hostel_year_II_count - row.hostellercount_year_II,
+                    absent: row.hostel_year_II_count,
+                },
+                {
+                    name: "III YR",
+                    present: row.hostel_year_III_count - row.hostellercount_year_III,
+                    absent: row.hostel_year_III_count,
+                },
+                {
+                    name: "IV YR",
+                    present: row.hostel_year_IV_count - row.hostellercount_year_IV,
+                    absent: row.hostel_year_IV_count,
+                },
+                {
+                    name: 'Staff',
+                    present: row.staff_count - row.todayabsentcount_staff,
+                    absent: row.todayabsentcount_staff
+                }
+            ];
+        } else if (type === "Day Scholar") {
+            data = [
+                {
+                    name: "I YR",
+                    present: row.year_I_count - row.todayabsentcount_year_I - row.hostellercount_year_I,
+                    absent: row.todayabsentcount_year_I - row.hostellercount_year_I,
+                },
+                {
+                    name: "II YR",
+                    present: row.year_II_count - row.todayabsentcount_year_II - row.hostellercount_year_II,
+                    absent: row.todayabsentcount_year_II - row.hostellercount_year_II,
+                },
+                {
+                    name: "III YR",
+                    present: row.year_III_count - row.todayabsentcount_year_III - row.hostellercount_year_III,
+                    absent: row.todayabsentcount_year_III - row.hostellercount_year_III,
+                },
+                {
+                    name: "IV YR",
+                    present: row.year_IV_count - row.todayabsentcount_year_IV - row.hostellercount_year_IV,
+                    absent: row.todayabsentcount_year_IV - row.hostellercount_year_IV,
+                },
+                {
+                    name: 'Staff',
+                    present: row.staff_count - row.todayabsentcount_staff,
+                    absent: row.todayabsentcount_staff
+                }
+            ];
+        }
+        console.log(type);
+        console.log(data);
         res.json(data);
     } catch (error) {
         console.error('Error fetching attendance summary:', error);
@@ -537,7 +615,7 @@ router.post('/attendance-summary', async (req, res) => {
     }
 });
 router.post('/attendance-count-summary', async (req, res) => {
-    const { department } = req.body;
+    const {type,user,department } = req.body;
     
     if (!department) {
         return res.status(400).json({ error: 'Department is required' });
@@ -555,8 +633,11 @@ router.post('/attendance-count-summary', async (req, res) => {
         const absent_student = row.todayabsentcount_year_I + row.todayabsentcount_year_II + row.todayabsentcount_year_III + row.todayabsentcount_year_IV;
         const total_staff = row.staff_count;
         const absent_staff = row.todayabsentcount_staff;
-        
-        const data = {
+        const hostel_total_student=row.hostel_year_I_count+row.hostel_year_II_count+row.hostel_year_III_count+row.hostel_year_IV_count;
+        const hostel_absent_student = row.hostellercount_year_I + row.hostellercount_year_II + row.hostellercount_year_III + row.hostellercount_year_IV;
+        let data=[]
+        if(type=="All"){ 
+        data = {
             Total_students: total_student,
             Student_Present: total_student - absent_student,
             Student_Absent: absent_student,
@@ -564,7 +645,29 @@ router.post('/attendance-count-summary', async (req, res) => {
             Staff_Present: total_staff - absent_staff,
             Staff_Absent: absent_staff
         };
-
+        }
+        else if(type=="Hostel")
+        {
+            data = {
+                Total_students:hostel_total_student,
+                Student_Present: hostel_total_student-hostel_absent_student,
+                Student_Absent: hostel_absent_student,
+                Total_staff: total_staff,
+                Staff_Present: total_staff - absent_staff,
+                Staff_Absent: absent_staff
+            };
+        }
+        else if(type=="Day Scholar")
+            {
+                data = {
+                    Total_students:total_student-hostel_total_student,
+                    Student_Present: total_student-hostel_total_student-(absent_student-hostel_absent_student),
+                    Student_Absent: absent_student-hostel_absent_student,
+                    Total_staff: total_staff,
+                    Staff_Present: total_staff - absent_staff,
+                    Staff_Absent: absent_staff
+                };
+            }
         res.json(data);
     } catch (error) {
         console.error('Error fetching attendance summary:', error);
@@ -572,21 +675,47 @@ router.post('/attendance-count-summary', async (req, res) => {
     }
 });
 router.post('/attendance-graph', async (req, res) => {
-    const { user, department} = req.body;
+    const { user, type, department } = req.body;
     console.log(req.body);
+
     if (!department || !user) {
         return res.status(400).json({ error: 'Department and user type are required' });
     }
 
     let column;
+    let typeCondition = '';
+
     if (user === 'Student') {
         column = "student_id";
+
+        // Add the type condition based on the value of 'type'
+        if (type === 'Hostel') {
+            typeCondition = "AND studentType = 'Hostel'";
+        } else if (type === 'Day Scholar') {
+            typeCondition = "AND studentType = 'Day Scholar'";
+        }
+        // If type is 'All', no additional condition is needed.
     } else {
         column = "staff_id";
     }
 
     try {
-        const results = await query(`SELECT attendance_date as date, count(*) as total FROM absent_attendance_records WHERE department_name = ? AND ${column} IS NOT NULL GROUP BY date ORDER BY date desc LIMIT 7`, [department]);
+        const results = await query(
+            `SELECT date, total
+            FROM (
+                SELECT attendance_date as date, COUNT(*) as total 
+                FROM absent_attendance_records 
+                WHERE department_name = ? 
+                AND ${column} IS NOT NULL 
+                ${typeCondition} 
+                GROUP BY attendance_date
+                ORDER BY attendance_date DESC
+                LIMIT 7
+            ) AS subquery
+            ORDER BY date ASC;
+            `,
+            [department]
+        );
         console.log('Query results:', results);
 
         if (results.length === 0) {
@@ -597,7 +726,6 @@ router.post('/attendance-graph', async (req, res) => {
                 absent: 0
             });
         }
-        
 
         const formattedResults = results.map(row => {
             const date = new Date(row.date);
@@ -616,7 +744,7 @@ router.post('/attendance-graph', async (req, res) => {
 });
 
 router.post('/admin-attendance-summary', async (req, res) => {
-    const { user } = req.body;
+    const { user, type, department } = req.body;
 
     if (!user) {
         return res.status(400).json({ error: 'User type is required' });
@@ -627,16 +755,41 @@ router.post('/admin-attendance-summary', async (req, res) => {
     let absentField;
 
     if (user.toLowerCase() === 'student') {
-        queryStr = `
-            SELECT 
-                department_name, 
-                (SUM(year_I_count) + SUM(year_II_count) + SUM(year_III_count) + SUM(year_IV_count)) AS total_students, 
-                (SUM(todayabsentcount_year_I) + SUM(todayabsentcount_year_II) + SUM(todayabsentcount_year_III) + SUM(todayabsentcount_year_IV)) AS total_absent_students
-            FROM membercount 
-            GROUP BY department_name
-        `;
-        presentField = 'total_students';
-        absentField = 'total_absent_students';
+        if (type === "All") {
+            queryStr = `
+                SELECT 
+                    department_name, 
+                    (SUM(year_I_count) + SUM(year_II_count) + SUM(year_III_count) + SUM(year_IV_count)) AS total_students, 
+                    (SUM(todayabsentcount_year_I) + SUM(todayabsentcount_year_II) + SUM(todayabsentcount_year_III) + SUM(todayabsentcount_year_IV)) AS total_absent_students
+                FROM membercount 
+                GROUP BY department_name
+            `;
+            presentField = 'total_students';
+            absentField = 'total_absent_students';
+        } else if (type === "Hostel") {
+            queryStr = `
+                SELECT 
+                    department_name, 
+                    (SUM(hostel_year_I_count) + SUM(hostel_year_II_count) + SUM(hostel_year_III_count) + SUM(hostel_year_IV_count)) AS total_hostel_students, 
+                    (SUM(hostellercount_year_I) + SUM(hostellercount_year_II) + SUM(hostellercount_year_III) + SUM(hostellercount_year_IV)) AS total_absent_hostel_students
+                FROM membercount 
+                GROUP BY department_name
+            `;
+            presentField = 'total_hostel_students';
+            absentField = 'total_absent_hostel_students';
+        } else if (type === "Day Scholar") {
+            queryStr = `
+                SELECT 
+                    department_name, 
+                    (SUM(year_I_count) + SUM(year_II_count) + SUM(year_III_count) + SUM(year_IV_count)) AS total_day_scholar_students, 
+                    (SUM(todayabsentcount_year_I) + SUM(todayabsentcount_year_II) + SUM(todayabsentcount_year_III) + SUM(todayabsentcount_year_IV)) -
+                    (SUM(hostellercount_year_I) + SUM(hostellercount_year_II) + SUM(hostellercount_year_III) + SUM(hostellercount_year_IV)) AS total_absent_day_scholar_students
+                FROM membercount 
+                GROUP BY department_name
+            `;
+            presentField = 'total_day_scholar_students';
+            absentField = 'total_absent_day_scholar_students';
+        }
     } else if (user.toLowerCase() === 'faculty') {
         queryStr = `
             SELECT 
@@ -672,6 +825,8 @@ router.post('/admin-attendance-summary', async (req, res) => {
     }
 });
 router.post('/admin-attendance-count-summary', async (req, res) => {
+    const { type } = req.body; // Assuming 'type' is sent in the request body
+
     try {
         console.log("INNN");
         const results = await query('SELECT * FROM membercount');
@@ -684,21 +839,49 @@ router.post('/admin-attendance-count-summary', async (req, res) => {
         let total_staff = 0;
         let absent_staff = 0;
 
+        let hostel_total_student = 0;
+        let hostel_absent_student = 0;
+
         results.forEach(row => {
             total_student += row.year_I_count + row.year_II_count + row.year_III_count + row.year_IV_count;
             absent_student += row.todayabsentcount_year_I + row.todayabsentcount_year_II + row.todayabsentcount_year_III + row.todayabsentcount_year_IV;
             total_staff += row.staff_count;
             absent_staff += row.todayabsentcount_staff;
+
+            hostel_total_student += row.hostel_year_I_count + row.hostel_year_II_count + row.hostel_year_III_count + row.hostel_year_IV_count;
+            hostel_absent_student += row.hostellercount_year_I + row.hostellercount_year_II + row.hostellercount_year_III + row.hostellercount_year_IV;
         });
 
-        const data = {
-            Total_students: total_student,
-            Student_Present: total_student - absent_student,
-            Student_Absent: absent_student,
-            Total_staff: total_staff,
-            Staff_Present: total_staff - absent_staff,
-            Staff_Absent: absent_staff
-        };
+        let data = {};
+
+        if (type === "All") {
+            data = {
+                Total_students: total_student,
+                Student_Present: total_student - absent_student,
+                Student_Absent: absent_student,
+                Total_staff: total_staff,
+                Staff_Present: total_staff - absent_staff,
+                Staff_Absent: absent_staff
+            };
+        } else if (type === "Hostel") {
+            data = {
+                Total_students: hostel_total_student,
+                Student_Present: hostel_total_student - hostel_absent_student,
+                Student_Absent: hostel_absent_student,
+                Total_staff: total_staff,
+                Staff_Present: total_staff - absent_staff,
+                Staff_Absent: absent_staff
+            };
+        } else if (type === "Day Scholar") {
+            data = {
+                Total_students: total_student - hostel_total_student,
+                Student_Present: (total_student - hostel_total_student) - (absent_student - hostel_absent_student),
+                Student_Absent: absent_student - hostel_absent_student,
+                Total_staff: total_staff,
+                Staff_Present: total_staff - absent_staff,
+                Staff_Absent: absent_staff
+            };
+        }
 
         res.json(data);
     } catch (error) {
@@ -707,7 +890,7 @@ router.post('/admin-attendance-count-summary', async (req, res) => {
     }
 });
 router.post('/admin-attendance-graph', async (req, res) => {
-    const { user } = req.body;
+    const { user, type } = req.body;  // Extract type from req.body
     console.log(req.body);
     
     if (!user) {
@@ -715,14 +898,37 @@ router.post('/admin-attendance-graph', async (req, res) => {
     }
 
     let column;
+    let typeCondition = '';
+
     if (user === 'Student') {
         column = "student_id";
+
+        // Add the type condition based on the value of 'type'
+        if (type === 'Hostel') {
+            typeCondition = "AND studentType = 'Hostel'";
+        } else if (type === 'Day Scholar') {
+            typeCondition = "AND studentType = 'Day Scholar'";
+        }
+        // If type is 'All', no additional condition is needed.
     } else {
         column = "staff_id";
     }
 
     try {
-        const results = await query(`SELECT attendance_date as date, count(*) as total FROM absent_attendance_records WHERE ${column} IS NOT NULL GROUP BY date LIMIT 7`);
+        const results = await query(
+            `SELECT date, total
+            FROM (
+                SELECT attendance_date AS date, COUNT(*) AS total
+                FROM absent_attendance_records
+                WHERE ${column} IS NOT NULL
+                ${typeCondition}
+                GROUP BY attendance_date
+                ORDER BY attendance_date DESC
+                LIMIT 7
+            ) AS subquery
+            ORDER BY date ASC;
+            `
+        );
         console.log('Query results:', results);
 
         if (results.length === 0) {
@@ -733,7 +939,6 @@ router.post('/admin-attendance-graph', async (req, res) => {
                 absent: 0
             });
         }
-        
 
         const formattedResults = results.map(row => {
             const date = new Date(row.date);
@@ -750,6 +955,7 @@ router.post('/admin-attendance-graph', async (req, res) => {
         res.status(500).json({ error: 'Internal Server Error' });
     }
 });
+
 
 router.post('/getname', async (req, res) => {
     const { userId, userType } = req.body;

@@ -52,7 +52,7 @@ app.use('/attendance', attendanceRoutes);
 app.use('/hall', hallBookingsRoutes);
 cron.schedule('0 0 * * *', function () {
   console.log('Cron job triggered every minute.');
-  var resetQuery = "\n    UPDATE membercount\n    SET \n      todayabsentcount_year_I = 0,\n      todayabsentcount_year_II = 0,\n      todayabsentcount_year_III = 0,\n      todayabsentcount_year_IV = 0,\n      todayabsentcount_staff = 0;\n  ";
+  var resetQuery = "\n    UPDATE membercount\n    SET \n      todayabsentcount_year_I = 0,\n      todayabsentcount_year_II = 0,\n      todayabsentcount_year_III = 0,\n      todayabsentcount_year_IV = 0,\n      todayabsentcount_staff = 0,\n      hostellercount_year_I=0,\n      hostellercount_year_II=0,\n      hostellercount_year_III=0,\n      hostellercount_year_IV=0;\n  ";
   db.query(resetQuery, function (error, results, fields) {
     if (error) {
       console.error('Error resetting counts:', error.message);
