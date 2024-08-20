@@ -15,7 +15,7 @@ function LoginPage() {
   const navigate = useNavigate();
 
   const generateCaptcha = () => {
-    const chars = 'abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789';
+    const chars = 'abcdefghijklmnopqrstuvwxyzABCDEGJKLMNOPQRSTUVWXYZ023456789';
     let captcha = '';
     for (let i = 0; i < 5; i++) {
       const char = chars[Math.floor(Math.random() * chars.length)];

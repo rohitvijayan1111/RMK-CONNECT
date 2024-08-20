@@ -271,3 +271,61 @@
   transition: background-color 0.3s ease, transform 0.3s ease; 
   text-align: center;
 }
+
+.file-upload-container {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin-top: 8px;
+  margin-bottom: 20px;
+}
+
+.cntr[type="file"] {
+  flex: 1;
+  border: 1px solid #ccc;
+  border-radius: 4px;
+  padding: 6px 12px;
+  cursor: pointer;
+  font-size: 16px;
+  transition: border-color 0.3s ease-in-out;
+}
+
+.cntr[type="file"]:hover {
+  border-color: #164863;
+}
+
+.file-upload-container button {
+  padding: 8px 16px;
+  background-color: #164863;
+  color: #fff;
+  border: none;
+  border-radius: 4px;
+  font-size: 14px;
+  cursor: pointer;
+  transition: background-color 0.3s ease-in-out;
+}
+.cntr[type="file"] {
+  position: absolute;
+  width: 0;
+  height: 0;
+  padding: 0;
+  margin: 0;
+  overflow: hidden;
+  border: 0;
+}
+.custom-file-upload {
+  display: inline-block;
+  padding: 8px 16px;
+  font-size: 16px;
+  font-weight: 500;
+  color: #fff;
+  background-color: #164863;
+  border-radius: 4px;
+  cursor: pointer;
+  transition: background-color 0.3s ease-in-out;
+  text-align: center;
+}
+.bttns{
+  display: flex;
+  justify-content: space-around;
+}

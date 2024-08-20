@@ -235,9 +235,10 @@ function OtherFormsRecords() {
     <div className="container">
         <h1>{form.form_title}</h1>
       <div className="row mb-3">
-        {role==='hod' && <div className="col">
-          <button type="button" onClick={handleAdd} className="search-button">Add Records</button>
-        </div>}
+        
+        <div className="col">
+          <button type="button" onClick={exportToExcel} className="bttexport">Export to Excel</button>
+        </div>
 
         <div className="col">
           <select className="custom-select" value={searchColumn} onChange={(e) => setSearchColumn(e.target.value)}>
@@ -266,10 +267,10 @@ function OtherFormsRecords() {
         {role === "IQAC" && <div className="col">
           <button type="button" onClick={handleLock} className="bttlock">{(!lockedstatus) ? "Lock Form" : "Unlock Form"}</button>
         </div>}
-        <div className="col">
-          <button type="button" onClick={exportToExcel} className="bttexport">Export to Excel</button>
-        </div>
 
+        {role==='hod' && <div className="col">
+          <button type="button" onClick={handleAdd} className="search-button">Add Records</button>
+        </div>}
       </div>
 
       {data && (

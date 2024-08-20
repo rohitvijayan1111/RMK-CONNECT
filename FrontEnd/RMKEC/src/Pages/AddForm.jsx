@@ -62,7 +62,12 @@ const AddForm = () => {
   const handleFileReset = () => {
     setFile(null);
     setFileInputKey(Date.now()); 
+    setData((prevData) => ({
+      ...prevData,
+      document: 'No file selected' 
+    }));
   };
+  
 
   const handleSubmit = async (e) => {
     e.preventDefault();
@@ -143,17 +148,35 @@ const AddForm = () => {
                     />
                   </LocalizationProvider>
                 ) : attributeTypes[attribute] === 'file' ? (
-                  <>
+                  <div>
+
+                    <div className="file-upload-container">
+                      <input
+                        type="text"
+                        className="cntr"
+                        value={data[attribute] || 'No file selected'}
+                        readOnly
+                      />
+                    </div>
+                    <div className='bttns'>
+                      <label htmlFor={attribute}  className="custom-file-upload">
+                        Choose File
+                      </label>
+                      <button type="button" className="custom-file-upload" onClick={handleFileReset}>Reset File</button>
+                    </div>
                     <input
                       type="file"
-                      className="cntr"
                       id={attribute}
-                      onChange={handleFileChange}
-                      key={fileInputKey} 
+                      className="custom-file-upload"
+                      onChange={(e) => {
+                        handleFileChange(e);
+                        setData((prevData) => ({ ...prevData, [attribute]: e.target.files[0].name }));
+                      }}
+                      key={fileInputKey}
+                      style={{ display: 'none' }}
                       required
                     />
-                    <button type="button" onClick={handleFileReset}>Reset File</button>
-                  </>
+                  </div>
                 ) : attributeTypes[attribute] === 'Placement_Percentage' ?( 
                   <>
                   <input

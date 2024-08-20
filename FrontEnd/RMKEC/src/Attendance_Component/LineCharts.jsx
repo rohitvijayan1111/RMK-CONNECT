@@ -16,11 +16,15 @@ const CustomTooltip = ({ active, payload, label }) => {
     return (
       <div className="custom-tooltip-pbg">
         <p className="tooltip-value-pbg">
-        {payload.map((entry, index) => (
-          <p key={`item-${index}`} className="intro" style={{ color: entry.color }}>
-            {`${entry.value}`}
-          </p>
-        ))}
+          {payload.map((entry, index) => (
+            <p
+              key={`item-${index}`}
+              className="intro"
+              style={{ color: entry.color, fontSize: "16px" }}
+            >
+              {`${entry.value}`}
+            </p>
+          ))}
         </p>
       </div>
     );
@@ -29,23 +33,24 @@ const CustomTooltip = ({ active, payload, label }) => {
   return null;
 };
 
-export default function LineCharts({data}) {
+export default function LineCharts({ data }) {
   return (
-    <ResponsiveContainer>
-    <LineChart width={500} height={300} data={data}>
-      <CartesianGrid stroke="white" strokeDasharray="3 3" />
-      <XAxis dataKey="name"  />
-      <YAxis />
-      <Tooltip content={<CustomTooltip />} />
-      <Legend />
-      <Line
-        type="monotone"
-        dataKey="absent"
-        stroke="#8884d8"
-        activeDot={{ r: 8 }}
-        animationBegin={0} animationDuration={1400}
-      />
-    </LineChart>    
+    <ResponsiveContainer >
+      <LineChart data={data} width={500} height={300} margin={{ top: 20, right: 20, left: -30, bottom: 5 }} >
+        <CartesianGrid stroke="white" strokeDasharray="3 3" />
+        <XAxis dataKey="name" tick={{ fontSize: 16 }} /> 
+        <YAxis tick={{ fontSize: 16 }} /> 
+        <Tooltip content={<CustomTooltip />} />
+        <Legend wrapperStyle={{ fontSize: "16px" }} />
+        <Line
+          type="monotone"
+          dataKey="absent"
+          stroke="#8884d8"
+          activeDot={{ r: 8 }}
+          animationBegin={0}
+          animationDuration={1400}
+        />
+      </LineChart>
     </ResponsiveContainer>
   );
 }

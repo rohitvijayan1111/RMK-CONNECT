@@ -20,7 +20,10 @@ const PlacementBarGraph = ({ Details }) => {
         height={300}
         data={Details}
         margin={{
-          right: 30,
+          top: 20,
+          right: 10,
+          left: -20,
+          bottom: -20,
         }}
       >
         <CartesianGrid stroke="white" strokeDasharray="3 3" />

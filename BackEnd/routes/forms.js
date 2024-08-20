@@ -3,7 +3,6 @@ const router = express.Router();
 const db = require('../config/db');
 const cors = require('cors');
 
-// Allow requests from all origins
 router.use(cors());
 
 const getFriendlyErrorMessage = (errCode) => {

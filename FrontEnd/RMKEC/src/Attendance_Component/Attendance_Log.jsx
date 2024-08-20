@@ -74,6 +74,20 @@ const HostellerDayScholarSelector = ({ setSelectedHostellerDayScholar }) => {
   );
 };
 
+const notifyfailure = (error) => {
+  toast.error(error, {
+    position: "top-center",
+    autoClose: 5000,
+    hideProgressBar: false,
+    closeOnClick: true,
+    pauseOnHover: true,
+    draggable: true,
+    progress: undefined,
+    theme: "colored",
+    transition: Zoom,
+  });
+};
+
 const Attendance_Log = () => {
   const [selectedUserGroup, setSelectedUserGroup] = useState('Student');
   const [data, setData] = useState([]);
@@ -125,12 +139,12 @@ const Attendance_Log = () => {
     setAttributeNames([]);
 
     if (!selectedDate) {
-      toast.error("Please select a date before fetching data.");
+      notifyfailure("Please select a date before fetching data.");
       return;
     }
   
     if ((user !== 'hod' && user !== 'Attendance Manager') && !selectedDepartment) {
-      toast.error("Please select a department before fetching data.");
+      notifyfailure("Please select a department before fetching data.");
       return;
     }
     fetchData();
@@ -146,6 +160,7 @@ const Attendance_Log = () => {
     <div className='hon'>
       <div className='ddbtt'>
         <UserGroupSelector setSelectedUserGroup={setSelectedUserGroup} />
+        <HostellerDayScholarSelector setSelectedHostellerDayScholar={setSelectedHostellerDayScholar} />
         {(user !== 'hod' && user !== 'Attendance Manager') && <DepartmentSelector setSelectedDepartment={setSelectedDepartment} />}
         {selectedUserGroup === "Student" && <HostellerDayScholarSelector setSelectedHostellerDayScholar={setSelectedHostellerDayScholar} />}
       </div>
@@ -165,6 +180,7 @@ const Attendance_Log = () => {
           <img src={log} width="70%" height="80%"/>
         </div>}
       {data.length > 0 && (
+        <div className='ta'>
         <Table striped bordered hover>
           <thead>
             <tr>
@@ -194,6 +210,7 @@ const Attendance_Log = () => {
 
           </tbody>
         </Table>
+        </div>
       )}
       <ToastContainer />
     </div>
