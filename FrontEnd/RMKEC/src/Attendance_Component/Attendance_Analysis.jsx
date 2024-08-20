@@ -75,10 +75,6 @@ const Attendance_Analysis = () => {
   };
 
   const handleFetchClick = () => {
-    if (!rollNumber.trim()) {
-      notifyfailure('Please enter a valid roll number');
-      return;
-    }
     setData([]);
     setName("");
     setYear('');
