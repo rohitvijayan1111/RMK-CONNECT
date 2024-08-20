@@ -658,7 +658,7 @@ router.post('/fetchtoday', function _callee4(req, res) {
             break;
           }
 
-          queryStr = "\n                SELECT \n                    s.name AS name,\n                    s.academic_year AS academic_year,\n                    s.department AS dept,\n                    s.parent_mail AS parent_mail,\n                    a.reason AS Reason,\n                    a.leave_type AS Leave_Type\n                FROM students s\n                INNER JOIN absent_attendance_records a ON s.id = a.student_id\n                WHERE a.attendance_date = ? AND s.department IS NOT NULL;\n            ";
+          queryStr = "\n                SELECT \n                    s.name AS name,\n                    s.academic_year AS academic_year,\n                    s.department AS dept,\n                    s.parent_mail AS parent_mail,\n                    s.studentType AS studentType, -- Include studentType\n                    a.reason AS Reason,\n                    a.leave_type AS Leave_Type\n                FROM students s\n                INNER JOIN absent_attendance_records a ON s.id = a.student_id\n                WHERE a.attendance_date = ? AND s.department IS NOT NULL;\n            ";
           params = [formattedDate];
           _context5.next = 20;
           break;
@@ -689,7 +689,7 @@ router.post('/fetchtoday', function _callee4(req, res) {
             break;
           }
 
-          queryStr = "\n                SELECT \n                    s.name AS name,\n                    s.academic_year AS academic_year,\n                    s.department AS dept,\n                    s.parent_mail AS parent_mail,\n                    a.reason AS Reason,\n                    a.leave_type AS Leave_Type\n                FROM students s\n                INNER JOIN absent_attendance_records a ON s.id = a.student_id\n                WHERE a.attendance_date = ? AND s.department = ?;\n            ";
+          queryStr = "\n                SELECT \n                    s.name AS name,\n                    s.academic_year AS academic_year,\n                    s.department AS dept,\n                    s.parent_mail AS parent_mail,\n                    s.studentType AS studentType, -- Include studentType\n                    a.reason AS Reason,\n                    a.leave_type AS Leave_Type\n                FROM students s\n                INNER JOIN absent_attendance_records a ON s.id = a.student_id\n                WHERE a.attendance_date = ? AND s.department = ?;\n            ";
           params = [formattedDate, department];
           _context5.next = 33;
           break;
@@ -726,7 +726,7 @@ router.post('/fetchtoday', function _callee4(req, res) {
           }
 
           return _context5.abrupt("return", res.status(404).json({
-            error: "No ".concat(userGroup, "s                                                                                                                                                                                                           Are Absent")
+            error: "No ".concat(userGroup, "s Are Absent")
           }));
 
         case 41:
@@ -787,7 +787,7 @@ router.post('/fetchdatedata', function _callee5(req, res) {
             break;
           }
 
-          queryStr = "\n                SELECT \n                    s.name AS name,\n                    s.academic_year AS academic_year,\n                    s.department AS dept,\n                    s.parent_mail AS parent_mail,\n                    a.reason AS Reason,\n                    a.leave_type AS Leave_Type\n                FROM students s\n                INNER JOIN absent_attendance_records a ON s.id = a.student_id\n                WHERE a.attendance_date = ? AND s.department IS NOT NULL;\n            ";
+          queryStr = "\n                SELECT \n                    s.name AS name,\n                    s.academic_year AS academic_year,\n                    s.department AS dept,\n                    s.studentType AS studentType,\n                    s.parent_mail AS parent_mail,\n                    a.reason AS Reason,\n                    a.leave_type AS Leave_Type\n                FROM students s\n                INNER JOIN absent_attendance_records a ON s.id = a.student_id\n                WHERE a.attendance_date = ? AND s.department IS NOT NULL;\n            ";
           params = [formattedDate];
           _context6.next = 22;
           break;
@@ -818,7 +818,7 @@ router.post('/fetchdatedata', function _callee5(req, res) {
             break;
           }
 
-          queryStr = "\n                SELECT \n                    s.name AS name,\n                    s.academic_year AS academic_year,\n                    s.department AS dept,\n                    s.parent_mail AS parent_mail,\n                    a.reason AS Reason,\n                    a.leave_type AS Leave_Type\n                FROM students s\n                INNER JOIN absent_attendance_records a ON s.id = a.student_id\n                WHERE a.attendance_date = ? AND s.department = ?;\n            ";
+          queryStr = "\n                SELECT \n                    s.name AS name,\n                    s.academic_year AS academic_year,\n                    s.department AS dept,\n                    s.studentType AS studentType,\n                    s.parent_mail AS parent_mail,\n                    a.reason AS Reason,\n                    a.leave_type AS Leave_Type\n                    \n                FROM students s\n                INNER JOIN absent_attendance_records a ON s.id = a.student_id\n                WHERE a.attendance_date = ? AND s.department = ?;\n            ";
           params = [formattedDate, department];
           _context6.next = 35;
           break;

@@ -67,7 +67,7 @@ const HostellerDayScholarSelector = ({ setSelectedHostellerDayScholar }) => {
     <div>
       <select id="hostellerDayScholarSelect" className='status-yr' onChange={handleHostellerDayScholarChange} required>
         <option value="All">All</option>
-        <option value="Hosteller">Hosteller</option>
+        <option value="Hostel">Hosteller</option>
         <option value="Day Scholar">Day Scholar</option>
       </select>
     </div>
@@ -147,7 +147,7 @@ const Attendance_Log = () => {
       <div className='ddbtt'>
         <UserGroupSelector setSelectedUserGroup={setSelectedUserGroup} />
         {(user !== 'hod' && user !== 'Attendance Manager') && <DepartmentSelector setSelectedDepartment={setSelectedDepartment} />}
-        <HostellerDayScholarSelector setSelectedHostellerDayScholar={setSelectedHostellerDayScholar} />
+        {selectedUserGroup === "Student" && <HostellerDayScholarSelector setSelectedHostellerDayScholar={setSelectedHostellerDayScholar} />}
       </div>
       <div className='conte'>
         <LocalizationProvider dateAdapter={AdapterDayjs}>
@@ -175,7 +175,7 @@ const Attendance_Log = () => {
             </tr>
           </thead>
           <tbody>
-            {data.map((item, index) => (
+          {selectedUserGroup==="Student" && data.filter(item => selectedHostellerDayScholar === "All" || item.studentType === selectedHostellerDayScholar).map((item, index) => (
               <tr key={index}>
                 <td>{index + 1}</td>
                 {attributeNames.map((attribute, idx) => (
@@ -183,6 +183,15 @@ const Attendance_Log = () => {
                 ))}
               </tr>
             ))}
+            {selectedUserGroup!=="Student" && data.map((item, index) => (
+              <tr key={index}>
+                <td>{index + 1}</td>
+                {attributeNames.map((attribute, idx) => (
+                  <td key={idx}>{item[attribute]}</td>
+                ))}
+              </tr>
+            ))}
+
           </tbody>
         </Table>
       )}

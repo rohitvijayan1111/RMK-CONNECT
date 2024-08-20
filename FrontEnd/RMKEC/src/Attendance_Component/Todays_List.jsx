@@ -68,7 +68,7 @@ const TypeSelector = ({ setSelectedType }) => {
     <div>
       <select id="typeSelect" className='status-yr' onChange={handleTypeChange} value={selectedType} required>
         <option value="All">All</option>
-        <option value="Hosteller">Hosteller</option>
+        <option value="Hostel">Hostel</option>
         <option value="Day Scholar">Day Scholar</option>
       </select>
     </div>
@@ -103,7 +103,7 @@ const Todays_List = () => {
       const response = await axios.post('http://localhost:3000/attendance/fetchtoday', {
         selectedUserGroup,
         department: departmentToFetch,
-        type: selectedType, // Include the selected type in the request
+        type: selectedType,
       });
 
       console.log('Response data:', response.data);
@@ -111,6 +111,7 @@ const Todays_List = () => {
       if (response.data.data && response.data.data.length > 0) {
         const keys = extractAttributeNames(response.data.data[0]);
         setAttributeNames(keys);
+        setName('');  
         setName('');  
       } else {
         setName("No Absentees Today");
@@ -146,11 +147,20 @@ const Todays_List = () => {
               <th>S.No</th>
               {attributeNames.map((attribute, index) => (
                  <th key={index}>{attribute.replace(/_/g, ' ')}</th>
+                 <th key={index}>{attribute.replace(/_/g, ' ')}</th>
               ))}
             </tr>
           </thead>
           <tbody>
-            {data.map((item, index) => (
+            {selectedUserGroup==="Student" && data.filter(item => selectedType === "All" || item.studentType === selectedType).map((item, index) => (
+              <tr key={index}>
+                <td>{index + 1}</td>
+                {attributeNames.map((attribute, idx) => (
+                  <td key={idx}>{item[attribute]}</td>
+                ))}
+              </tr>
+            ))}
+            {selectedUserGroup!=="Student" && data.map((item, index) => (
               <tr key={index}>
                 <td>{index + 1}</td>
                 {attributeNames.map((attribute, idx) => (

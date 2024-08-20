@@ -308,7 +308,7 @@ router.post('/fetchtoday', async (req, res) => {
     }
 
     let queryStr, params;
-    if (department==="All") {
+    if (department === "All") {
         if (userGroup === 'Student') {
             queryStr = `
                 SELECT 
@@ -316,6 +316,7 @@ router.post('/fetchtoday', async (req, res) => {
                     s.academic_year AS academic_year,
                     s.department AS dept,
                     s.parent_mail AS parent_mail,
+                    s.studentType AS studentType, -- Include studentType
                     a.reason AS Reason,
                     a.leave_type AS Leave_Type
                 FROM students s
@@ -347,6 +348,7 @@ router.post('/fetchtoday', async (req, res) => {
                     s.academic_year AS academic_year,
                     s.department AS dept,
                     s.parent_mail AS parent_mail,
+                    s.studentType AS studentType, -- Include studentType
                     a.reason AS Reason,
                     a.leave_type AS Leave_Type
                 FROM students s
@@ -379,7 +381,7 @@ router.post('/fetchtoday', async (req, res) => {
         const results = await query(queryStr, params);
 
         if (!results || results.length === 0) {
-            return res.status(404).json({ error: `No ${userGroup}s                                                                                                                                                                                                           Are Absent` });
+            return res.status(404).json({ error: `No ${userGroup}s Are Absent` });
         }
 
         res.json({ message: 'Records fetched successfully', data: results });
@@ -410,6 +412,7 @@ router.post('/fetchdatedata', async (req, res) => {
                     s.name AS name,
                     s.academic_year AS academic_year,
                     s.department AS dept,
+                    s.studentType AS studentType,
                     s.parent_mail AS parent_mail,
                     a.reason AS Reason,
                     a.leave_type AS Leave_Type
@@ -441,9 +444,11 @@ router.post('/fetchdatedata', async (req, res) => {
                     s.name AS name,
                     s.academic_year AS academic_year,
                     s.department AS dept,
+                    s.studentType AS studentType,
                     s.parent_mail AS parent_mail,
                     a.reason AS Reason,
                     a.leave_type AS Leave_Type
+                    
                 FROM students s
                 INNER JOIN absent_attendance_records a ON s.id = a.student_id
                 WHERE a.attendance_date = ? AND s.department = ?;
