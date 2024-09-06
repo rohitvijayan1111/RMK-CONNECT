@@ -79,18 +79,18 @@ router.post('/gettable', function _callee(req, res) {
     while (1) {
       switch (_context.prev = _context.next) {
         case 0:
-          console.log("Received request:", req.body);
+          //console.log("Received request:", req.body);
           table = req.body.table;
           department = req.body.department;
 
           if (!(!table || !department)) {
-            _context.next = 5;
+            _context.next = 4;
             break;
           }
 
           return _context.abrupt("return", res.status(400).send("Please provide both table and department parameters."));
 
-        case 5:
+        case 4:
           recordSql = 'SELECT * FROM ?? ';
           columnSql = 'SHOW COLUMNS FROM ??';
           recordValues = [table];
@@ -102,25 +102,25 @@ router.post('/gettable', function _callee(req, res) {
           }
 
           recordSql += 'ORDER BY department';
-          _context.prev = 11;
-          _context.next = 14;
+          _context.prev = 10;
+          _context.next = 13;
           return regeneratorRuntime.awrap(query(columnSql, columnValues));
 
-        case 14:
+        case 13:
           columnResults = _context.sent;
           columnDataTypes = columnResults.reduce(function (acc, col) {
             acc[col.Field] = col.Type;
             return acc;
           }, {}); // Fetch table records
 
-          _context.next = 18;
+          _context.next = 17;
           return regeneratorRuntime.awrap(query(recordSql, recordValues));
 
-        case 18:
+        case 17:
           recordResults = _context.sent;
 
           if (!(recordResults.length === 0)) {
-            _context.next = 21;
+            _context.next = 20;
             break;
           }
 
@@ -129,28 +129,28 @@ router.post('/gettable', function _callee(req, res) {
             data: []
           }));
 
-        case 21:
+        case 20:
           res.status(200).json({
             columnDataTypes: columnDataTypes,
             data: recordResults
           });
-          _context.next = 28;
+          _context.next = 27;
           break;
 
-        case 24:
-          _context.prev = 24;
-          _context.t0 = _context["catch"](11);
+        case 23:
+          _context.prev = 23;
+          _context.t0 = _context["catch"](10);
           console.error('Error fetching data:', _context.t0.message);
           return _context.abrupt("return", res.status(500).json({
             error: getFriendlyErrorMessage(_context.t0.code)
           }));
 
-        case 28:
+        case 27:
         case "end":
           return _context.stop();
       }
     }
-  }, null, null, [[11, 24]]);
+  }, null, null, [[10, 23]]);
 });
 router.post('/create-table', function _callee2(req, res) {
   var _req$body, formName, attributes, tableName, columns, createTableQuery, insertLockQuery;
@@ -297,14 +297,14 @@ router.post('/insertrecord', upload.single('file'), function _callee3(req, res) 
   }, null, null, [[3, 11]]);
 });
 router.post('/updaterecord', upload.single('file'), function _callee4(req, res) {
-  var _req$body3, id, table, rawData, data, existingRows, oldFilePath, newFilePath, setClause, values, updateQuery;
+  var _req$body3, id, table, rawData, deleteFile, data, existingRows, oldFilePath, newFilePath, currentTimestamp, setClause, values, updateQuery;
 
   return regeneratorRuntime.async(function _callee4$(_context5) {
     while (1) {
       switch (_context5.prev = _context5.next) {
         case 0:
           console.log(req.body);
-          _req$body3 = req.body, id = _req$body3.id, table = _req$body3.table, rawData = _req$body3.data;
+          _req$body3 = req.body, id = _req$body3.id, table = _req$body3.table, rawData = _req$body3.data, deleteFile = _req$body3.deleteFile;
           data = JSON.parse(rawData);
 
           if (!(!id || !table)) {
@@ -339,7 +339,7 @@ router.post('/updaterecord', upload.single('file'), function _callee4(req, res) 
           newFilePath = oldFilePath;
 
           if (!req.file) {
-            _context5.next = 24;
+            _context5.next = 26;
             break;
           }
 
@@ -364,46 +364,74 @@ router.post('/updaterecord', upload.single('file'), function _callee4(req, res) 
           console.error('Error deleting old file:', _context5.t0);
 
         case 24:
+          _context5.next = 36;
+          break;
+
+        case 26:
+          if (!(deleteFile === 'true' && oldFilePath)) {
+            _context5.next = 36;
+            break;
+          }
+
+          _context5.prev = 27;
+          _context5.next = 30;
+          return regeneratorRuntime.awrap(fsPromises.unlink(path.resolve(oldFilePath)));
+
+        case 30:
+          newFilePath = ''; // Clear the document path in the database
+
+          _context5.next = 36;
+          break;
+
+        case 33:
+          _context5.prev = 33;
+          _context5.t1 = _context5["catch"](27);
+          console.error('Error deleting old file:', _context5.t1);
+
+        case 36:
           if (newFilePath) {
             data.document = newFilePath;
-          } // Construct the SET clause dynamically with proper escaping
+          } // Add current timestamp for createdAt/updatedAt
 
+
+          currentTimestamp = new Date();
+          data.createdAt = currentTimestamp; // Construct the SET clause dynamically with proper escaping
 
           setClause = Object.keys(data).map(function (key) {
             return "`".concat(key, "` = ?");
           }).join(', ');
-          values = Object.values(data); // Log the query for debugging purposes
+          values = Object.values(data);
+          updateQuery = "UPDATE `".concat(table, "` SET ").concat(setClause, ", createdAt = NOW() WHERE id = ?"); // NOW() adds the current timestamp
 
-          updateQuery = "UPDATE `".concat(table, "` SET ").concat(setClause, " WHERE id = ?");
           console.log('SQL Query:', updateQuery);
           console.log('Values:', [].concat(_toConsumableArray(values), [id]));
-          _context5.next = 32;
+          _context5.next = 46;
           return regeneratorRuntime.awrap(query(updateQuery, [].concat(_toConsumableArray(values), [id])));
 
-        case 32:
+        case 46:
           res.json({
             message: 'Record updated successfully'
           });
-          _context5.next = 39;
+          _context5.next = 53;
           break;
 
-        case 35:
-          _context5.prev = 35;
-          _context5.t1 = _context5["catch"](5);
-          console.error('Error updating record:', _context5.t1);
+        case 49:
+          _context5.prev = 49;
+          _context5.t2 = _context5["catch"](5);
+          console.error('Error updating record:', _context5.t2);
           res.status(500).json({
-            error: getFriendlyErrorMessage(_context5.t1.code)
+            error: getFriendlyErrorMessage(_context5.t2.code)
           });
 
-        case 39:
+        case 53:
         case "end":
           return _context5.stop();
       }
     }
-  }, null, null, [[5, 35], [16, 21]]);
+  }, null, null, [[5, 49], [16, 21], [27, 33]]);
 });
 router["delete"]('/deleterecord', function _callee5(req, res) {
-  var _req$body4, id, table;
+  var _req$body4, id, table, record, filePath;
 
   return regeneratorRuntime.async(function _callee5$(_context6) {
     while (1) {
@@ -421,32 +449,70 @@ router["delete"]('/deleterecord', function _callee5(req, res) {
           }));
 
         case 3:
-          console.log("Deleting from ".concat(table, " where id=").concat(id));
-          _context6.prev = 4;
-          _context6.next = 7;
-          return regeneratorRuntime.awrap(query('DELETE FROM ?? WHERE id = ?', [table, id]));
+          _context6.prev = 3;
+          _context6.next = 6;
+          return regeneratorRuntime.awrap(query('SELECT document FROM ?? WHERE id = ?', [table, id]));
 
-        case 7:
-          res.json({
-            message: 'Item deleted successfully'
-          });
-          _context6.next = 14;
+        case 6:
+          record = _context6.sent;
+
+          if (!(record.length === 0)) {
+            _context6.next = 9;
+            break;
+          }
+
+          return _context6.abrupt("return", res.status(404).json({
+            message: 'Record not found'
+          }));
+
+        case 9:
+          filePath = record[0].document;
+          console.log(filePath);
+
+          if (!filePath) {
+            _context6.next = 21;
+            break;
+          }
+
+          _context6.prev = 12;
+          _context6.next = 15;
+          return regeneratorRuntime.awrap(fsPromises.unlink(path.resolve(filePath)));
+
+        case 15:
+          console.log("File at ".concat(filePath, " deleted successfully"));
+          _context6.next = 21;
           break;
 
-        case 10:
-          _context6.prev = 10;
-          _context6.t0 = _context6["catch"](4);
-          console.error('Error deleting item:', _context6.t0.stack);
+        case 18:
+          _context6.prev = 18;
+          _context6.t0 = _context6["catch"](12);
+          console.error('Error deleting file:', _context6.t0); // Optionally, return an error or continue with the record deletion
+
+        case 21:
+          _context6.next = 23;
+          return regeneratorRuntime.awrap(query('DELETE FROM ?? WHERE id = ?', [table, id]));
+
+        case 23:
+          res.json({
+            message: 'Item and associated file (if any) deleted successfully'
+          });
+          _context6.next = 30;
+          break;
+
+        case 26:
+          _context6.prev = 26;
+          _context6.t1 = _context6["catch"](3);
+          console.error('Error deleting item:', _context6.t1.stack);
           res.status(500).json({
-            error: getFriendlyErrorMessage(error.code)
+            error: getFriendlyErrorMessage(_context6.t1.code)
           });
 
-        case 14:
+        case 30:
         case "end":
           return _context6.stop();
       }
     }
-  }, null, null, [[4, 10]]);
+  }, null, null, [[3, 26], [12, 18]]);
 });
 router.post('/locktable', function _callee6(req, res) {
   var _req$body5, id, lock;

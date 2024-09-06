@@ -2,6 +2,7 @@ import React from 'react'
 import './NavBar.css'
 import logo from '../assets/RMK.png'
 import { getTokenData } from '../Pages/authUtils';
+import GoogleTranslate from './GoogleTranslate';
 //import logout from '../assets/logout.png'
 
 function NavBar() {
@@ -33,7 +34,6 @@ function NavBar() {
         <h5>{capitalizeWords(department)}</h5>
         <button className="logout-button" onClick={handleLogout}>Logout</button>
       </div>
-      
     </header>    
   )
 }

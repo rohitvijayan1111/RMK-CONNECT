@@ -127,7 +127,7 @@ const AddForm = () => {
       {attributenames && attributenames.length > 0 ? (
         <form className='edt' onSubmit={handleSubmit}>
           {attributenames.map((attribute, index) => (
-            attribute !== "id" && attribute !== "department" && (
+            attribute !== "id" && attribute !== "department" && attribute !== "createdAt" &&(
               <div className="frm" key={index}>
                 <label htmlFor={attribute} className="lbl">{attribute.replace(/_/g, ' ')}:</label>
                 {attributeTypes[attribute] === 'date' ? (

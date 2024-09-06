@@ -53,7 +53,7 @@ function App() {
   return (
     <LocalizationProvider dateAdapter={AdapterDateFns}>
       <div className='app'>
-        <Router>
+       <Router>
           <ScrollToTop />
           <Routes>
             <Route path="/" element={<LoginPage />} />
