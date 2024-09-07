@@ -96,7 +96,7 @@ function OtherFormsRecords() {
       });
       return;
     }
-    navigate("edit-form", { state: { table, attributenames,attributeTypes,item } });
+    navigate("edit-form", { state: { table, attributenames,attributeTypes,item,formId:form.id} });
   };
 
   const handleAdd = () => {
@@ -114,7 +114,7 @@ function OtherFormsRecords() {
       });
       return;
     }
-    navigate("add-form", { state: { table, attributenames,attributeTypes} });
+    navigate("add-form", { state: { table, attributenames,attributeTypes,formId:form.id} });
   };
 
   const handleLock = async () => {
@@ -280,7 +280,7 @@ function OtherFormsRecords() {
               <tr>
                 {role === "hod"  && <th className="fixed-column">Action</th>}
                 {attributenames && attributenames.map((name, index) => (
-                  name === "id" ? <th key={index}>S.No</th> : (
+                  name === "id" ? <th key={index}>S.No</th> :name==="createdAt"?<th key={index}>UpdatedAt</th>: (
                     <th key={index}>{formatColumnName(name)}</th>
                   )
                 ))}
@@ -302,7 +302,7 @@ function OtherFormsRecords() {
                   {attributenames.map((name, attrIndex) => (
                     name === "id" ? <td key={attrIndex}>{index + 1}</td> :
                       <td key={attrIndex}>
-                        {attributeTypes[name] === "date" ? formatDate(item[name]) : (
+                        {attributeTypes[name] === "date" ? formatDate(item[name]) :attributeTypes[name]==="timestamp"?dayjs(item[name]).format('HH:mm DD/MM/YYYY'):(
                           (name === "website_link" || name==="website link" || name==="Website_Link" || name==="related_link") && item[name] ?
                             <a href={item[name]} target="_blank" rel="noopener noreferrer">Link</a>
                             : attributeTypes[name] === "file" ? (

@@ -240,11 +240,10 @@ router.delete('/deleterecord', async (req, res) => {
         console.log(`File at ${filePath} deleted successfully`);
       } catch (unlinkError) {
         console.error('Error deleting file:', unlinkError);
-        // Optionally, return an error or continue with the record deletion
+        
       }
     }
 
-    // Step 3: Delete the record from the database
     await query('DELETE FROM ?? WHERE id = ?', [table, id]);
 
     res.json({ message: 'Item and associated file (if any) deleted successfully' });
@@ -269,6 +268,51 @@ router.post('/locktable', async (req, res) => {
   }
 });
 
+router.post('/deadline', async (req, res) => {
+  const { id, deadline } = req.body;
+
+  // Validate request body
+  if (!id || !deadline) {
+    return res.status(400).json({ error: 'ID and deadline are required' });
+  }
+
+  try {
+    const [response] = await query('SELECT * FROM form_locks WHERE id = ?', [id]);
+
+    if (!response) {
+      return res.status(404).json({ error: 'Form lock not found' });
+    }
+
+    await query('UPDATE form_locks SET deadline = ?, not_submitted_emails = ? WHERE id = ?', [deadline, response.usergroup, id]);
+
+    res.json({ message: 'Deadline updated successfully' });
+  } catch (err) {
+    console.error('Error updating deadline:', err.stack);
+    res.status(500).json({ error: 'An error occurred while updating the deadline' });
+  }
+});
+router.post('/updateusergroup', async (req, res) => {
+  const { id, usergroup } = req.body;
+
+  if (!id || !usergroup) {
+    return res.status(400).json({ error: 'Form ID and user group are required' });
+  }
+
+  try {
+    const [response] = await query('SELECT * FROM form_locks WHERE id = ?', [id]);
+
+    if (!response) {
+      return res.status(404).json({ error: 'Form lock not found' });
+    }
+
+    await query('UPDATE form_locks SET usergroup= ? WHERE id = ?', [usergroup, id]);
+
+    res.json({ message: 'usergroup updated successfully' });
+  } catch (err) {
+    console.error('Error updating usergroup:', err.stack);
+    res.status(500).json({ error: 'An error occurred while updating the usergroup' });
+  }
+});
 
 router.post('/getlocktablestatus', async (req, res) => {
   const { id, table } = req.body;

@@ -13,7 +13,7 @@ const AddForm = () => {
   const navigate = useNavigate();
   const location = useLocation();
   const tokendata=getTokenData();
-  const { table, attributenames,attributeTypes } = location.state;
+  const { table, attributenames,attributeTypes,formId} = location.state;
   const [data, setData] = useState({ department: tokendata.department });
   const [file, setFile] = useState(null);
   const [fileInputKey, setFileInputKey] = useState(Date.now());
@@ -68,6 +68,42 @@ const AddForm = () => {
     }));
   };
   
+  const removeEmailFromNotSubmitted = async (formId, email) => {
+    try {
+      const response = await axios.post('http://localhost:3000/tables/remove-email', {
+        formId,
+        email
+      });
+  
+      // Handle successful response
+      console.log('Response:', response.data);
+      toast.success('Email removed successfully', {
+        position: "top-center",
+        autoClose: 3000,
+        hideProgressBar: false,
+        closeOnClick: true,
+        pauseOnHover: true,
+        draggable: true,
+        progress: undefined,
+        theme: "colored",
+        transition: Zoom,
+      });
+    } catch (error) {
+      // Handle error
+      console.error('Error removing email:', error.response?.data || error.message);
+      toast.error('Error removing email', {
+        position: "top-center",
+        autoClose: 5000,
+        hideProgressBar: false,
+        closeOnClick: true,
+        pauseOnHover: true,
+        draggable: true,
+        progress: undefined,
+        theme: "colored",
+        transition: Zoom,
+      });
+    }
+  };
 
   const handleSubmit = async (e) => {
     e.preventDefault();
@@ -88,6 +124,7 @@ const AddForm = () => {
         }
       });
       console.log(response.data);
+      removeEmailFromNotSubmitted(formId,tokendata.email);
       notifysuccess();
       setTimeout(() => {
         navigate(-1);

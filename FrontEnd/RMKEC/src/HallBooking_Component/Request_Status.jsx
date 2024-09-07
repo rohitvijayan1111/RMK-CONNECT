@@ -113,7 +113,7 @@ const Request_Status = () => {
   return (
     <div>
       <h1>Request Status</h1>
-      {name && <h2 style={{ paddingTop: "10%" }}>{name}</h2>}
+      {name && name !== 'No Hall Request Found' && <h2 style={{ paddingTop: "10%" }}>{name}</h2>}
       {eventData.map((event, index) => (
         <div className='event-container' key={index}>
           {((role.toLowerCase() === 'hod' || role.toLowerCase() === 'event coordinator') ||

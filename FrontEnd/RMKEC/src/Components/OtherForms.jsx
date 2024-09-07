@@ -38,6 +38,7 @@ const OtherForms = () => {
                 const response = await axios.post('http://localhost:3000/forms/getformlist', {});
                 const formsData = response.data;
                 setForms(formsData);
+                console.log(response.data);
                 const initialLockStatus = formsData.reduce((acc, form) => {
                     acc[form.id] = form.is_locked;
                     return acc;
@@ -68,7 +69,21 @@ const OtherForms = () => {
             }
         });
     };
-
+    const handleDeadline = (formId) => {
+        const form = forms.find(f => f.id === formId);
+        if (form) {
+            navigate("deadline", {
+                state: {
+                    formId: formId,
+                    title: form.form_title,
+                    usersgroup: form.usergroup
+                }
+            });
+        } else {
+            notifyfailure("Form not found");
+        }
+    };
+    
    function handleView(form){
     navigate("form-records", { state: { form: form} });
    }
@@ -97,9 +112,12 @@ const OtherForms = () => {
                                 <Button variant="primary" onClick={() => handleView(form)}>View</Button>
                                 {' '}
                                 {role === 'IQAC'&& (
+                                    <>
                                     <Button variant="danger" onClick={() => handleLock(form.id)}>
                                         {lockedStatus[form.id] ? 'Unlock Form' : 'Lock Form'}
                                     </Button>
+                                    <Button variant="warning" onClick={()=>handleDeadline(form.id)}>Set Deadline</Button>
+                                    </>
                                 )}
                             </td>
                         </tr>

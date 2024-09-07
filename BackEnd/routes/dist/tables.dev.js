@@ -1,5 +1,13 @@
 "use strict";
 
+function _slicedToArray(arr, i) { return _arrayWithHoles(arr) || _iterableToArrayLimit(arr, i) || _nonIterableRest(); }
+
+function _nonIterableRest() { throw new TypeError("Invalid attempt to destructure non-iterable instance"); }
+
+function _iterableToArrayLimit(arr, i) { if (!(Symbol.iterator in Object(arr) || Object.prototype.toString.call(arr) === "[object Arguments]")) { return; } var _arr = []; var _n = true; var _d = false; var _e = undefined; try { for (var _i = arr[Symbol.iterator](), _s; !(_n = (_s = _i.next()).done); _n = true) { _arr.push(_s.value); if (i && _arr.length === i) break; } } catch (err) { _d = true; _e = err; } finally { try { if (!_n && _i["return"] != null) _i["return"](); } finally { if (_d) throw _e; } } return _arr; }
+
+function _arrayWithHoles(arr) { if (Array.isArray(arr)) return arr; }
+
 function _toConsumableArray(arr) { return _arrayWithoutHoles(arr) || _iterableToArray(arr) || _nonIterableSpread(); }
 
 function _nonIterableSpread() { throw new TypeError("Invalid attempt to spread non-iterable instance"); }
@@ -486,7 +494,7 @@ router["delete"]('/deleterecord', function _callee5(req, res) {
         case 18:
           _context6.prev = 18;
           _context6.t0 = _context6["catch"](12);
-          console.error('Error deleting file:', _context6.t0); // Optionally, return an error or continue with the record deletion
+          console.error('Error deleting file:', _context6.t0);
 
         case 21:
           _context6.next = 23;
@@ -559,31 +567,157 @@ router.post('/locktable', function _callee6(req, res) {
     }
   }, null, null, [[3, 9]]);
 });
-router.post('/getlocktablestatus', function _callee7(req, res) {
-  var _req$body6, id, table, results;
+router.post('/deadline', function _callee7(req, res) {
+  var _req$body6, id, deadline, _ref, _ref2, response;
 
   return regeneratorRuntime.async(function _callee7$(_context8) {
     while (1) {
       switch (_context8.prev = _context8.next) {
         case 0:
-          _req$body6 = req.body, id = _req$body6.id, table = _req$body6.table;
+          _req$body6 = req.body, id = _req$body6.id, deadline = _req$body6.deadline; // Validate request body
 
-          if (!(!table || !id)) {
+          if (!(!id || !deadline)) {
             _context8.next = 3;
             break;
           }
 
           return _context8.abrupt("return", res.status(400).json({
-            error: 'Table name and ID are required'
+            error: 'ID and deadline are required'
           }));
 
         case 3:
           _context8.prev = 3;
           _context8.next = 6;
+          return regeneratorRuntime.awrap(query('SELECT * FROM form_locks WHERE id = ?', [id]));
+
+        case 6:
+          _ref = _context8.sent;
+          _ref2 = _slicedToArray(_ref, 1);
+          response = _ref2[0];
+
+          if (response) {
+            _context8.next = 11;
+            break;
+          }
+
+          return _context8.abrupt("return", res.status(404).json({
+            error: 'Form lock not found'
+          }));
+
+        case 11:
+          _context8.next = 13;
+          return regeneratorRuntime.awrap(query('UPDATE form_locks SET deadline = ?, not_submitted_emails = ? WHERE id = ?', [deadline, response.usergroup, id]));
+
+        case 13:
+          res.json({
+            message: 'Deadline updated successfully'
+          });
+          _context8.next = 20;
+          break;
+
+        case 16:
+          _context8.prev = 16;
+          _context8.t0 = _context8["catch"](3);
+          console.error('Error updating deadline:', _context8.t0.stack);
+          res.status(500).json({
+            error: 'An error occurred while updating the deadline'
+          });
+
+        case 20:
+        case "end":
+          return _context8.stop();
+      }
+    }
+  }, null, null, [[3, 16]]);
+});
+router.post('/updateusergroup', function _callee8(req, res) {
+  var _req$body7, id, usergroup, _ref3, _ref4, response;
+
+  return regeneratorRuntime.async(function _callee8$(_context9) {
+    while (1) {
+      switch (_context9.prev = _context9.next) {
+        case 0:
+          _req$body7 = req.body, id = _req$body7.id, usergroup = _req$body7.usergroup;
+
+          if (!(!id || !usergroup)) {
+            _context9.next = 3;
+            break;
+          }
+
+          return _context9.abrupt("return", res.status(400).json({
+            error: 'Form ID and user group are required'
+          }));
+
+        case 3:
+          _context9.prev = 3;
+          _context9.next = 6;
+          return regeneratorRuntime.awrap(query('SELECT * FROM form_locks WHERE id = ?', [id]));
+
+        case 6:
+          _ref3 = _context9.sent;
+          _ref4 = _slicedToArray(_ref3, 1);
+          response = _ref4[0];
+
+          if (response) {
+            _context9.next = 11;
+            break;
+          }
+
+          return _context9.abrupt("return", res.status(404).json({
+            error: 'Form lock not found'
+          }));
+
+        case 11:
+          _context9.next = 13;
+          return regeneratorRuntime.awrap(query('UPDATE form_locks SET usergroup= ? WHERE id = ?', [usergroup, id]));
+
+        case 13:
+          res.json({
+            message: 'usergroup updated successfully'
+          });
+          _context9.next = 20;
+          break;
+
+        case 16:
+          _context9.prev = 16;
+          _context9.t0 = _context9["catch"](3);
+          console.error('Error updating usergroup:', _context9.t0.stack);
+          res.status(500).json({
+            error: 'An error occurred while updating the usergroup'
+          });
+
+        case 20:
+        case "end":
+          return _context9.stop();
+      }
+    }
+  }, null, null, [[3, 16]]);
+});
+router.post('/getlocktablestatus', function _callee9(req, res) {
+  var _req$body8, id, table, results;
+
+  return regeneratorRuntime.async(function _callee9$(_context10) {
+    while (1) {
+      switch (_context10.prev = _context10.next) {
+        case 0:
+          _req$body8 = req.body, id = _req$body8.id, table = _req$body8.table;
+
+          if (!(!table || !id)) {
+            _context10.next = 3;
+            break;
+          }
+
+          return _context10.abrupt("return", res.status(400).json({
+            error: 'Table name and ID are required'
+          }));
+
+        case 3:
+          _context10.prev = 3;
+          _context10.next = 6;
           return regeneratorRuntime.awrap(query('SELECT is_locked FROM ?? WHERE id=?', [table, id]));
 
         case 6:
-          results = _context8.sent;
+          results = _context10.sent;
 
           if (results.length > 0) {
             res.status(200).json(results[0]);
@@ -593,20 +727,20 @@ router.post('/getlocktablestatus', function _callee7(req, res) {
             });
           }
 
-          _context8.next = 14;
+          _context10.next = 14;
           break;
 
         case 10:
-          _context8.prev = 10;
-          _context8.t0 = _context8["catch"](3);
-          console.error('Failed to fetch lock status:', _context8.t0.stack);
+          _context10.prev = 10;
+          _context10.t0 = _context10["catch"](3);
+          console.error('Failed to fetch lock status:', _context10.t0.stack);
           res.status(500).json({
             error: getFriendlyErrorMessage(error.code)
           });
 
         case 14:
         case "end":
-          return _context8.stop();
+          return _context10.stop();
       }
     }
   }, null, null, [[3, 10]]);

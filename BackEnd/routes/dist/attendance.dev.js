@@ -780,10 +780,9 @@ router.post('/fetchdatedata', function _callee5(req, res) {
           department = req.body.department;
           formattedDate2 = req.body.date2;
           formattedDate = currentdate;
-          console.log("THE FORMATTED DATE IS " + formattedDate);
 
           if (!(!userGroup || !department)) {
-            _context6.next = 10;
+            _context6.next = 9;
             break;
           }
 
@@ -791,81 +790,81 @@ router.post('/fetchdatedata', function _callee5(req, res) {
             error: 'User Group is required'
           }));
 
-        case 10:
+        case 9:
           if (!(department === "All")) {
-            _context6.next = 24;
+            _context6.next = 23;
             break;
           }
 
           if (!(userGroup === 'Student')) {
-            _context6.next = 16;
+            _context6.next = 15;
             break;
           }
 
-          queryStr = "\n                SELECT \n                    s.name AS name,\n                    s.academic_year AS academic_year,\n                    s.department AS dept,\n                    s.studentType AS studentType,\n                    s.parent_mail AS parent_mail,\n                    a.reason AS Reason,\n                    a.leave_type AS Leave_Type\n                FROM students s\n                INNER JOIN absent_attendance_records a ON s.id = a.student_id\n                WHERE a.attendance_date = ? AND s.department IS NOT NULL;\n            ";
+          queryStr = "\n                SELECT \n                    s.name AS name,\n                    s.academic_year AS academic_year,\n                    s.department AS dept,\n                    s.studentType AS studentType,\n                    a.reason AS Reason,\n                    a.leave_type AS Leave_Type\n                FROM students s\n                INNER JOIN absent_attendance_records a ON s.id = a.student_id\n                WHERE a.attendance_date = ? AND s.department IS NOT NULL;\n            ";
           params = [formattedDate];
-          _context6.next = 22;
+          _context6.next = 21;
           break;
 
-        case 16:
+        case 15:
           if (!(userGroup === 'Staff')) {
-            _context6.next = 21;
+            _context6.next = 20;
             break;
           }
 
-          queryStr = "\n                SELECT \n                    st.name AS name,\n                    st.department AS dept,\n                    st.email AS staff_mail,\n                    a.reason AS Reason,\n                    a.leave_type AS Leave_Type\n                FROM staffs st\n                INNER JOIN absent_attendance_records a ON st.id = a.staff_id\n                WHERE a.attendance_date = ? AND st.department IS NOT NULL;\n            ";
+          queryStr = "\n                SELECT \n                    st.name AS name,\n                    st.department AS dept,\n                    a.reason AS Reason,\n                    a.leave_type AS Leave_Type\n                FROM staffs st\n                INNER JOIN absent_attendance_records a ON st.id = a.staff_id\n                WHERE a.attendance_date = ? AND st.department IS NOT NULL;\n            ";
           params = [formattedDate];
-          _context6.next = 22;
+          _context6.next = 21;
           break;
+
+        case 20:
+          return _context6.abrupt("return", res.status(400).json({
+            error: 'Invalid User Group'
+          }));
 
         case 21:
+          _context6.next = 34;
+          break;
+
+        case 23:
+          if (!(userGroup === 'Student')) {
+            _context6.next = 28;
+            break;
+          }
+
+          queryStr = "\n                SELECT \n                    s.name AS name,\n                    s.academic_year AS academic_year,\n                    s.department AS dept,\n                    s.studentType AS studentType,\n                    a.reason AS Reason,\n                    a.leave_type AS Leave_Type\n                    \n                FROM students s\n                INNER JOIN absent_attendance_records a ON s.id = a.student_id\n                WHERE a.attendance_date = ? AND s.department = ?;\n            ";
+          params = [formattedDate, department];
+          _context6.next = 34;
+          break;
+
+        case 28:
+          if (!(userGroup === 'Staff')) {
+            _context6.next = 33;
+            break;
+          }
+
+          queryStr = "\n                SELECT \n                    st.name AS name,\n                    st.department AS dept,\n                    a.reason AS Reason,\n                    a.leave_type AS Leave_Type\n                FROM staffs st\n                INNER JOIN absent_attendance_records a ON st.id = a.staff_id\n                WHERE a.attendance_date = ? AND st.department = ?;\n            ";
+          params = [formattedDate, department];
+          _context6.next = 34;
+          break;
+
+        case 33:
           return _context6.abrupt("return", res.status(400).json({
             error: 'Invalid User Group'
           }));
-
-        case 22:
-          _context6.next = 35;
-          break;
-
-        case 24:
-          if (!(userGroup === 'Student')) {
-            _context6.next = 29;
-            break;
-          }
-
-          queryStr = "\n                SELECT \n                    s.name AS name,\n                    s.academic_year AS academic_year,\n                    s.department AS dept,\n                    s.studentType AS studentType,\n                    s.parent_mail AS parent_mail,\n                    a.reason AS Reason,\n                    a.leave_type AS Leave_Type\n                    \n                FROM students s\n                INNER JOIN absent_attendance_records a ON s.id = a.student_id\n                WHERE a.attendance_date = ? AND s.department = ?;\n            ";
-          params = [formattedDate, department];
-          _context6.next = 35;
-          break;
-
-        case 29:
-          if (!(userGroup === 'Staff')) {
-            _context6.next = 34;
-            break;
-          }
-
-          queryStr = "\n                SELECT \n                    st.name AS name,\n                    st.department AS dept,\n                    st.email AS staff_mail,\n                    a.reason AS Reason,\n                    a.leave_type AS Leave_Type\n                FROM staffs st\n                INNER JOIN absent_attendance_records a ON st.id = a.staff_id\n                WHERE a.attendance_date = ? AND st.department = ?;\n            ";
-          params = [formattedDate, department];
-          _context6.next = 35;
-          break;
 
         case 34:
-          return _context6.abrupt("return", res.status(400).json({
-            error: 'Invalid User Group'
-          }));
-
-        case 35:
           console.log('Executing query:', queryStr);
           console.log('With params:', params);
-          _context6.prev = 37;
-          _context6.next = 40;
+          _context6.prev = 36;
+          _context6.next = 39;
           return regeneratorRuntime.awrap(query(queryStr, params));
 
-        case 40:
+        case 39:
           results = _context6.sent;
 
           if (!(!results || results.length === 0)) {
-            _context6.next = 43;
+            _context6.next = 42;
             break;
           }
 
@@ -873,28 +872,28 @@ router.post('/fetchdatedata', function _callee5(req, res) {
             error: "No ".concat(userGroup, "s Were Absent On ").concat(formattedDate2)
           }));
 
-        case 43:
+        case 42:
           res.json({
             message: 'Records fetched successfully',
             data: results
           });
-          _context6.next = 50;
+          _context6.next = 49;
           break;
 
-        case 46:
-          _context6.prev = 46;
-          _context6.t0 = _context6["catch"](37);
+        case 45:
+          _context6.prev = 45;
+          _context6.t0 = _context6["catch"](36);
           console.error('Error fetching records:', _context6.t0);
           res.status(500).json({
             error: 'Error fetching records'
           });
 
-        case 50:
+        case 49:
         case "end":
           return _context6.stop();
       }
     }
-  }, null, null, [[37, 46]]);
+  }, null, null, [[36, 45]]);
 });
 router.post('/attendance-summary', function _callee6(req, res) {
   var _req$body3, user, type, department, results, data, row;
