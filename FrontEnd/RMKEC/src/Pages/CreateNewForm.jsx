@@ -1,9 +1,12 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import axios from 'axios';
 import { Form, Button, Container, Row, Col, Table } from 'react-bootstrap';
 import { ToastContainer, toast, Zoom } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
 import { getTokenData } from './authUtils';
+import Checkbox from '@mui/material/Checkbox';
+import FormControlLabel from '@mui/material/FormControlLabel'; 
+import { styled } from '@mui/material/styles';
 
 const CreateNewForm = () => {
     const [formName, setFormName] = useState('');
@@ -13,6 +16,16 @@ const CreateNewForm = () => {
     const [error, setError] = useState('');
     const tokendata = getTokenData();
     const role = tokendata.role;
+
+    // Usergroup related states
+    const [to, setTo] = useState(''); // For additional email input
+    const [selectAll, setSelectAll] = useState(false);
+    const [senderlist, setSenderList] = useState([
+        { id: 1, text: 'rohitvijayan1111@gmail.com', checked: false, dept: 'ADS' },
+        { id: 2, text: 'broh22012.it@rmkec.ac.in', checked: false, dept: 'CIVIL' },
+        { id: 3, text: 'like22050.it@rmkec.ac.in', checked: false, dept: 'CSBS' },
+        // Add more emails as needed
+    ]);
 
     const notifySuccess = (msg) => {
         toast.success(msg, {
@@ -54,9 +67,7 @@ const CreateNewForm = () => {
                 return;
             }
 
-            setError(''); // Clear any previous error
-
-            // Add new attribute if it is not "department" to avoid duplication
+            setError(''); 
             if (attributeName !== 'department') {
                 setAttributes([...attributes, { name: attributeName, type: attributeType }]);
             }
@@ -77,13 +88,38 @@ const CreateNewForm = () => {
         setAttributes(newAttributes);
     };
 
+    const handleCheck = (id) => {
+        const updatedList = senderlist.map(member =>
+            member.id === id ? { ...member, checked: !member.checked } : member
+        );
+        setSenderList(updatedList);
+
+        const allChecked = updatedList.every(member => member.checked);
+        setSelectAll(allChecked);
+    };
+
+    const handleSelectAll = () => {
+        const newCheckedState = !selectAll;
+        const updatedList = senderlist.map(member => ({ ...member, checked: newCheckedState }));
+        setSenderList(updatedList);
+        setSelectAll(newCheckedState);
+    };
+
     const handleSubmit = async () => {
         if (!formName || attributes.length === 0) {
             notifyFailure('Form name and at least one attribute are required.');
             return;
         }
 
-        const newForm = { formName, attributes };
+        let selectedEmails = senderlist.filter(member => member.checked).map(member => member.text);
+
+        if (to.trim() !== '') {
+            const additionalEmails = to.split(',').map(email => email.trim());
+            selectedEmails = [...selectedEmails, ...additionalEmails];
+        }
+
+        const usergroup = selectedEmails.join(',');
+        const newForm = { formName, attributes, usergroup };
 
         try {
             const response = await axios.post('http://localhost:3000/tables/create-table', newForm);
@@ -100,6 +136,20 @@ const CreateNewForm = () => {
             }
         }
     };
+
+    const CustomCheckbox = styled(Checkbox)(({ theme }) => ({
+        color: theme.palette.primary.main, 
+        '&.Mui-checked': {
+            color: theme.palette.primary.dark, 
+        },
+        '&:hover': {
+            backgroundColor: 'transparent', 
+        },
+        '& .MuiSvgIcon-root': {
+            width: 15, 
+            height: 15,
+        },
+    }));
 
     return (
         <Container>
@@ -152,6 +202,7 @@ const CreateNewForm = () => {
                             </Row>
                         </Form>
                         {error && <div className="alert alert-danger" role="alert">{error}</div>}
+
                         <Table striped bordered hover style={{ marginTop: '20px' }}>
                             <thead>
                                 <tr>
@@ -178,6 +229,38 @@ const CreateNewForm = () => {
                                 ))}
                             </tbody>
                         </Table>
+
+                        {/* Usergroup selection and additional emails */}
+                        <Form.Group>
+                            <Form.Label>Select User Groups</Form.Label>
+                            <ul>
+                                <li>
+                                    <FormControlLabel
+                                        control={<CustomCheckbox checked={selectAll} onChange={handleSelectAll} />}
+                                        label="All"
+                                    />
+                                </li>
+                                {senderlist.map(item => (
+                                    <li key={item.id}>
+                                        <FormControlLabel
+                                            control={<CustomCheckbox checked={item.checked} onChange={() => handleCheck(item.id)} />}
+                                            label={item.dept}
+                                        />
+                                    </li>
+                                ))}
+                            </ul>
+                        </Form.Group>
+
+                        <Form.Group>
+                            <Form.Label>Other Recipient Emails (comma-separated)</Form.Label>
+                            <Form.Control 
+                                type="email" 
+                                placeholder="Other Recipient Emails" 
+                                value={to} 
+                                onChange={(e) => setTo(e.target.value)} 
+                            />
+                        </Form.Group>
+
                         <Button variant="success" onClick={handleSubmit} style={{ marginTop: '10px' }}>
                             Submit
                         </Button>

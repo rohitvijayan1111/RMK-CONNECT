@@ -80,7 +80,7 @@ router.post('/gettable', async (req, res) => {
   }
 });
 router.post('/create-table', async (req, res) => {
-  const { formName, attributes } = req.body;
+  const { formName, attributes,usergroup } = req.body;
 
   if (!formName || !attributes || !Array.isArray(attributes)) {
     return res.status(400).send('Invalid request data');
@@ -103,14 +103,14 @@ router.post('/create-table', async (req, res) => {
   columns = columns.slice(0, -2);
 
   const createTableQuery = `CREATE TABLE ${tableName} (${columns})`;
-
+  
   try {
     // Create the new table
     await query(createTableQuery);
 
     // Insert a record into the form_locks table
-    const insertLockQuery = `INSERT INTO form_locks (form_table_name, form_title, is_locked) VALUES (?, ?, ?)`;
-    await query(insertLockQuery, [tableName, formName, 0]); // Initially, set is_locked to 0 (unlocked)
+    const insertLockQuery = `INSERT INTO form_locks (form_table_name, form_title, is_locked,usergroup,not_submitted_emails) VALUES (?, ?, ?,?,?)`;
+    await query(insertLockQuery, [tableName, formName, 0,usergroup,usergroup]); // Initially, set is_locked to 0 (unlocked)
 
     res.send(`Table ${tableName} created successfully`);
   } catch (err) {
@@ -289,6 +289,42 @@ router.post('/deadline', async (req, res) => {
   } catch (err) {
     console.error('Error updating deadline:', err.stack);
     res.status(500).json({ error: 'An error occurred while updating the deadline' });
+  }
+});
+router.post('/delete', async (req, res) => {
+  const { formId, tableName } = req.body;
+
+  // Validate request body
+  if (!formId || !tableName) {
+    return res.status(400).json({ error: 'Form ID and table name are required' });
+  }
+
+  try {
+    // Start transaction to ensure both operations are done together
+    await query('START TRANSACTION');
+
+    // Delete the form lock entry from form_locks table
+    const deleteFormLockQuery = 'DELETE FROM form_locks WHERE id = ?';
+    const deleteFormLockResponse = await query(deleteFormLockQuery, [formId]);
+
+    // Check if any rows were deleted
+    if (deleteFormLockResponse.affectedRows === 0) {
+      await query('ROLLBACK'); // Rollback in case of no entry found
+      return res.status(404).json({ error: 'Form lock not found' });
+    }
+
+    // Drop the table from the database
+    const dropTableQuery = `DROP TABLE IF EXISTS ??`; // Using placeholders to avoid SQL injection
+    await query(dropTableQuery, [tableName]);
+
+    // Commit the transaction
+    await query('COMMIT');
+
+    res.json({ message: `Form lock and table ${tableName} deleted successfully` });
+  } catch (err) {
+    console.error('Error deleting form lock and table:', err.stack);
+    await query('ROLLBACK'); // Rollback the transaction in case of an error
+    res.status(500).json({ error: 'An error occurred while deleting the form and table' });
   }
 });
 router.post('/updateusergroup', async (req, res) => {

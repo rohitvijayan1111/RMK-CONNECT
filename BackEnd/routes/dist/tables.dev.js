@@ -161,13 +161,13 @@ router.post('/gettable', function _callee(req, res) {
   }, null, null, [[10, 23]]);
 });
 router.post('/create-table', function _callee2(req, res) {
-  var _req$body, formName, attributes, tableName, columns, createTableQuery, insertLockQuery;
+  var _req$body, formName, attributes, usergroup, tableName, columns, createTableQuery, insertLockQuery;
 
   return regeneratorRuntime.async(function _callee2$(_context2) {
     while (1) {
       switch (_context2.prev = _context2.next) {
         case 0:
-          _req$body = req.body, formName = _req$body.formName, attributes = _req$body.attributes;
+          _req$body = req.body, formName = _req$body.formName, attributes = _req$body.attributes, usergroup = _req$body.usergroup;
 
           if (!(!formName || !attributes || !Array.isArray(attributes))) {
             _context2.next = 3;
@@ -196,9 +196,9 @@ router.post('/create-table', function _callee2(req, res) {
 
         case 11:
           // Insert a record into the form_locks table
-          insertLockQuery = "INSERT INTO form_locks (form_table_name, form_title, is_locked) VALUES (?, ?, ?)";
+          insertLockQuery = "INSERT INTO form_locks (form_table_name, form_title, is_locked,usergroup,not_submitted_emails) VALUES (?, ?, ?,?,?)";
           _context2.next = 14;
-          return regeneratorRuntime.awrap(query(insertLockQuery, [tableName, formName, 0]));
+          return regeneratorRuntime.awrap(query(insertLockQuery, [tableName, formName, 0, usergroup, usergroup]));
 
         case 14:
           // Initially, set is_locked to 0 (unlocked)
@@ -630,94 +630,177 @@ router.post('/deadline', function _callee7(req, res) {
     }
   }, null, null, [[3, 16]]);
 });
-router.post('/updateusergroup', function _callee8(req, res) {
-  var _req$body7, id, usergroup, _ref3, _ref4, response;
+router.post('/delete', function _callee8(req, res) {
+  var _req$body7, formId, tableName, deleteFormLockQuery, deleteFormLockResponse, dropTableQuery;
 
   return regeneratorRuntime.async(function _callee8$(_context9) {
     while (1) {
       switch (_context9.prev = _context9.next) {
         case 0:
-          _req$body7 = req.body, id = _req$body7.id, usergroup = _req$body7.usergroup;
+          _req$body7 = req.body, formId = _req$body7.formId, tableName = _req$body7.tableName; // Validate request body
 
-          if (!(!id || !usergroup)) {
+          if (!(!formId || !tableName)) {
             _context9.next = 3;
             break;
           }
 
           return _context9.abrupt("return", res.status(400).json({
-            error: 'Form ID and user group are required'
+            error: 'Form ID and table name are required'
           }));
 
         case 3:
           _context9.prev = 3;
           _context9.next = 6;
-          return regeneratorRuntime.awrap(query('SELECT * FROM form_locks WHERE id = ?', [id]));
+          return regeneratorRuntime.awrap(query('START TRANSACTION'));
 
         case 6:
-          _ref3 = _context9.sent;
-          _ref4 = _slicedToArray(_ref3, 1);
-          response = _ref4[0];
+          // Delete the form lock entry from form_locks table
+          deleteFormLockQuery = 'DELETE FROM form_locks WHERE id = ?';
+          _context9.next = 9;
+          return regeneratorRuntime.awrap(query(deleteFormLockQuery, [formId]));
 
-          if (response) {
-            _context9.next = 11;
+        case 9:
+          deleteFormLockResponse = _context9.sent;
+
+          if (!(deleteFormLockResponse.affectedRows === 0)) {
+            _context9.next = 14;
             break;
           }
 
+          _context9.next = 13;
+          return regeneratorRuntime.awrap(query('ROLLBACK'));
+
+        case 13:
           return _context9.abrupt("return", res.status(404).json({
             error: 'Form lock not found'
           }));
 
+        case 14:
+          // Drop the table from the database
+          dropTableQuery = "DROP TABLE IF EXISTS ??"; // Using placeholders to avoid SQL injection
+
+          _context9.next = 17;
+          return regeneratorRuntime.awrap(query(dropTableQuery, [tableName]));
+
+        case 17:
+          _context9.next = 19;
+          return regeneratorRuntime.awrap(query('COMMIT'));
+
+        case 19:
+          res.json({
+            message: "Form lock and table ".concat(tableName, " deleted successfully")
+          });
+          _context9.next = 28;
+          break;
+
+        case 22:
+          _context9.prev = 22;
+          _context9.t0 = _context9["catch"](3);
+          console.error('Error deleting form lock and table:', _context9.t0.stack);
+          _context9.next = 27;
+          return regeneratorRuntime.awrap(query('ROLLBACK'));
+
+        case 27:
+          // Rollback the transaction in case of an error
+          res.status(500).json({
+            error: 'An error occurred while deleting the form and table'
+          });
+
+        case 28:
+        case "end":
+          return _context9.stop();
+      }
+    }
+  }, null, null, [[3, 22]]);
+});
+router.post('/updateusergroup', function _callee9(req, res) {
+  var _req$body8, id, usergroup, _ref3, _ref4, response;
+
+  return regeneratorRuntime.async(function _callee9$(_context10) {
+    while (1) {
+      switch (_context10.prev = _context10.next) {
+        case 0:
+          _req$body8 = req.body, id = _req$body8.id, usergroup = _req$body8.usergroup;
+
+          if (!(!id || !usergroup)) {
+            _context10.next = 3;
+            break;
+          }
+
+          return _context10.abrupt("return", res.status(400).json({
+            error: 'Form ID and user group are required'
+          }));
+
+        case 3:
+          _context10.prev = 3;
+          _context10.next = 6;
+          return regeneratorRuntime.awrap(query('SELECT * FROM form_locks WHERE id = ?', [id]));
+
+        case 6:
+          _ref3 = _context10.sent;
+          _ref4 = _slicedToArray(_ref3, 1);
+          response = _ref4[0];
+
+          if (response) {
+            _context10.next = 11;
+            break;
+          }
+
+          return _context10.abrupt("return", res.status(404).json({
+            error: 'Form lock not found'
+          }));
+
         case 11:
-          _context9.next = 13;
+          _context10.next = 13;
           return regeneratorRuntime.awrap(query('UPDATE form_locks SET usergroup= ? WHERE id = ?', [usergroup, id]));
 
         case 13:
           res.json({
             message: 'usergroup updated successfully'
           });
-          _context9.next = 20;
+          _context10.next = 20;
           break;
 
         case 16:
-          _context9.prev = 16;
-          _context9.t0 = _context9["catch"](3);
-          console.error('Error updating usergroup:', _context9.t0.stack);
+          _context10.prev = 16;
+          _context10.t0 = _context10["catch"](3);
+          console.error('Error updating usergroup:', _context10.t0.stack);
           res.status(500).json({
             error: 'An error occurred while updating the usergroup'
           });
 
         case 20:
         case "end":
-          return _context9.stop();
+          return _context10.stop();
       }
     }
   }, null, null, [[3, 16]]);
 });
-router.post('/getlocktablestatus', function _callee9(req, res) {
-  var _req$body8, id, table, results;
+router.post('/getlocktablestatus', function _callee10(req, res) {
+  var _req$body9, id, table, results;
 
-  return regeneratorRuntime.async(function _callee9$(_context10) {
+  return regeneratorRuntime.async(function _callee10$(_context11) {
     while (1) {
-      switch (_context10.prev = _context10.next) {
+      switch (_context11.prev = _context11.next) {
         case 0:
-          _req$body8 = req.body, id = _req$body8.id, table = _req$body8.table;
+          _req$body9 = req.body, id = _req$body9.id, table = _req$body9.table;
 
           if (!(!table || !id)) {
-            _context10.next = 3;
+            _context11.next = 3;
             break;
           }
 
-          return _context10.abrupt("return", res.status(400).json({
+          return _context11.abrupt("return", res.status(400).json({
             error: 'Table name and ID are required'
           }));
 
         case 3:
-          _context10.prev = 3;
-          _context10.next = 6;
+          _context11.prev = 3;
+          _context11.next = 6;
           return regeneratorRuntime.awrap(query('SELECT is_locked FROM ?? WHERE id=?', [table, id]));
 
         case 6:
-          results = _context10.sent;
+          results = _context11.sent;
 
           if (results.length > 0) {
             res.status(200).json(results[0]);
@@ -727,20 +810,20 @@ router.post('/getlocktablestatus', function _callee9(req, res) {
             });
           }
 
-          _context10.next = 14;
+          _context11.next = 14;
           break;
 
         case 10:
-          _context10.prev = 10;
-          _context10.t0 = _context10["catch"](3);
-          console.error('Failed to fetch lock status:', _context10.t0.stack);
+          _context11.prev = 10;
+          _context11.t0 = _context11["catch"](3);
+          console.error('Failed to fetch lock status:', _context11.t0.stack);
           res.status(500).json({
             error: getFriendlyErrorMessage(error.code)
           });
 
         case 14:
         case "end":
-          return _context10.stop();
+          return _context11.stop();
       }
     }
   }, null, null, [[3, 10]]);
