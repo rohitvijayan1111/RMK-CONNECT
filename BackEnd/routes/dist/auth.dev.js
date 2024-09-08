@@ -140,7 +140,8 @@ router.post('/login', function (req, res) {
               userId: user.id,
               username: user.username,
               role: user.role,
-              department: user.department
+              department: user.department,
+              mail: user.mail
             }, jwtSecret, {
               expiresIn: '1h'
             });

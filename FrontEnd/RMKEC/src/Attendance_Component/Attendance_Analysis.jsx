@@ -144,7 +144,7 @@ const Attendance_Analysis = () => {
               <thead>
                 <tr>
                   <th>S.No</th>
-                  {attributeNames.map((attribute, index) => (
+                  {attributeNames.map((attribute, index) => (attribute==="attendance_date")?<th key={index}>{"Absent Date"}</th>:(
                     <th key={index}>{attribute.replace(/_/g, ' ')}</th>
                   ))}
                 </tr>

@@ -1,5 +1,13 @@
 "use strict";
 
+function _slicedToArray(arr, i) { return _arrayWithHoles(arr) || _iterableToArrayLimit(arr, i) || _nonIterableRest(); }
+
+function _nonIterableRest() { throw new TypeError("Invalid attempt to destructure non-iterable instance"); }
+
+function _iterableToArrayLimit(arr, i) { if (!(Symbol.iterator in Object(arr) || Object.prototype.toString.call(arr) === "[object Arguments]")) { return; } var _arr = []; var _n = true; var _d = false; var _e = undefined; try { for (var _i = arr[Symbol.iterator](), _s; !(_n = (_s = _i.next()).done); _n = true) { _arr.push(_s.value); if (i && _arr.length === i) break; } } catch (err) { _d = true; _e = err; } finally { try { if (!_n && _i["return"] != null) _i["return"](); } finally { if (_d) throw _e; } } return _arr; }
+
+function _arrayWithHoles(arr) { if (Array.isArray(arr)) return arr; }
+
 function _toConsumableArray(arr) { return _arrayWithoutHoles(arr) || _iterableToArray(arr) || _nonIterableSpread(); }
 
 function _nonIterableSpread() { throw new TypeError("Invalid attempt to spread non-iterable instance"); }
@@ -79,18 +87,18 @@ router.post('/gettable', function _callee(req, res) {
     while (1) {
       switch (_context.prev = _context.next) {
         case 0:
-          console.log("Received request:", req.body);
+          //console.log("Received request:", req.body);
           table = req.body.table;
           department = req.body.department;
 
           if (!(!table || !department)) {
-            _context.next = 5;
+            _context.next = 4;
             break;
           }
 
           return _context.abrupt("return", res.status(400).send("Please provide both table and department parameters."));
 
-        case 5:
+        case 4:
           recordSql = 'SELECT * FROM ?? ';
           columnSql = 'SHOW COLUMNS FROM ??';
           recordValues = [table];
@@ -102,25 +110,25 @@ router.post('/gettable', function _callee(req, res) {
           }
 
           recordSql += 'ORDER BY department';
-          _context.prev = 11;
-          _context.next = 14;
+          _context.prev = 10;
+          _context.next = 13;
           return regeneratorRuntime.awrap(query(columnSql, columnValues));
 
-        case 14:
+        case 13:
           columnResults = _context.sent;
           columnDataTypes = columnResults.reduce(function (acc, col) {
             acc[col.Field] = col.Type;
             return acc;
           }, {}); // Fetch table records
 
-          _context.next = 18;
+          _context.next = 17;
           return regeneratorRuntime.awrap(query(recordSql, recordValues));
 
-        case 18:
+        case 17:
           recordResults = _context.sent;
 
           if (!(recordResults.length === 0)) {
-            _context.next = 21;
+            _context.next = 20;
             break;
           }
 
@@ -129,37 +137,37 @@ router.post('/gettable', function _callee(req, res) {
             data: []
           }));
 
-        case 21:
+        case 20:
           res.status(200).json({
             columnDataTypes: columnDataTypes,
             data: recordResults
           });
-          _context.next = 28;
+          _context.next = 27;
           break;
 
-        case 24:
-          _context.prev = 24;
-          _context.t0 = _context["catch"](11);
+        case 23:
+          _context.prev = 23;
+          _context.t0 = _context["catch"](10);
           console.error('Error fetching data:', _context.t0.message);
           return _context.abrupt("return", res.status(500).json({
             error: getFriendlyErrorMessage(_context.t0.code)
           }));
 
-        case 28:
+        case 27:
         case "end":
           return _context.stop();
       }
     }
-  }, null, null, [[11, 24]]);
+  }, null, null, [[10, 23]]);
 });
 router.post('/create-table', function _callee2(req, res) {
-  var _req$body, formName, attributes, tableName, columns, createTableQuery, insertLockQuery;
+  var _req$body, formName, attributes, usergroup, tableName, columns, createTableQuery, insertLockQuery;
 
   return regeneratorRuntime.async(function _callee2$(_context2) {
     while (1) {
       switch (_context2.prev = _context2.next) {
         case 0:
-          _req$body = req.body, formName = _req$body.formName, attributes = _req$body.attributes;
+          _req$body = req.body, formName = _req$body.formName, attributes = _req$body.attributes, usergroup = _req$body.usergroup;
 
           if (!(!formName || !attributes || !Array.isArray(attributes))) {
             _context2.next = 3;
@@ -188,9 +196,9 @@ router.post('/create-table', function _callee2(req, res) {
 
         case 11:
           // Insert a record into the form_locks table
-          insertLockQuery = "INSERT INTO form_locks (form_table_name, form_title, is_locked) VALUES (?, ?, ?)";
+          insertLockQuery = "INSERT INTO form_locks (form_table_name, form_title, is_locked,usergroup,not_submitted_emails) VALUES (?, ?, ?,?,?)";
           _context2.next = 14;
-          return regeneratorRuntime.awrap(query(insertLockQuery, [tableName, formName, 0]));
+          return regeneratorRuntime.awrap(query(insertLockQuery, [tableName, formName, 0, usergroup, usergroup]));
 
         case 14:
           // Initially, set is_locked to 0 (unlocked)
@@ -297,14 +305,14 @@ router.post('/insertrecord', upload.single('file'), function _callee3(req, res) 
   }, null, null, [[3, 11]]);
 });
 router.post('/updaterecord', upload.single('file'), function _callee4(req, res) {
-  var _req$body3, id, table, rawData, data, existingRows, oldFilePath, newFilePath, setClause, values, updateQuery;
+  var _req$body3, id, table, rawData, deleteFile, data, existingRows, oldFilePath, newFilePath, currentTimestamp, setClause, values, updateQuery;
 
   return regeneratorRuntime.async(function _callee4$(_context5) {
     while (1) {
       switch (_context5.prev = _context5.next) {
         case 0:
           console.log(req.body);
-          _req$body3 = req.body, id = _req$body3.id, table = _req$body3.table, rawData = _req$body3.data;
+          _req$body3 = req.body, id = _req$body3.id, table = _req$body3.table, rawData = _req$body3.data, deleteFile = _req$body3.deleteFile;
           data = JSON.parse(rawData);
 
           if (!(!id || !table)) {
@@ -339,7 +347,7 @@ router.post('/updaterecord', upload.single('file'), function _callee4(req, res) 
           newFilePath = oldFilePath;
 
           if (!req.file) {
-            _context5.next = 24;
+            _context5.next = 26;
             break;
           }
 
@@ -364,46 +372,74 @@ router.post('/updaterecord', upload.single('file'), function _callee4(req, res) 
           console.error('Error deleting old file:', _context5.t0);
 
         case 24:
+          _context5.next = 36;
+          break;
+
+        case 26:
+          if (!(deleteFile === 'true' && oldFilePath)) {
+            _context5.next = 36;
+            break;
+          }
+
+          _context5.prev = 27;
+          _context5.next = 30;
+          return regeneratorRuntime.awrap(fsPromises.unlink(path.resolve(oldFilePath)));
+
+        case 30:
+          newFilePath = ''; // Clear the document path in the database
+
+          _context5.next = 36;
+          break;
+
+        case 33:
+          _context5.prev = 33;
+          _context5.t1 = _context5["catch"](27);
+          console.error('Error deleting old file:', _context5.t1);
+
+        case 36:
           if (newFilePath) {
             data.document = newFilePath;
-          } // Construct the SET clause dynamically with proper escaping
+          } // Add current timestamp for createdAt/updatedAt
 
+
+          currentTimestamp = new Date();
+          data.createdAt = currentTimestamp; // Construct the SET clause dynamically with proper escaping
 
           setClause = Object.keys(data).map(function (key) {
             return "`".concat(key, "` = ?");
           }).join(', ');
-          values = Object.values(data); // Log the query for debugging purposes
+          values = Object.values(data);
+          updateQuery = "UPDATE `".concat(table, "` SET ").concat(setClause, ", createdAt = NOW() WHERE id = ?"); // NOW() adds the current timestamp
 
-          updateQuery = "UPDATE `".concat(table, "` SET ").concat(setClause, " WHERE id = ?");
           console.log('SQL Query:', updateQuery);
           console.log('Values:', [].concat(_toConsumableArray(values), [id]));
-          _context5.next = 32;
+          _context5.next = 46;
           return regeneratorRuntime.awrap(query(updateQuery, [].concat(_toConsumableArray(values), [id])));
 
-        case 32:
+        case 46:
           res.json({
             message: 'Record updated successfully'
           });
-          _context5.next = 39;
+          _context5.next = 53;
           break;
 
-        case 35:
-          _context5.prev = 35;
-          _context5.t1 = _context5["catch"](5);
-          console.error('Error updating record:', _context5.t1);
+        case 49:
+          _context5.prev = 49;
+          _context5.t2 = _context5["catch"](5);
+          console.error('Error updating record:', _context5.t2);
           res.status(500).json({
-            error: getFriendlyErrorMessage(_context5.t1.code)
+            error: getFriendlyErrorMessage(_context5.t2.code)
           });
 
-        case 39:
+        case 53:
         case "end":
           return _context5.stop();
       }
     }
-  }, null, null, [[5, 35], [16, 21]]);
+  }, null, null, [[5, 49], [16, 21], [27, 33]]);
 });
 router["delete"]('/deleterecord', function _callee5(req, res) {
-  var _req$body4, id, table;
+  var _req$body4, id, table, record, filePath;
 
   return regeneratorRuntime.async(function _callee5$(_context6) {
     while (1) {
@@ -421,32 +457,70 @@ router["delete"]('/deleterecord', function _callee5(req, res) {
           }));
 
         case 3:
-          console.log("Deleting from ".concat(table, " where id=").concat(id));
-          _context6.prev = 4;
-          _context6.next = 7;
-          return regeneratorRuntime.awrap(query('DELETE FROM ?? WHERE id = ?', [table, id]));
+          _context6.prev = 3;
+          _context6.next = 6;
+          return regeneratorRuntime.awrap(query('SELECT document FROM ?? WHERE id = ?', [table, id]));
 
-        case 7:
-          res.json({
-            message: 'Item deleted successfully'
-          });
-          _context6.next = 14;
+        case 6:
+          record = _context6.sent;
+
+          if (!(record.length === 0)) {
+            _context6.next = 9;
+            break;
+          }
+
+          return _context6.abrupt("return", res.status(404).json({
+            message: 'Record not found'
+          }));
+
+        case 9:
+          filePath = record[0].document;
+          console.log(filePath);
+
+          if (!filePath) {
+            _context6.next = 21;
+            break;
+          }
+
+          _context6.prev = 12;
+          _context6.next = 15;
+          return regeneratorRuntime.awrap(fsPromises.unlink(path.resolve(filePath)));
+
+        case 15:
+          console.log("File at ".concat(filePath, " deleted successfully"));
+          _context6.next = 21;
           break;
 
-        case 10:
-          _context6.prev = 10;
-          _context6.t0 = _context6["catch"](4);
-          console.error('Error deleting item:', _context6.t0.stack);
+        case 18:
+          _context6.prev = 18;
+          _context6.t0 = _context6["catch"](12);
+          console.error('Error deleting file:', _context6.t0);
+
+        case 21:
+          _context6.next = 23;
+          return regeneratorRuntime.awrap(query('DELETE FROM ?? WHERE id = ?', [table, id]));
+
+        case 23:
+          res.json({
+            message: 'Item and associated file (if any) deleted successfully'
+          });
+          _context6.next = 30;
+          break;
+
+        case 26:
+          _context6.prev = 26;
+          _context6.t1 = _context6["catch"](3);
+          console.error('Error deleting item:', _context6.t1.stack);
           res.status(500).json({
-            error: getFriendlyErrorMessage(error.code)
+            error: getFriendlyErrorMessage(_context6.t1.code)
           });
 
-        case 14:
+        case 30:
         case "end":
           return _context6.stop();
       }
     }
-  }, null, null, [[4, 10]]);
+  }, null, null, [[3, 26], [12, 18]]);
 });
 router.post('/locktable', function _callee6(req, res) {
   var _req$body5, id, lock;
@@ -493,31 +567,240 @@ router.post('/locktable', function _callee6(req, res) {
     }
   }, null, null, [[3, 9]]);
 });
-router.post('/getlocktablestatus', function _callee7(req, res) {
-  var _req$body6, id, table, results;
+router.post('/deadline', function _callee7(req, res) {
+  var _req$body6, id, deadline, _ref, _ref2, response;
 
   return regeneratorRuntime.async(function _callee7$(_context8) {
     while (1) {
       switch (_context8.prev = _context8.next) {
         case 0:
-          _req$body6 = req.body, id = _req$body6.id, table = _req$body6.table;
+          _req$body6 = req.body, id = _req$body6.id, deadline = _req$body6.deadline; // Validate request body
 
-          if (!(!table || !id)) {
+          if (!(!id || !deadline)) {
             _context8.next = 3;
             break;
           }
 
           return _context8.abrupt("return", res.status(400).json({
-            error: 'Table name and ID are required'
+            error: 'ID and deadline are required'
           }));
 
         case 3:
           _context8.prev = 3;
           _context8.next = 6;
+          return regeneratorRuntime.awrap(query('SELECT * FROM form_locks WHERE id = ?', [id]));
+
+        case 6:
+          _ref = _context8.sent;
+          _ref2 = _slicedToArray(_ref, 1);
+          response = _ref2[0];
+
+          if (response) {
+            _context8.next = 11;
+            break;
+          }
+
+          return _context8.abrupt("return", res.status(404).json({
+            error: 'Form lock not found'
+          }));
+
+        case 11:
+          _context8.next = 13;
+          return regeneratorRuntime.awrap(query('UPDATE form_locks SET deadline = ?, not_submitted_emails = ? WHERE id = ?', [deadline, response.usergroup, id]));
+
+        case 13:
+          res.json({
+            message: 'Deadline updated successfully'
+          });
+          _context8.next = 20;
+          break;
+
+        case 16:
+          _context8.prev = 16;
+          _context8.t0 = _context8["catch"](3);
+          console.error('Error updating deadline:', _context8.t0.stack);
+          res.status(500).json({
+            error: 'An error occurred while updating the deadline'
+          });
+
+        case 20:
+        case "end":
+          return _context8.stop();
+      }
+    }
+  }, null, null, [[3, 16]]);
+});
+router.post('/delete', function _callee8(req, res) {
+  var _req$body7, formId, tableName, deleteFormLockQuery, deleteFormLockResponse, dropTableQuery;
+
+  return regeneratorRuntime.async(function _callee8$(_context9) {
+    while (1) {
+      switch (_context9.prev = _context9.next) {
+        case 0:
+          _req$body7 = req.body, formId = _req$body7.formId, tableName = _req$body7.tableName; // Validate request body
+
+          if (!(!formId || !tableName)) {
+            _context9.next = 3;
+            break;
+          }
+
+          return _context9.abrupt("return", res.status(400).json({
+            error: 'Form ID and table name are required'
+          }));
+
+        case 3:
+          _context9.prev = 3;
+          _context9.next = 6;
+          return regeneratorRuntime.awrap(query('START TRANSACTION'));
+
+        case 6:
+          // Delete the form lock entry from form_locks table
+          deleteFormLockQuery = 'DELETE FROM form_locks WHERE id = ?';
+          _context9.next = 9;
+          return regeneratorRuntime.awrap(query(deleteFormLockQuery, [formId]));
+
+        case 9:
+          deleteFormLockResponse = _context9.sent;
+
+          if (!(deleteFormLockResponse.affectedRows === 0)) {
+            _context9.next = 14;
+            break;
+          }
+
+          _context9.next = 13;
+          return regeneratorRuntime.awrap(query('ROLLBACK'));
+
+        case 13:
+          return _context9.abrupt("return", res.status(404).json({
+            error: 'Form lock not found'
+          }));
+
+        case 14:
+          // Drop the table from the database
+          dropTableQuery = "DROP TABLE IF EXISTS ??"; // Using placeholders to avoid SQL injection
+
+          _context9.next = 17;
+          return regeneratorRuntime.awrap(query(dropTableQuery, [tableName]));
+
+        case 17:
+          _context9.next = 19;
+          return regeneratorRuntime.awrap(query('COMMIT'));
+
+        case 19:
+          res.json({
+            message: "Form lock and table ".concat(tableName, " deleted successfully")
+          });
+          _context9.next = 28;
+          break;
+
+        case 22:
+          _context9.prev = 22;
+          _context9.t0 = _context9["catch"](3);
+          console.error('Error deleting form lock and table:', _context9.t0.stack);
+          _context9.next = 27;
+          return regeneratorRuntime.awrap(query('ROLLBACK'));
+
+        case 27:
+          // Rollback the transaction in case of an error
+          res.status(500).json({
+            error: 'An error occurred while deleting the form and table'
+          });
+
+        case 28:
+        case "end":
+          return _context9.stop();
+      }
+    }
+  }, null, null, [[3, 22]]);
+});
+router.post('/updateusergroup', function _callee9(req, res) {
+  var _req$body8, id, usergroup, _ref3, _ref4, response;
+
+  return regeneratorRuntime.async(function _callee9$(_context10) {
+    while (1) {
+      switch (_context10.prev = _context10.next) {
+        case 0:
+          _req$body8 = req.body, id = _req$body8.id, usergroup = _req$body8.usergroup;
+
+          if (!(!id || !usergroup)) {
+            _context10.next = 3;
+            break;
+          }
+
+          return _context10.abrupt("return", res.status(400).json({
+            error: 'Form ID and user group are required'
+          }));
+
+        case 3:
+          _context10.prev = 3;
+          _context10.next = 6;
+          return regeneratorRuntime.awrap(query('SELECT * FROM form_locks WHERE id = ?', [id]));
+
+        case 6:
+          _ref3 = _context10.sent;
+          _ref4 = _slicedToArray(_ref3, 1);
+          response = _ref4[0];
+
+          if (response) {
+            _context10.next = 11;
+            break;
+          }
+
+          return _context10.abrupt("return", res.status(404).json({
+            error: 'Form lock not found'
+          }));
+
+        case 11:
+          _context10.next = 13;
+          return regeneratorRuntime.awrap(query('UPDATE form_locks SET usergroup= ? WHERE id = ?', [usergroup, id]));
+
+        case 13:
+          res.json({
+            message: 'usergroup updated successfully'
+          });
+          _context10.next = 20;
+          break;
+
+        case 16:
+          _context10.prev = 16;
+          _context10.t0 = _context10["catch"](3);
+          console.error('Error updating usergroup:', _context10.t0.stack);
+          res.status(500).json({
+            error: 'An error occurred while updating the usergroup'
+          });
+
+        case 20:
+        case "end":
+          return _context10.stop();
+      }
+    }
+  }, null, null, [[3, 16]]);
+});
+router.post('/getlocktablestatus', function _callee10(req, res) {
+  var _req$body9, id, table, results;
+
+  return regeneratorRuntime.async(function _callee10$(_context11) {
+    while (1) {
+      switch (_context11.prev = _context11.next) {
+        case 0:
+          _req$body9 = req.body, id = _req$body9.id, table = _req$body9.table;
+
+          if (!(!table || !id)) {
+            _context11.next = 3;
+            break;
+          }
+
+          return _context11.abrupt("return", res.status(400).json({
+            error: 'Table name and ID are required'
+          }));
+
+        case 3:
+          _context11.prev = 3;
+          _context11.next = 6;
           return regeneratorRuntime.awrap(query('SELECT is_locked FROM ?? WHERE id=?', [table, id]));
 
         case 6:
-          results = _context8.sent;
+          results = _context11.sent;
 
           if (results.length > 0) {
             res.status(200).json(results[0]);
@@ -527,20 +810,20 @@ router.post('/getlocktablestatus', function _callee7(req, res) {
             });
           }
 
-          _context8.next = 14;
+          _context11.next = 14;
           break;
 
         case 10:
-          _context8.prev = 10;
-          _context8.t0 = _context8["catch"](3);
-          console.error('Failed to fetch lock status:', _context8.t0.stack);
+          _context11.prev = 10;
+          _context11.t0 = _context11["catch"](3);
+          console.error('Failed to fetch lock status:', _context11.t0.stack);
           res.status(500).json({
             error: getFriendlyErrorMessage(error.code)
           });
 
         case 14:
         case "end":
-          return _context8.stop();
+          return _context11.stop();
       }
     }
   }, null, null, [[3, 10]]);

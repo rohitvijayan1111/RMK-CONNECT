@@ -60,7 +60,7 @@ router.post('/login', (req, res) => {
       return res.status(400).send('Invalid credentials' );
     }
     const token = jwt.sign(
-      { userId: user.id, username: user.username, role: user.role, department: user.department },
+      { userId: user.id, username: user.username, role: user.role, department: user.department,mail:user.mail },
       jwtSecret,
       { expiresIn: '1h' } 
     );

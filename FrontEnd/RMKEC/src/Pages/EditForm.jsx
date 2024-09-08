@@ -13,30 +13,13 @@ import './EditForm.css';
 const EditForm = () => {
   const navigate = useNavigate();
   const location = useLocation();
-  const { table, attributenames, item } = location.state;
+  const { table, attributenames, item,attributeTypes} = location.state;
   const [data, setData] = useState(item);
   const [selectedFile, setSelectedFile] = useState(null);
   const [fileInputKey, setFileInputKey] = useState(Date.now());
   const fileInputRef = useRef(null);
 
-  const attributeTypes = {
-    'completion_date': 'date',
-    'Proposed Date': 'date',
-    'Date of completion': 'date',
-    'Proposed date of visit': 'date',
-    'Actual Date  Visited': 'date',
-    'Date_of_event_planned': 'date',
-    'Date_of_completion': 'date',
-    'Date planned': 'date',
-    'Actual Date of lecture': 'date',
-    'Completion Date of Event': 'date',
-    'Date of Interview': 'date',
-    'start_date': 'date',
-    'end_date': 'date',
-    'joining_date': 'date',
-    'document': 'file',
-  };
-
+  console.log(attributeTypes);
   const notifysuccess = () => {
     toast.success('Record Edited Successfully!', {
       position: "top-center",
@@ -85,7 +68,42 @@ const EditForm = () => {
     setFileInputKey(Date.now()); // Reset file input by changing the key
     setData({ ...data, document: 'No file selected' });
   };
-
+  const removeEmailFromNotSubmitted = async (formId, email) => {
+    try {
+      const response = await axios.post('http://localhost:3000/tables/remove-email', {
+        formId,
+        email
+      });
+  
+      // Handle successful response
+      console.log('Response:', response.data);
+      toast.success('Email removed successfully', {
+        position: "top-center",
+        autoClose: 3000,
+        hideProgressBar: false,
+        closeOnClick: true,
+        pauseOnHover: true,
+        draggable: true,
+        progress: undefined,
+        theme: "colored",
+        transition: Zoom,
+      });
+    } catch (error) {
+      // Handle error
+      console.error('Error removing email:', error.response?.data || error.message);
+      toast.error('Error removing email', {
+        position: "top-center",
+        autoClose: 5000,
+        hideProgressBar: false,
+        closeOnClick: true,
+        pauseOnHover: true,
+        draggable: true,
+        progress: undefined,
+        theme: "colored",
+        transition: Zoom,
+      });
+    }
+  };
   const handleSubmit = async (e) => {
     e.preventDefault();
     try {
@@ -96,21 +114,16 @@ const EditForm = () => {
         }
       }
   
-      // If a new file is selected, delete the old file if necessary
-      if (selectedFile && data.document && data.document !== 'No file selected') {
-        // Ensure that the old file is correctly identified and deleted
-        await axios.delete('http://localhost:3000/deletefile', {
-          data: { id: data.id, table, filename: data.document },
-          headers: { 'Content-Type': 'application/json' }
-        });
-      }
-  
       const formData = new FormData();
       formData.append('id', data.id);
       formData.append('table', table);
       formData.append('data', JSON.stringify(formattedData));
+  
+      // Handle file upload or deletion
       if (selectedFile) {
         formData.append('file', selectedFile);
+      } else if (data.document && data.document !== 'No file selected') {
+        formData.append('deleteFile', true); // Request to delete the existing file
       }
   
       const response = await axios.post("http://localhost:3000/tables/updaterecord", formData, {
@@ -118,7 +131,7 @@ const EditForm = () => {
           'Content-Type': 'multipart/form-data'
         }
       });
-  
+      // removeEmailFromNotSubmitted(formId,tokendata.email);
       notifysuccess();
       setTimeout(() => {
         navigate(-1);
@@ -127,16 +140,13 @@ const EditForm = () => {
       notifyfailure(error.response?.data?.error || 'Error updating record');
     }
   };
-  
-  
-
   return (
     <div className="cnt">
       <h2>Edit Form</h2>
       {attributenames && attributenames.length > 0 ? (
         <form className='edt' onSubmit={handleSubmit}>
           {attributenames.map((attribute, index) => (
-            attribute !== "id" && attribute !== "department" && (
+            attribute !== "id" && attribute !== "department" && attribute !== "createdAt" &&(
               <div className="frm" key={index}>
                 <label htmlFor={attribute} className="lbl">{attribute.replace(/_/g, ' ')}:</label>
                 {attributeTypes[attribute] === 'date' ? (

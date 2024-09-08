@@ -14,6 +14,11 @@ var cron = require('node-cron');
 
 var app = express();
 var PORT = process.env.PORT || 3000;
+
+var nodemailer = require('nodemailer');
+
+var moment = require('moment');
+
 app.use(bodyParser.json());
 app.use(cors());
 app.use(bodyParser.urlencoded({
@@ -63,6 +68,58 @@ cron.schedule('0 0 * * *', function () {
 }, {
   scheduled: true,
   timezone: 'Asia/Kolkata'
+});
+var transporter = nodemailer.createTransport({
+  host: 'smtp.gmail.com',
+  port: 587,
+  secure: false,
+  auth: {
+    user: 'rohitvijayandrive@gmail.com',
+    pass: 'kfzxznsmouxvszel'
+  }
+});
+
+var sendMail = function sendMail(email, formTitle, deadline) {
+  var formattedDeadline = moment(deadline).format('HH:mm:ss DD/MM/YYYY');
+  var mailOptions = {
+    from: 'your-email@gmail.com',
+    to: email,
+    subject: "Reminder: ".concat(formTitle, " Form Submission"),
+    text: "Dear HOD,\n\nWe noticed that you haven't yet submitted the form titled \"".concat(formTitle, "\". Please be reminded that the deadline for submission is on ").concat(formattedDeadline, ".\n\nWe kindly request you to complete and submit the form at your earliest convenience.\n\nThank you for your attention to this matter.\n\nBest regards,\nThe Coordination Team")
+  };
+  transporter.sendMail(mailOptions, function (error, info) {
+    if (error) {
+      console.log('Error sending email to:', email, error);
+    } else {
+      console.log('Email sent to:', email, info.response);
+    }
+  });
+}; // Function to process form locks and send emails
+
+
+var processFormLocks = function processFormLocks() {
+  db.query('SELECT * FROM form_locks WHERE not_submitted_emails IS NOT NULL', function (err, results) {
+    if (err) {
+      console.error('Error fetching data from form_locks:', err);
+      return;
+    }
+
+    results.forEach(function (row) {
+      var emails = row.not_submitted_emails.split(','); // Convert the comma-separated emails into an array
+
+      var formTitle = row.form_title;
+      var deadline = row.deadline;
+      console.log(emails);
+      emails.forEach(function (email) {
+        sendMail(email.trim(), formTitle, deadline); // Send mail to each email
+      });
+    });
+  });
+};
+
+cron.schedule('0 */4 * * *', function () {
+  console.log('Running cron job to send emails to not_submitted_emails');
+  processFormLocks();
 });
 app.listen(PORT, function () {
   console.log("Server running on port ".concat(PORT));

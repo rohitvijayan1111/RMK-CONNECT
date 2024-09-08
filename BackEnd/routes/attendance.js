@@ -413,7 +413,6 @@ router.post('/fetchdatedata', async (req, res) => {
     const department = req.body.department;
     const formattedDate2=req.body.date2;
     const formattedDate = currentdate;
-    console.log("THE FORMATTED DATE IS "+formattedDate);
     if (!userGroup || !department) {
         return res.status(400).json({ error: 'User Group is required' });
     }
@@ -427,7 +426,6 @@ router.post('/fetchdatedata', async (req, res) => {
                     s.academic_year AS academic_year,
                     s.department AS dept,
                     s.studentType AS studentType,
-                    s.parent_mail AS parent_mail,
                     a.reason AS Reason,
                     a.leave_type AS Leave_Type
                 FROM students s
@@ -440,7 +438,6 @@ router.post('/fetchdatedata', async (req, res) => {
                 SELECT 
                     st.name AS name,
                     st.department AS dept,
-                    st.email AS staff_mail,
                     a.reason AS Reason,
                     a.leave_type AS Leave_Type
                 FROM staffs st
@@ -459,7 +456,6 @@ router.post('/fetchdatedata', async (req, res) => {
                     s.academic_year AS academic_year,
                     s.department AS dept,
                     s.studentType AS studentType,
-                    s.parent_mail AS parent_mail,
                     a.reason AS Reason,
                     a.leave_type AS Leave_Type
                     
@@ -473,7 +469,6 @@ router.post('/fetchdatedata', async (req, res) => {
                 SELECT 
                     st.name AS name,
                     st.department AS dept,
-                    st.email AS staff_mail,
                     a.reason AS Reason,
                     a.leave_type AS Leave_Type
                 FROM staffs st

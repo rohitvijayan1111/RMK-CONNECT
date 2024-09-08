@@ -39,6 +39,7 @@ import IV from "./Pages/IV";
 import OtherForms from "./Components/OtherForms";
 import OtherFormsRecords from "./Components/OtherFormsRecords";
 import ProtectedRoute from "./Pages/ProtectedRoute";
+import SetDeadlinePage from "./Components/SetDeadlinePage";
 function ScrollToTop() {
   const { pathname } = useLocation();
 
@@ -53,7 +54,7 @@ function App() {
   return (
     <LocalizationProvider dateAdapter={AdapterDateFns}>
       <div className='app'>
-        <Router>
+       <Router>
           <ScrollToTop />
           <Routes>
             <Route path="/" element={<LoginPage />} />
@@ -87,6 +88,7 @@ function App() {
               <Route path="Available-Halls" element={<Available_Halls />} />
               <Route path="DashBoard-Hall" element={<DashBoard_Hall />} />
               <Route path="forms" element={<OtherForms/>} />
+              <Route path="forms/deadline" element={<SetDeadlinePage/>} />
               <Route path="forms/form-records" element={<OtherFormsRecords/>} />
               <Route path="forms/form-records/edit-form" element={<EditForm/>} />
               <Route path="forms/form-records/add-form" element={<AddForm />} />

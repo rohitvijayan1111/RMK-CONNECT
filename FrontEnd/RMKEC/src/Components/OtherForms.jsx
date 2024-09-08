@@ -13,7 +13,7 @@ const OtherForms = () => {
     const [lockedStatus, setLockedStatus] = useState({});
     const tokendata=getTokenData();
     const role = tokendata.role;
-    
+    console.log(forms);
     const notifyfailure = (error) => {
         toast.error(error, {
             position: "top-center",
@@ -38,6 +38,7 @@ const OtherForms = () => {
                 const response = await axios.post('http://localhost:3000/forms/getformlist', {});
                 const formsData = response.data;
                 setForms(formsData);
+                console.log(response.data);
                 const initialLockStatus = formsData.reduce((acc, form) => {
                     acc[form.id] = form.is_locked;
                     return acc;
@@ -68,7 +69,50 @@ const OtherForms = () => {
             }
         });
     };
-
+    const handleDeadline = (formId) => {
+        const form = forms.find(f => f.id === formId);
+        if (form) {
+            navigate("deadline", {
+                state: {
+                    formId: formId,
+                    title: form.form_title,
+                    usersgroup: form.usergroup
+                }
+            });
+        } else {
+            notifyfailure("Form not found");
+        }
+    };
+    function handleDeleteForm(formId, formName,tableName) {
+        Swal.fire({
+          title: `Do you want to delete the ${formName} form?`,
+          text: `Please type "delete ${formName}" to confirm.`,
+          input: 'text',
+          inputPlaceholder: `delete ${formName}`,
+          showCancelButton: true,
+          confirmButtonText: 'Delete',
+          cancelButtonText: 'Cancel',
+          preConfirm: (inputValue) => {
+            if (inputValue !== `delete ${formName}`) {
+              Swal.showValidationMessage(`You need to type "delete ${formName}" to confirm.`);
+            }
+            return inputValue === `delete ${formName}`;
+          }
+        }).then((result) => {
+          if (result.isConfirmed) {
+            console.log("From is going to be deleted");
+            axios.post('http://localhost:3000/tables/delete', {formId,tableName})
+              .then((response) => {
+                Swal.fire('Deleted!', `The form "${formName}" has been deleted.`, 'success');
+                setForms((prevForms) => prevForms.filter((form) => form.id !== formId));
+              })
+              .catch((error) => {
+                Swal.fire('Error!', 'There was an issue deleting the form. Please try again.', 'error');
+              });
+          }
+        });
+        
+      }
    function handleView(form){
     navigate("form-records", { state: { form: form} });
    }
@@ -97,9 +141,15 @@ const OtherForms = () => {
                                 <Button variant="primary" onClick={() => handleView(form)}>View</Button>
                                 {' '}
                                 {role === 'IQAC'&& (
+                                    <>
                                     <Button variant="danger" onClick={() => handleLock(form.id)}>
                                         {lockedStatus[form.id] ? 'Unlock Form' : 'Lock Form'}
                                     </Button>
+                                    <Button variant="warning" onClick={()=>handleDeadline(form.id)}>Set Deadline</Button>
+                                    <Button variant="danger" onClick={() => handleDeleteForm(form.id,form.form_title,form.form_table_name)}>
+                                        Delete Form
+                                    </Button>
+                                    </>
                                 )}
                             </td>
                         </tr>
