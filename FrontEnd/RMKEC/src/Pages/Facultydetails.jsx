@@ -47,7 +47,7 @@ function Facultydetails() {
         const response = await axios.post('http://localhost:3000/tables/gettable', { table: table, department: dept });
         setData(response.data.data);
         setOriginalData(response.data.data);
-        setAttributenames(response.data.columnNames);
+        setAttributenames(Object.keys(response.data.columnDataTypes));
       } catch (err) {
         if (err.response && err.response.data) {
           notifyFailure(err.response.data);
