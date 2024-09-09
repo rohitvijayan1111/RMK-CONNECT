@@ -14,12 +14,13 @@ import upcoming from '../assets/upcoming.png';
 import Status from '../assets/Status.png';
 import Available from '../assets/Available.png';
 import others from '../assets/others.png';
-
+import { getTokenData } from "../Pages/authUtils";
 function SideBar() {
   const location = useLocation();
   const sidebarRef = useRef(null);
-  const user = window.localStorage.getItem("userType");
-
+  const tokenData=getTokenData();
+  let user = tokenData.role;
+  
   const [showAttendanceLinks, setShowAttendanceLinks] = useState(false);
   const [showHallBookingLinks, setShowHallBookingLinks] = useState(false);
 
