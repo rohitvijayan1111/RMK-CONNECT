@@ -9,16 +9,21 @@ import 'react-toastify/dist/ReactToastify.css';
 import './EditForm.css';
 import dayjs from 'dayjs';
 import { getTokenData } from './authUtils';
+
 const AddForm = () => {
   const navigate = useNavigate();
   const location = useLocation();
-  const tokendata=getTokenData();
-  const { table, attributenames,attributeTypes,formId} = location.state;
+  const tokendata = getTokenData();
+  const { table, attributenames, attributeTypes, formId } = location.state;
   const [data, setData] = useState({ department: tokendata.department });
   const [file, setFile] = useState(null);
   const [fileInputKey, setFileInputKey] = useState(Date.now());
-
   
+  // State to hold multiple company details
+  const [companyDetails, setCompanyDetails] = useState([
+    { companyName: '', salaryOffered: '', noOfStuPlaced: '' },
+  ]);
+
   const notifysuccess = () => {
     toast.success('Added Record Successfully!', {
       position: "top-center",
@@ -52,8 +57,6 @@ const AddForm = () => {
     setData({ ...data, [attribute]: formattedDate });
   };
 
-
-
   const handleFileChange = (e) => {
     const selectedFile = e.target.files[0];
     setFile(selectedFile);
@@ -61,10 +64,10 @@ const AddForm = () => {
 
   const handleFileReset = () => {
     setFile(null);
-    setFileInputKey(Date.now()); 
+    setFileInputKey(Date.now());
     setData((prevData) => ({
       ...prevData,
-      document: 'No file selected' 
+      document: 'No file selected'
     }));
   };
   
@@ -74,8 +77,7 @@ const AddForm = () => {
         formId,
         email
       });
-  
-      // Handle successful response
+
       console.log('Response:', response.data);
       toast.success('Email removed successfully', {
         position: "top-center",
@@ -89,7 +91,6 @@ const AddForm = () => {
         transition: Zoom,
       });
     } catch (error) {
-      // Handle error
       console.error('Error removing email:', error.response?.data || error.message);
       toast.error('Error removing email', {
         position: "top-center",
@@ -114,6 +115,10 @@ const AddForm = () => {
       Object.entries(data).forEach(([key, value]) => {
         formData.append(key, value);
       });
+
+      // Add company details as JSON string
+      formData.append('company_details', JSON.stringify(companyDetails));
+
       if (file) {
         console.log("File exists");
         formData.append('file', file);
@@ -124,7 +129,7 @@ const AddForm = () => {
         }
       });
       console.log(response.data);
-      removeEmailFromNotSubmitted(formId,tokendata.email);
+      removeEmailFromNotSubmitted(formId, tokendata.email);
       notifysuccess();
       setTimeout(() => {
         navigate(-1);
@@ -133,6 +138,7 @@ const AddForm = () => {
       notifyfailure(error.response.data.error || 'Error inserting record');
     }
   };
+
   const handleChange = (attribute, value) => {
     setData(prevData => {
       const newData = { ...prevData, [attribute]: value };
@@ -158,6 +164,24 @@ const AddForm = () => {
       return newData;
     });
   };
+
+  const handleCompanyDetailChange = (index, field, value) => {
+    const updatedDetails = companyDetails.map((detail, i) => 
+      i === index ? { ...detail, [field]: value } : detail
+    );
+    setCompanyDetails(updatedDetails);
+  };
+
+  const addCompanyDetail = () => {
+    setCompanyDetails([...companyDetails, { companyName: '', salaryOffered: '', noOfStuPlaced: '' }]);
+  };
+
+  const deleteLastCompanyDetail = () => {
+    if (companyDetails.length > 1) {
+      setCompanyDetails(companyDetails.slice(0, -1));
+    }
+  };
+
   return (
     <div className="cnt">
       <h2>Add Record</h2>
@@ -186,7 +210,6 @@ const AddForm = () => {
                   </LocalizationProvider>
                 ) : attributeTypes[attribute] === 'file' ? (
                   <div>
-
                     <div className="file-upload-container">
                       <input
                         type="text"
@@ -220,58 +243,71 @@ const AddForm = () => {
                       type="text"
                       className="cntr"
                       id={attribute}
-                      onChange={(e) => setData({ ...data, [attribute]: (data[No_of_Students_Placed]/data[Total_No_of_Students])/100 })}
-                      value={data[attribute]  || ''}
+                      onChange={(e) => setData({ ...data, [attribute]: (data[No_of_Students_Placed]/data[No_of_Students_Registered_for_Placement])*100 })}
+                      value={data[attribute] || ''}
                       readOnly
-                      required
                     />
                   </>
-                ):attributeTypes[attribute] === 'Percentage_of_Higher_Studies' ?( 
+                ): attributeTypes[attribute] === 'Percentage_of_Higher_Studies' ?( 
                   <>
                   <input
                       type="text"
                       className="cntr"
                       id={attribute}
-                      onChange={(e) => setData({ ...data, [attribute]: (data[No_of_Students_Admitted_to_Higher_Studies]/data[No_of_Students_Opted_for_Higher_Studies])/100  })}
+                      onChange={(e) => setData({ ...data, [attribute]: (data[No_of_Students_Admitted_to_Higher_Studies]/data[No_of_Students_Opted_for_Higher_Studies])*100 })}
                       value={data[attribute] || ''}
                       readOnly
-                      required
                     />
                   </>
-
-                ):attributeTypes[attribute] === 'company_details' ?( 
+                ):attributeTypes[attribute] === 'json' ?( 
                   <>
-                  <div className='company'>
-                  <input
-                    type="text"
-                    className="cmp"
-                    id={attribute}
-                    onChange={(e) => handleChange(attribute, e.target.value)}
-                    value={data[attribute] || ''}
-                    required
-                  />
-                  <input
-                    type="text"
-                    className="cmp"
-                    id={attribute}
-                    onChange={(e) => handleChange(attribute, e.target.value)}
-                    value={data[attribute] || ''}
-                    required
-                  />
-                  <input
-                    type="text"
-                    className="cmp"
-                    id={attribute}
-                    onChange={(e) => handleChange(attribute, e.target.value)}
-                    value={data[attribute] || ''}
-                    required
-                  />
+                  {companyDetails.map((detail, index) => (
+                    <div key={index} className="company-detail">
+                      <div className="company-div">
+                        <label htmlFor={`companyName-${index}`} className="company-lbl"><b>Company Name:</b></label>
+                        <input
+                          type="text"
+                          className="cntr"
+                          id={`companyName-${index}`}
+                          value={detail.companyName}
+                          onChange={(e) => handleCompanyDetailChange(index, 'companyName', e.target.value)}
+                          required
+                        />
+                      </div>
+                      <div className="company-div">
+                        <label htmlFor={`salaryOffered-${index}`} className="company-lbl"><b>Salary Offered:</b></label>
+                        <input
+                          type="text"
+                          className="cntr"
+                          id={`salaryOffered-${index}`}
+                          value={detail.salaryOffered}
+                          onChange={(e) => handleCompanyDetailChange(index, 'salaryOffered', e.target.value)}
+                          required
+                        />
+                      </div>
+                      <div className="company-div">
+                        <label htmlFor={`noOfStuPlaced-${index}`} className="company-lbl"><b>No. Of Stu Placed:</b></label>
+                        <input
+                          type="text"
+                          className="cntr"
+                          id={`noOfStuPlaced-${index}`}
+                          value={detail.noOfStuPlaced}
+                          onChange={(e) => handleCompanyDetailChange(index, 'noOfStuPlaced', e.target.value)}
+                          required
+                        />
+                      </div>
+                    </div>
+                  ))}
+          
+                  <div className="company-buttons">
+                    <button type="button" className="cmp-btt" onClick={addCompanyDetail}>Add</button>
+                    {companyDetails.length > 1 && (
+                      <button type="button" className="cmp-btt" onClick={deleteLastCompanyDetail}>Delete</button>
+                    )}
                   </div>
-                  <button className='cmp-btt'>
-                    ADD
-                  </button>
+
                 </>
-                ): (
+                ):(
                   <input
                     type="text"
                     className="cntr"
@@ -283,13 +319,15 @@ const AddForm = () => {
                 )}
               </div>
             )
-          ))}
-          <div className="holder">
-            <input type='submit' value="Submit" className='btt' />
+          ))}        
+
+          
+          <div className="btns">
+            <button type="submit" className="btn-submit">Submit</button>
           </div>
         </form>
       ) : (
-        <p>Loading...</p>
+        <p>No attributes found.</p>
       )}
       <ToastContainer />
     </div>

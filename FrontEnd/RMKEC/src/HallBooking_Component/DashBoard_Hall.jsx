@@ -104,9 +104,7 @@ function DashBoard_Hall() {
     fetchUpcomingEvents();
   }, []);
 
-  if (loading) {
-    return <div>Loading...</div>;
-  }
+
 
   return (
     <div className="dashboard-hall">

@@ -13,19 +13,19 @@ import { getTokenData } from '../Pages/authUtils';
 
 function OtherFormsRecords() {
   const navigate = useNavigate();
-  const location=useLocation();
-  const {form} = location.state;
+  const location = useLocation();
+  const { form } = location.state;
   const [table] = useState(form.form_table_name);
-  const tokendata=getTokenData();
+  const tokendata = getTokenData();
   const role = tokendata.role;
-  const [dept, setDept] = useState((role==="hod")?tokendata.department:"All");
+  const [dept, setDept] = useState(role === "hod" ? tokendata.department : "All");
   const [data, setData] = useState([]);
   const [originalData, setOriginalData] = useState([]);
   const [attributenames, setAttributenames] = useState([]);
   const [lockedstatus, setLockedstatus] = useState('');
   const [searchColumn, setSearchColumn] = useState('');
   const [searchValue, setSearchValue] = useState('');
-  const [attributeTypes,setAttributeTypes]=useState({'document':'file','website_link':'link','related_link':'link'});
+  const [attributeTypes, setAttributeTypes] = useState({ 'document': 'file', 'website_link': 'link', 'related_link': 'link' });
   const notifyFailure = (error) => {
     toast.error(error, {
       position: "top-center",
@@ -50,7 +50,7 @@ function OtherFormsRecords() {
         setLockedstatus(response.data.is_locked);
       } catch (error) {
         console.error('Error fetching lock status:', error);
-        notifyfailure(error.response.data.error || 'Error fetching record');
+        notifyFailure(error.response.data.error || 'Error fetching record');
       }
     };
 
@@ -62,9 +62,8 @@ function OtherFormsRecords() {
         setAttributenames(Object.keys(response.data.columnDataTypes));
         setAttributeTypes({
           ...response.data.columnDataTypes,
-          ...{'document':'file', 'website_link': 'link'}
+          ...{ 'document': 'file', 'website_link': 'link' }
         });
-        
       } catch (err) {
         if (err.response && err.response.data) {
           notifyFailure(err.response.data);
@@ -96,7 +95,7 @@ function OtherFormsRecords() {
       });
       return;
     }
-    navigate("edit-form", { state: { table, attributenames,attributeTypes,item,formId:form.id} });
+    navigate("edit-form", { state: { table, attributenames, attributeTypes, item, formId: form.id } });
   };
 
   const handleAdd = () => {
@@ -114,7 +113,7 @@ function OtherFormsRecords() {
       });
       return;
     }
-    navigate("add-form", { state: { table, attributenames,attributeTypes,formId:form.id} });
+    navigate("add-form", { state: { table, attributenames, attributeTypes, formId: form.id } });
   };
 
   const handleLock = async () => {
@@ -176,7 +175,7 @@ function OtherFormsRecords() {
       }
     });
   };
-  
+
   const formatColumnName = (name) => {
     return name.replace(/_/g, ' ').replace(/\b\w/g, char => char.toUpperCase());
   };
@@ -185,28 +184,25 @@ function OtherFormsRecords() {
     return dayjs(date).format('DD/MM/YYYY');
   };
 
-  
-
   const handleSearch = () => {
     if (!searchColumn || !searchValue) {
       notifyFailure('Please select a column and enter a search value.');
       return;
     }
-  
+
     const filteredData = originalData.filter(item => {
       const value = item[searchColumn] ? item[searchColumn].toString().toLowerCase() : '';
-  
+
       if (attributeTypes[searchColumn] === 'date') {
         const formattedDate = dayjs(item[searchColumn]).format('DD/MM/YYYY');
         return formattedDate.includes(searchValue.toLowerCase());
       }
-  
+
       return value.includes(searchValue.toLowerCase());
     });
-  
+
     setData(filteredData);
   };
-  
 
   const resetSearch = () => {
     setData(originalData);
@@ -219,23 +215,21 @@ function OtherFormsRecords() {
       const { id, ...filteredItem } = item;
       return filteredItem;
     });
-  
+
     const ws = utils.json_to_sheet(filteredData);
     const wb = utils.book_new();
-    const sheetName = `${table}Data`; 
+    const sheetName = `${table}Data`;
     const fileName = `${sheetName}.xlsx`;
-  
+
     utils.book_append_sheet(wb, ws, sheetName);
-  
+
     writeFile(wb, fileName);
   };
-  
-  console.log(attributeTypes);
+
   return (
     <div className="container">
-        <h1>{form.form_title}</h1>
+      <h1>{form.form_title}</h1>
       <div className="row mb-3">
-        
         <div className="col">
           <button type="button" onClick={exportToExcel} className="bttexport">Export to Excel</button>
         </div>
@@ -265,10 +259,10 @@ function OtherFormsRecords() {
         </div>
 
         {role === "IQAC" && <div className="col">
-          <button type="button" onClick={handleLock} className="bttlock">{(!lockedstatus) ? "Lock Form" : "Unlock Form"}</button>
+          <button type="button" onClick={handleLock} className="bttlock">{!lockedstatus ? "Lock Form" : "Unlock Form"}</button>
         </div>}
 
-        {role==='hod' && <div className="col">
+        {role === 'hod' && <div className="col">
           <button type="button" onClick={handleAdd} className="search-button">Add Records</button>
         </div>}
       </div>
@@ -277,14 +271,34 @@ function OtherFormsRecords() {
         <div className="table-responsive">
           <table className="table table-bordered table-hover">
             <thead className="thead-dark">
-              <tr>
-                {role === "hod"  && <th className="fixed-column">Action</th>}
-                {attributenames && attributenames.map((name, index) => (
-                  name === "id" ? <th key={index}>S.No</th> :name==="createdAt"?<th key={index}>UpdatedAt</th>: (
-                    <th key={index}>{formatColumnName(name)}</th>
-                  )
-                ))}
-              </tr>
+            <tr>
+            {role === "hod" && <th rowSpan="2" className="fixed-column">Action</th>}
+            {attributenames && attributenames.map((name, index) => (
+              name === "id" ? <th rowSpan="2" key={index}>S.No</th> :
+              name === "createdAt" ? <th rowSpan="2" key={index}>Updated At</th> :
+              name === "company_details" ? (
+                <>
+                  <th  colSpan="3" key={index}>Company Details</th>
+                </>
+              ) : (
+                <th rowSpan="2" key={index}>{formatColumnName(name)}</th>
+              )
+            ))}
+          </tr>
+          <tr>
+            {attributenames && attributenames.map((name, index) => (
+              name === "company_details" ? (
+                <>
+                  <th key={`${index}-sub1`}>Company Name</th>
+                  <th key={`${index}-sub2`}>Salary Offered</th>
+                  <th key={`${index}-sub3`}>No.Of Students Placed</th>
+                </>
+              ) : (
+                <></>// Empty cell for non-"company_details" columns in the second row
+              )
+            ))}
+          </tr>
+
             </thead>
             <tbody>
               {data.map((item, index) => (
@@ -296,24 +310,35 @@ function OtherFormsRecords() {
                           <BsPencilSquare onClick={() => handleEdit(attributenames, item)} className="edit-icon" />
                           <BsFillTrashFill onClick={() => handleDelete(item.id)} className="delete-icons" />
                         </div>
-                      </IconContext.Provider>   
+                      </IconContext.Provider>
                     </td>
                   }
                   {attributenames.map((name, attrIndex) => (
                     name === "id" ? <td key={attrIndex}>{index + 1}</td> :
-                      <td key={attrIndex}>
-                        {attributeTypes[name] === "date" ? formatDate(item[name]) :attributeTypes[name]==="timestamp"?dayjs(item[name]).format('HH:mm DD/MM/YYYY'):(
-                          (name === "website_link" || name==="website link" || name==="Website_Link" || name==="related_link") && item[name] ?
-                            <a href={item[name]} target="_blank" rel="noopener noreferrer">Link</a>
-                            : attributeTypes[name] === "file" ? (
-                              <a href={`http://localhost:3000/${item.document}`} target="_blank" rel="noopener noreferrer">
-                                View
-                            </a>
-                            ) : item[name]
-                        )}
-                      </td>
+                    name === "company_details" ? (
+                      <>
+                        {item.companyDetails && item.companyDetails.map((company, idx) => (
+                          <React.Fragment key={idx}>
+                            <td>{company.company_name}</td>
+                            <td>{company.salary_offered}</td>
+                            <td>{company.no_of_students_placed}</td>
+                          </React.Fragment>
+                        ))}
+                      </>
+                    ) :
+                    <td key={attrIndex}>
+                      {attributeTypes[name] === "date" ? formatDate(item[name]) :
+                       attributeTypes[name] === "timestamp" ? dayjs(item[name]).format('HH:mm DD/MM/YYYY') :
+                       (name === "website_link" || name === "website link" || name === "Website_Link" || name === "related_link") && item[name] ?
+                         <a href={item[name]} target="_blank" rel="noopener noreferrer">Link</a>
+                         : attributeTypes[name] === "file" ? (
+                           <a href={`http://localhost:3000/${item.document}`} target="_blank" rel="noopener noreferrer">
+                             View
+                           </a>
+                         ) : item[name]
+                      }
+                    </td>
                   ))}
-                  
                 </tr>
               ))}
             </tbody>

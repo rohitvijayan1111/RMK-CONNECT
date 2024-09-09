@@ -98,7 +98,7 @@ function SideBar() {
                   <li className={isActive('/dashboard/Attendance-Log')}>
                     <Link to="/dashboard/Attendance-Log">
                       <img src={past} width="30px" height="30px" alt="Lecture" />
-                      Lecture
+                      Attendance<br/> Log
                     </Link>
                   </li>
                   <li className={isActive('/dashboard/Attendance-Analysis')}>

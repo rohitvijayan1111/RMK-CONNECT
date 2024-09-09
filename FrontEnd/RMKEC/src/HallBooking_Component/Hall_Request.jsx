@@ -10,13 +10,15 @@ import { TextField } from '@mui/material';
 import { TimePicker } from '@mui/x-date-pickers/TimePicker';
 import { useNavigate } from 'react-router-dom';
 import { getTokenData } from '../Pages/authUtils';
+import 'react-toastify/dist/ReactToastify.css';
+import { ToastContainer, toast, Zoom } from 'react-toastify';
 
 const Hall_Request = () => {
   const [halls, setHalls] = useState([]);
   const [fvalue, setFvalue] = useState(null); 
   const [tvalue, setTvalue] = useState(null);
   const navigate = useNavigate();
-  const tokendata=getTokenData();
+  const tokendata = getTokenData();
   const [formData, setFormData] = useState({
     name: '',
     speaker: '',
@@ -47,8 +49,41 @@ const Hall_Request = () => {
     return str.replace(/\b\w/g, (char) => char.toUpperCase());
   };
 
+  const notifysuccess = (msg) => {
+    toast.success(msg, {
+      position: "top-center",
+      autoClose: 3000,
+      hideProgressBar: false,
+      closeOnClick: true,
+      pauseOnHover: true,
+      draggable: true,
+      progress: undefined,
+      theme: "colored",
+      transition: Zoom,
+    });
+  };
+
+  const notifyfailure = (error) => {
+    toast.error(error, {
+      position: "top-center",
+      autoClose: 5000,
+      hideProgressBar: false,
+      closeOnClick: true,
+      pauseOnHover: true,
+      draggable: true,
+      progress: undefined,
+      theme: "colored",
+      transition: Zoom,
+    });
+  };
+
   const handleSubmit = async (e) => {
     e.preventDefault();
+
+    if (!formData.event_date || !formData.start_time || !formData.end_time || !formData.hall_name) {
+      notifyfailure('Please fill in all required fields.');
+      return;
+    }
 
     const formattedDate = dayjs(formData.event_date).format('YYYY-MM-DD');
     const formattedStartTime = formData.start_time ? dayjs(formData.start_time).format('HH:mm:ss') : null;
@@ -61,12 +96,10 @@ const Hall_Request = () => {
       end_time: formattedEndTime
     };
 
-    console.log(requestData); 
-
     try {
       await axios.post('http://localhost:3000/hall/hall-request', requestData)
-        .then(response => alert(response.data))
-        .catch(error => alert(error.response.data.error));
+        .then(response => notifysuccess(response.data))
+        .catch(error => notifyfailure(error.response.data.error));
 
       const formattedDate2 = dayjs(formData.event_date).format('MMMM DD, YYYY');
       const formContent = `
@@ -80,25 +113,27 @@ const Hall_Request = () => {
         Facilities Needed: ${formData.facility_needed}
         `;
 
-      await axios.post(`http://localhost:3000/mail/notifyHOD`, {
+      await axios.post('http://localhost:3000/mail/notifyHOD', {
         formSubject: formContent,
         department: capitalizeEachWord(formData.department),
         emails: formData.emails
       });  
+      notifysuccess('Notification sent to HOD!');
       navigate("/dashboard");
     } catch (error) {
       console.error('Error submitting request:', error);
-      alert('Error submitting request');
+      notifyfailure('Error submitting request');
     }
   };
+
   return (
     <form className="Attendance_request">
       <h5>Name Of the Event</h5>
-      <input type='text' name='name' value={formData.name} onChange={handleChange} />
+      <input type='text' name='name' value={formData.name} onChange={handleChange} required />
       <h5>Speaker</h5>
-      <input type='text' name='speaker' value={formData.speaker} onChange={handleChange} />
+      <input type='text' name='speaker' value={formData.speaker} onChange={handleChange} required />
       <h5>Description of the Speaker</h5>
-      <textarea style={{resize:'none'}} name='speaker_description' value={formData.speaker_description} onChange={handleChange}></textarea>
+      <textarea style={{resize:'none'}} name='speaker_description' value={formData.speaker_description} onChange={handleChange} required></textarea>
       <h5>Date</h5>
       <LocalizationProvider dateAdapter={AdapterDayjs}>
         <DemoContainer components={['DatePicker']}>
@@ -107,6 +142,7 @@ const Hall_Request = () => {
             value={formData.event_date}
             onChange={(newValue) => setFormData({ ...formData, event_date: newValue })}
             renderInput={(params) => <TextField {...params} className="custom-date-picker" />}
+            required
           />
         </DemoContainer>
       </LocalizationProvider>
@@ -120,6 +156,7 @@ const Hall_Request = () => {
               setFvalue(newValue);
               setFormData({ ...formData, start_time: newValue });
             }}
+            required
           />
           <TimePicker
             label="To"
@@ -128,6 +165,7 @@ const Hall_Request = () => {
               setTvalue(newValue);
               setFormData({ ...formData, end_time: newValue });
             }}
+            required
           />
         </DemoContainer>
       </LocalizationProvider>
@@ -139,16 +177,17 @@ const Hall_Request = () => {
         ))}
       </select>
       <h5>Participants</h5>
-      <input type='text' name='participants' value={formData.participants} onChange={handleChange} />
+      <input type='text' name='participants' value={formData.participants} onChange={handleChange} required />
       <h5>Incharge Faculty</h5>
-      <input type='text' name='incharge_faculty' value={formData.incharge_faculty} onChange={handleChange} />
+      <input type='text' name='incharge_faculty' value={formData.incharge_faculty} onChange={handleChange} required />
       <h5>Facility Needed</h5>
-      <textarea style={{resize:'none'}} name='facility_needed' value={formData.facility_needed} onChange={handleChange}></textarea>
+      <textarea style={{resize:'none'}} name='facility_needed' value={formData.facility_needed} onChange={handleChange} required></textarea>
       <h5>Event Co-Ordinator Mail ID</h5>
-      <input type='text' name='emails' value={formData.emails} onChange={handleChange} />
+      <input type='email' name='emails' value={formData.emails} onChange={handleChange} required />
       <div className="send-button-container">
         <button onClick={handleSubmit}>Request Hall</button>
       </div>
+      <ToastContainer />
     </form>
   );
 };
