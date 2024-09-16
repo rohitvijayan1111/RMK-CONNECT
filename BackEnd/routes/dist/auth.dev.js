@@ -9,6 +9,11 @@ var db = require('../config/db');
 var jwt = require('jsonwebtoken');
 
 var router = express.Router();
+
+var _require = require('google-auth-library'),
+    OAuth2Client = _require.OAuth2Client;
+
+var client = new OAuth2Client('6780170653-md9te2utbr8o1fecvp0g02bj974q1gdp.apps.googleusercontent.com');
 var jwtSecret = 'your_jwt_secret_key';
 router.post('/register', function _callee2(req, res) {
   var _req$body, username, password, role, department;
@@ -87,6 +92,71 @@ router.post('/register', function _callee2(req, res) {
     }
   });
 });
+router.post('/googleLogin', function _callee3(req, res) {
+  var token, ticket, payload, email, googleId, sql;
+  return regeneratorRuntime.async(function _callee3$(_context3) {
+    while (1) {
+      switch (_context3.prev = _context3.next) {
+        case 0:
+          token = req.body.token;
+          console.log("getting request");
+          _context3.prev = 2;
+          _context3.next = 5;
+          return regeneratorRuntime.awrap(client.verifyIdToken({
+            idToken: token,
+            audience: '6780170653-md9te2utbr8o1fecvp0g02bj974q1gdp.apps.googleusercontent.com'
+          }));
+
+        case 5:
+          ticket = _context3.sent;
+          payload = ticket.getPayload();
+          email = payload['email'];
+          googleId = payload['sub'];
+          sql = 'SELECT * FROM google_authenticated_users WHERE email = ?';
+          db.query(sql, [email], function (err, results) {
+            if (err) {
+              return res.status(500).send('Server error');
+            }
+
+            if (results.length === 0) {
+              return res.status(403).json({
+                error: 'User does not have access to any forms'
+              });
+            }
+
+            var user = results[0];
+            console.log("USER DATAAA BELLLLLOOWWWWW");
+            console.log(user);
+            var token = jwt.sign({
+              userId: user.id,
+              email: user.email,
+              department: user.department,
+              role: user.role
+            }, jwtSecret, {
+              expiresIn: '1h'
+            });
+            return res.status(200).json({
+              token: token
+            });
+          });
+          _context3.next = 17;
+          break;
+
+        case 13:
+          _context3.prev = 13;
+          _context3.t0 = _context3["catch"](2);
+          console.error('Error during Google login:', _context3.t0);
+          return _context3.abrupt("return", res.status(500).json({
+            error: 'Google authentication failed'
+          }));
+
+        case 17:
+        case "end":
+          return _context3.stop();
+      }
+    }
+  }, null, null, [[2, 13]]);
+});
 router.post('/login', function (req, res) {
   var _req$body2 = req.body,
       username = _req$body2.username,
@@ -98,42 +168,42 @@ router.post('/login', function (req, res) {
   }
 
   var sql = 'SELECT * FROM users WHERE username = ?';
-  db.query(sql, [username], function _callee3(err, results) {
+  db.query(sql, [username], function _callee4(err, results) {
     var user, isMatch, token;
-    return regeneratorRuntime.async(function _callee3$(_context3) {
+    return regeneratorRuntime.async(function _callee4$(_context4) {
       while (1) {
-        switch (_context3.prev = _context3.next) {
+        switch (_context4.prev = _context4.next) {
           case 0:
             if (!err) {
-              _context3.next = 3;
+              _context4.next = 3;
               break;
             }
 
             console.error(err);
-            return _context3.abrupt("return", res.status(500).send('Server error'));
+            return _context4.abrupt("return", res.status(500).send('Server error'));
 
           case 3:
             if (!(results.length === 0)) {
-              _context3.next = 5;
+              _context4.next = 5;
               break;
             }
 
-            return _context3.abrupt("return", res.status(400).send('Invalid credentials'));
+            return _context4.abrupt("return", res.status(400).send('Invalid credentials'));
 
           case 5:
             user = results[0];
-            _context3.next = 8;
+            _context4.next = 8;
             return regeneratorRuntime.awrap(bcrypt.compare(password, user.password));
 
           case 8:
-            isMatch = _context3.sent;
+            isMatch = _context4.sent;
 
             if (isMatch) {
-              _context3.next = 11;
+              _context4.next = 11;
               break;
             }
 
-            return _context3.abrupt("return", res.status(400).send('Invalid credentials'));
+            return _context4.abrupt("return", res.status(400).send('Invalid credentials'));
 
           case 11:
             token = jwt.sign({
@@ -151,7 +221,7 @@ router.post('/login', function (req, res) {
 
           case 13:
           case "end":
-            return _context3.stop();
+            return _context4.stop();
         }
       }
     });

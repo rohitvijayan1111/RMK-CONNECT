@@ -6,7 +6,7 @@ import Swal from 'sweetalert2';
 import { ToastContainer, toast, Zoom } from 'react-toastify';
 import { getTokenData } from '../Pages/authUtils';
 import './OtherForms.css'
-
+import dayjs from 'dayjs';
 const OtherForms = () => {
     const navigate = useNavigate();
     const [forms, setForms] = useState([]);
@@ -83,6 +83,21 @@ const OtherForms = () => {
             notifyfailure("Form not found");
         }
     };
+    const handleTask = (formId) => {
+        const form = forms.find(f => f.id === formId);
+        if (form) {
+            navigate("assign-task", {
+                state: {
+                    formId: formId,
+                    title: form.form_title,
+                    usersgroup: form.usergroup,
+                    form:form
+                }
+            });
+        } else {
+            notifyfailure("Could not Navigate to that page");
+        }
+    };
     function handleDeleteForm(formId, formName,tableName) {
         Swal.fire({
           title: `Do you want to delete the ${formName} form?`,
@@ -116,6 +131,9 @@ const OtherForms = () => {
    function handleView(form){
     navigate("form-records", { state: { form: form} });
    }
+   function handleUsers(form){
+    navigate("Manage-Assigned-Users", { state: { form: form,department:tokendata.department} });
+   }
 
     return (
         <>
@@ -129,6 +147,7 @@ const OtherForms = () => {
                     <tr>
                         <th>S.No</th>
                         <th>Form Title</th>
+                        <th>Deadline</th>
                         <th>Action</th>
                     </tr>
                 </thead>
@@ -137,9 +156,16 @@ const OtherForms = () => {
                         <tr key={form.id}>
                             <td>{index + 1}</td>
                             <td>{form.form_title}</td>
+                            <td>{form.deadline ? dayjs(form.deadline).format("HH:mm DD-MM-YYYY") : "No deadline"}</td>
                             <td>
                                 <Button variant="primary" onClick={() => handleView(form)}>View</Button>
                                 {' '}
+                                {role==="hod" && (
+                                    <>
+                                    <Button variant="warning" onClick={()=>handleTask(form.id)}>Assign Task</Button>
+                                    <Button variant="warning" onClick={()=>handleUsers(form)}>Manage Users</Button>
+                                    </>
+                                )}
                                 {role === 'IQAC'&& (
                                     <>
                                     <Button variant="danger" onClick={() => handleLock(form.id)}>

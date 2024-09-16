@@ -18,10 +18,11 @@ function OtherFormsRecords() {
   const [table] = useState(form.form_table_name);
   const tokendata = getTokenData();
   const role = tokendata.role;
-  const [dept, setDept] = useState(role === "hod" ? tokendata.department : "All");
+  const [dept, setDept] = useState(role === "hod" || role==="Form editor" ? tokendata.department : "All");
   const [data, setData] = useState([]);
   const [originalData, setOriginalData] = useState([]);
   const [attributenames, setAttributenames] = useState([]);
+  console.log(role);
   const [lockedstatus, setLockedstatus] = useState('');
   const [searchColumn, setSearchColumn] = useState('');
   const [searchValue, setSearchValue] = useState('');
@@ -262,7 +263,7 @@ function OtherFormsRecords() {
           <button type="button" onClick={handleLock} className="bttlock">{!lockedstatus ? "Lock Form" : "Unlock Form"}</button>
         </div>}
 
-        {role === 'hod' && <div className="col">
+        {(role === 'hod' || role==="Form editor") && <div className="col">
           <button type="button" onClick={handleAdd} className="search-button">Add Records</button>
         </div>}
       </div>
@@ -272,7 +273,7 @@ function OtherFormsRecords() {
           <table className="table table-bordered table-hover">
             <thead className="thead-dark">
             <tr>
-            {role === "hod" && <th rowSpan="2" className="fixed-column">Action</th>}
+            {(role === "hod" || role==="Form editor") && <th rowSpan="2" className="fixed-column">Action</th>}
             {attributenames && attributenames.map((name, index) => (
               name === "id" ? <th rowSpan="2" key={index}>S.No</th> :
               name === "createdAt" ? <th rowSpan="2" key={index}>Updated At</th> :
@@ -303,7 +304,7 @@ function OtherFormsRecords() {
             <tbody>
               {data.map((item, index) => (
                 <tr key={index}>
-                  {role === "hod" &&
+                  {(role === "hod" || role==="Form editor") &&
                     <td>
                       <IconContext.Provider value={{ className: 'react-icons' }}>
                         <div className="icon-container">
@@ -316,16 +317,17 @@ function OtherFormsRecords() {
                   {attributenames.map((name, attrIndex) => (
                     name === "id" ? <td key={attrIndex}>{index + 1}</td> :
                     name === "company_details" ? (
-                      <>
-                        {item.companyDetails && item.companyDetails.map((company, idx) => (
-                          <React.Fragment key={idx}>
-                            <td>{company.company_name}</td>
-                            <td>{company.salary_offered}</td>
-                            <td>{company.no_of_students_placed}</td>
+                      item.company_details ? (
+                        // Parse the JSON string into an array
+                        JSON.parse(item.company_details).map((company, companyIndex) => (
+                          <React.Fragment key={companyIndex}>
+                            <td>{company.companyName}</td>
+                            <td>{company.salaryOffered}</td>
+                            <td>{company.noOfStuPlaced}</td>
                           </React.Fragment>
-                        ))}
-                      </>
-                    ) :
+                        ))
+                      ) : <td key={attrIndex}>No Company Data</td>
+                    )  :
                     <td key={attrIndex}>
                       {attributeTypes[name] === "date" ? formatDate(item[name]) :
                        attributeTypes[name] === "timestamp" ? dayjs(item[name]).format('HH:mm DD/MM/YYYY') :

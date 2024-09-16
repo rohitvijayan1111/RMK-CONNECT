@@ -8,7 +8,7 @@ const multer = require('multer');
 const fs = require('fs');
 const query = util.promisify(db.query).bind(db);
 const fsPromises = require('fs').promises; // For async operations
-
+const axios = require('axios');
 const getFriendlyErrorMessage = (errCode) => {
   switch (errCode) {
     case 'ER_NO_SUCH_TABLE':
@@ -157,6 +157,7 @@ router.post('/insertrecord', upload.single('file'), async (req, res) => {
     res.status(500).json({ error: `${friendlyMessage}` });
   }
 });
+
 router.post('/updaterecord', upload.single('file'), async (req, res) => {
   console.log(req.body);
   const { id, table, data: rawData, deleteFile } = req.body;
@@ -267,7 +268,6 @@ router.post('/locktable', async (req, res) => {
     res.status(500).json({ error: getFriendlyErrorMessage(error.code) });
   }
 });
-
 router.post('/deadline', async (req, res) => {
   const { id, deadline } = req.body;
 
@@ -277,24 +277,145 @@ router.post('/deadline', async (req, res) => {
   }
 
   try {
-    const [response] = await query('SELECT * FROM form_locks WHERE id = ?', [id]);
+    // Get the form lock data by ID
+    const [formLock] = await query('SELECT * FROM form_locks WHERE id = ?', [id]);
 
-    if (!response) {
+    if (!formLock) {
       return res.status(404).json({ error: 'Form lock not found' });
     }
 
-    await query('UPDATE form_locks SET deadline = ?, not_submitted_emails = ? WHERE id = ?', [deadline, response.usergroup, id]);
+    // Update the deadline in the database
+    await query('UPDATE form_locks SET deadline = ? WHERE id = ?', [deadline, id]);
 
-    res.json({ message: 'Deadline updated successfully' });
+    // Fetch the email addresses from the 'assigned_to_usergroup' JSON field
+    const assignedUsers = JSON.parse(formLock.assigned_to_usergroup || '[]');
+
+    // Send an individual email to each assigned user
+    for (const user of assignedUsers) {
+      const email = user[0]; // Extract email from each assigned user
+
+      const emailPayload = {
+        subject: `${formLock.form_title} Form Deadline Update`,
+        to: email, // Send email to individual user
+        desc: `Dear ${email},\n\nPlease be informed that the deadline for the ${formLock.form_title} form has been updated. The new deadline is ${deadline}.\n Ensure timely submission to avoid any delays.\n Best regards,\nIQAC`,
+      };
+
+      // Send email for each user
+      await axios.post('http://localhost:3000/mail/send', emailPayload);
+    }
+
+    res.status(200).json({ success: true, message: 'Deadline updated and notifications sent successfully' });
+
   } catch (err) {
     console.error('Error updating deadline:', err.stack);
     res.status(500).json({ error: 'An error occurred while updating the deadline' });
   }
 });
+
+router.post('/create-shadow-user', async (req, res) => {
+  const { emailId, form_id, department, role, assigned_by, form_title, deadline } = req.body;
+
+  try {
+    // Check if the user already exists
+    const checkUserQuery = 'SELECT email FROM google_authenticated_users WHERE email = ?';
+    const userResult = await query(checkUserQuery, [emailId]);
+
+    if (userResult.length === 0) {
+      // Insert user if not exists
+      const insertUserQuery = `
+        INSERT INTO google_authenticated_users (email, department, assigned_by, assigned_at, role)
+        VALUES (?, ?, ?, NOW(), ?)
+      `;
+      await query(insertUserQuery, [emailId, department, assigned_by, role]);
+    }
+
+    // Fetch the current assigned_to_usergroup
+    const fetchAssignedQuery = 'SELECT assigned_to_usergroup FROM form_locks WHERE id = ?';
+    const formResult = await query(fetchAssignedQuery, [form_id]);
+
+    let assignedUsers = [];
+
+    // Parse assigned_to_usergroup if it exists
+    if (formResult.length > 0 && formResult[0].assigned_to_usergroup) {
+      assignedUsers = JSON.parse(formResult[0].assigned_to_usergroup);
+    }
+
+    // Check if the user is already assigned
+    const userAlreadyAssigned = assignedUsers.some(user => user[0] === emailId);
+
+    if (userAlreadyAssigned) {
+      return res.status(400).json({ error: 'User already assigned' });
+    }
+
+    // Add the new user with department to the nested array
+    assignedUsers.push([emailId, department]);
+
+    // Update form_locks with the new nested array
+    const updateFormQuery = `
+      UPDATE form_locks
+      SET assigned_to_usergroup = ?
+      WHERE id = ?;
+    `;
+    await query(updateFormQuery, [JSON.stringify(assignedUsers), form_id]);
+
+    // Prepare and send email payload
+    const emailPayload = {
+      subject: `${form_title} Form was assigned to you`,
+      to: emailId,
+      desc: `Dear ${emailId},\n\nYou have been assigned the form titled "${form_title}" by the Head of Department (HOD) of ${department}. Please be informed that you have been given the responsibility to complete and submit this form before the specified deadline.\n\nGoing forward, you will receive notifications regarding any updates or reminders about the deadline, which is set for ${deadline}. Kindly ensure timely submission to avoid any delays.\n\nThank you for your cooperation.\n\nBest regards,\n${assigned_by}`,
+    };
+
+    await axios.post('http://localhost:3000/mail/send', emailPayload);
+    res.status(200).json({ success: true });
+  } catch (error) {
+    res.status(500).json({ error: error.message });
+  }
+});
+router.post('/deleteFormUser', (req, res) => {
+  const { formId, email, department } = req.body;
+
+  // First, retrieve the current assigned_to_usergroup JSON array
+  const selectQuery = 'SELECT assigned_to_usergroup FROM form_locks WHERE id = ?';
+  
+  db.query(selectQuery, [formId], (err, results) => {
+    if (err) {
+      console.error('Error fetching form data:', err);
+      return res.status(500).json({ success: false, error: 'Failed to fetch form data' });
+    }
+
+    if (results.length === 0 || !results[0].assigned_to_usergroup) {
+      return res.status(404).json({ success: false, error: 'Form not found or no assigned users' });
+    }
+
+    let assignedUsers;
+    try {
+      assignedUsers = JSON.parse(results[0].assigned_to_usergroup);
+    } catch (jsonError) {
+      console.error('Error parsing assigned_to_usergroup JSON:', jsonError);
+      return res.status(500).json({ success: false, error: 'Failed to parse user data' });
+    }
+
+    // Filter out the user based on email and department
+    const updatedUsers = assignedUsers.filter(
+      user => !(user[0] === email && user[1] === department)
+    );
+
+    // Update the database with the modified JSON array
+    const updateQuery = 'UPDATE form_locks SET assigned_to_usergroup = ? WHERE id = ?';
+    db.query(updateQuery, [JSON.stringify(updatedUsers), formId], (updateErr, updateResults) => {
+      if (updateErr) {
+        console.error('Error updating form data:', updateErr);
+        return res.status(500).json({ success: false, error: 'Failed to update form data' });
+      }
+
+      return res.json({ success: true, message: 'User deleted successfully' });
+    });
+  });
+});
+
 router.post('/delete', async (req, res) => {
   const { formId, tableName } = req.body;
 
-  // Validate request body
   if (!formId || !tableName) {
     return res.status(400).json({ error: 'Form ID and table name are required' });
   }
@@ -325,28 +446,6 @@ router.post('/delete', async (req, res) => {
     console.error('Error deleting form lock and table:', err.stack);
     await query('ROLLBACK'); // Rollback the transaction in case of an error
     res.status(500).json({ error: 'An error occurred while deleting the form and table' });
-  }
-});
-router.post('/updateusergroup', async (req, res) => {
-  const { id, usergroup } = req.body;
-
-  if (!id || !usergroup) {
-    return res.status(400).json({ error: 'Form ID and user group are required' });
-  }
-
-  try {
-    const [response] = await query('SELECT * FROM form_locks WHERE id = ?', [id]);
-
-    if (!response) {
-      return res.status(404).json({ error: 'Form lock not found' });
-    }
-
-    await query('UPDATE form_locks SET usergroup= ? WHERE id = ?', [usergroup, id]);
-
-    res.json({ message: 'usergroup updated successfully' });
-  } catch (err) {
-    console.error('Error updating usergroup:', err.stack);
-    res.status(500).json({ error: 'An error occurred while updating the usergroup' });
   }
 });
 

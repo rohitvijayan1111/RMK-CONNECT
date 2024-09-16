@@ -1,11 +1,12 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
+import { GoogleOAuthProvider, GoogleLogin } from '@react-oauth/google';
+import {jwtDecode} from 'jwt-decode'; 
 import './LoginPage.css';
-import logo from '../assets/Logo.png';
 import axios from 'axios';
 import { ToastContainer, toast, Zoom } from 'react-toastify';
+import logo from '../assets/Logo.png';
 import refresh from '../assets/refresh.png';
-import { jwtDecode } from 'jwt-decode';
 
 function LoginPage() {
   const [username, setUsername] = useState('');
@@ -65,12 +66,10 @@ function LoginPage() {
     try {
       const response = await axios.post('http://localhost:3000/auth/login', userData);
       const { token } = response.data;
-      sessionStorage.setItem('token', token);``
+      sessionStorage.setItem('token', token);
       sessionStorage.setItem('loggedIn', 'true');
-      console.log('Token:', token);
       const decodedToken = jwtDecode(token);
       const role = decodedToken.role;
-      console.log('Decoded Role:', role);
       notifysuccess();
       setTimeout(() => {
         navigate('/dashboard');
@@ -94,56 +93,85 @@ function LoginPage() {
     }
   };
 
+  const handleGoogleLogin = async (response) => {
+    try {
+      const googleUserData = {
+        token: response.credential,  
+      };
+  
+      const res = await axios.post('http://localhost:3000/auth/googleLogin', googleUserData);
+      const { token } = res.data;
+      sessionStorage.setItem('token', token);
+      sessionStorage.setItem('loggedIn', 'true');
+      notifysuccess('Login successful');
+      setTimeout(() => {
+        navigate('/dashboard/assigned-forms');
+      }, 1000);
+    } catch (error) {
+      const errorMessage = error.response?.data?.error || 'Google Login Failed.';
+      notifyfailure(errorMessage); 
+    }
+  };
+  
   return (
-    <div className='loginpage'>
-      <div className="login-form">
-        <div className="flower-logo">
-          <img src={logo} alt="Logo" />
-        </div>
-        <form onSubmit={handleSubmit}>
-          <div className="form-group">
-            <input
-              type="text"
-              id="username"
-              placeholder="USERNAME"
-              value={username}
-              onChange={(e) => setUsername(e.target.value)}
-            />
+    <GoogleOAuthProvider clientId="6780170653-md9te2utbr8o1fecvp0g02bj974q1gdp.apps.googleusercontent.com">
+      <div className='loginpage'>
+        <div className="login-form">
+          <div className="flower-logo">
+            <img src={logo} alt="Logo" />
           </div>
-          <div className="form-group">
-            <input
-              type="password"
-              id="password"
-              placeholder="PASSWORD"
-              value={password}
-              onChange={(e) => setPassword(e.target.value)}
-            />
-          </div>
-          <div className="form-group">
-            <div className='captcha'>
-              {captcha}
-              <img
-                src={refresh}
-                onClick={handleClick}
-                width="20px"
-                height="20px"
-                alt="refresh captcha"
-                style={{ cursor: 'pointer' }}
+          <form onSubmit={handleSubmit}>
+            <div className="form-group">
+              <input
+                type="text"
+                id="username"
+                placeholder="USERNAME"
+                value={username}
+                onChange={(e) => setUsername(e.target.value)}
               />
             </div>
-            <input
-              type="text"
-              id="s"
-              placeholder="Enter Captcha"
-              value={random}
-              onChange={(e) => setRandom(e.target.value)}
-            />
-          </div>
-          <button type="submit">Sign in</button>
-        </form>
+            <div className="form-group">
+              <input
+                type="password"
+                id="password"
+                placeholder="PASSWORD"
+                value={password}
+                onChange={(e) => setPassword(e.target.value)}
+              />
+            </div>
+            <div className="form-group">
+              <div className='captcha'>
+                {captcha}
+                <img
+                  src={refresh}
+                  onClick={handleClick}
+                  width="20px"
+                  height="20px"
+                  alt="refresh captcha"
+                  style={{ cursor: 'pointer' }}
+                />
+              </div>
+              <input
+                type="text"
+                id="s"
+                placeholder="Enter Captcha"
+                value={random}
+                onChange={(e) => setRandom(e.target.value)}
+              />
+            </div>
+            <button type="submit">Sign in</button>
+          </form>
+
+          <GoogleLogin
+            onSuccess={handleGoogleLogin}
+            onError={() => notifyfailure('Google Sign-In Failed')}
+            useOneTap
+          />
+
+        </div>
+        <ToastContainer />
       </div>
-      <ToastContainer />
-    </div>
+    </GoogleOAuthProvider>
   );
 }
 
