@@ -40,6 +40,9 @@ import OtherForms from "./Components/OtherForms";
 import OtherFormsRecords from "./Components/OtherFormsRecords";
 import ProtectedRoute from "./Pages/ProtectedRoute";
 import SetDeadlinePage from "./Components/SetDeadlinePage";
+import LeaveForm from "./Outing_Form/LeaveForm";
+import ApprovalProcess from "./Outing_Form/ApprovalProcess";
+import RequestList from "./Outing_Form/RequestList";
 function ScrollToTop() {
   const { pathname } = useLocation();
 
@@ -95,6 +98,10 @@ function App() {
               <Route path="forms/create-form" element={<CreateNewForm/>} />
               <Route path="faculty-details/edit-form" element={<EditForm/>} />
               <Route path="faculty-details/add-form" element={<AddForm />} />
+              <Route path="outing-request" element={<LeaveForm/>} />
+              <Route path="outing-approval" element={<ApprovalProcess/>} />
+              <Route path="request-list" element={<RequestList/>} />
+        
               <Route path="*" element={<Invalidpage />} />
             </Route>
             <Route path="*" element={<Invalidpage />} />

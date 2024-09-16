@@ -95,10 +95,28 @@ const Attendance_Log = () => {
   const [selectedDate, setSelectedDate] = useState(null);
   const [selectedDepartment, setSelectedDepartment] = useState('');
   const [selectedHostellerDayScholar, setSelectedHostellerDayScholar] = useState('All');
+  const [academicYears, setAcademicYears] = useState([]);
+  const [selectedYear, setSelectedYear] = useState('');
+  const [studentDetails, setStudentDetails] = useState([]);
+  const [studentYrsDetails, setStudentYrsDetails] = useState([]);
   const tokendata=getTokenData();
   const user=tokendata.role;
   const department=tokendata.department;
   const [name, setName] = useState("");
+
+  useEffect(() => {
+    const fetchAcademicYears = async () => {
+      try {
+        const response = await axios.get('http://localhost:3000/graphs/academicyear'); // Replace with your API endpoint
+        const years = response.data;
+        setAcademicYears(years);
+      } catch (error) {
+        console.error('Error fetching academic years:', error);
+      }
+    };
+
+    fetchAcademicYears();
+  }, []);
 
   const fetchData = async () => {
     try {
@@ -129,8 +147,49 @@ const Attendance_Log = () => {
     }
   };
 
+  const fetchStudentData = async (year) => {
+    try {
+      const response = await axios.post("http://localhost:3000/graphs/studentsgraph", { dept: department, academic_year: year });
+      setStudentDetails(transformData(response.data));
+    } catch (error) {
+      console.error('Error fetching student data:', error);
+    }
+  };
+  const fetchStudentyrsData = async (year) => {
+    try {
+      const response = await axios.post("http://localhost:3000/graphs/studentsyrsgraph", { dept: department, academic_year: year });
+      setStudentYrsDetails(transformYrsData(response.data));
+    } catch (error) {
+      console.error('Error fetching student data:', error);
+    }
+  };
+
+  const transformData = (data) => {
+    return [
+      { status: 'Placed', students: data.placed_students },
+      { status: 'Yet Placed', students: data.yet_placed_students },
+      { status: 'HS', students: data.higher_studies_students },
+    ];
+  };
+
+  const transformYrsData = (data) => {
+    return [
+      { name: "1st Year", value: data.firstyear },
+      { name: "2nd Year", value: data.secondyear },
+      { name: "3rd Year", value: data.thirdyear },
+      { name: "4th Year", value: data.fourthyear }
+    ];
+  };
+
   const extractAttributeNames = (object) => {
     return Object.keys(object);
+  };
+
+  const handleYearChange = (event) => {
+    const year = event.target.value;
+    setSelectedYear(year);
+    fetchStudentData(year);
+    fetchStudentyrsData(year);
   };
 
   const handleFetchClick = () => {
@@ -160,9 +219,13 @@ const Attendance_Log = () => {
     <div className='hon'>
       <div className='ddbtt'>
         <UserGroupSelector setSelectedUserGroup={setSelectedUserGroup} />
-        <HostellerDayScholarSelector setSelectedHostellerDayScholar={setSelectedHostellerDayScholar} />
         {(user !== 'hod' && user !== 'Attendance Manager') && <DepartmentSelector setSelectedDepartment={setSelectedDepartment} />}
         {selectedUserGroup === "Student" && <HostellerDayScholarSelector setSelectedHostellerDayScholar={setSelectedHostellerDayScholar} />}
+        <select className='dropbutton' value={selectedYear} onChange={handleYearChange}> 
+        {academicYears.map((year, index) => (
+          <option key={index} value={year}>{year}</option>
+        ))} 
+      </select>
       </div>
       <div className='conte'>
         <LocalizationProvider dateAdapter={AdapterDayjs}>

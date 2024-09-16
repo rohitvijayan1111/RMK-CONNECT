@@ -14,15 +14,19 @@ import upcoming from '../assets/upcoming.png';
 import Status from '../assets/Status.png';
 import Available from '../assets/Available.png';
 import others from '../assets/others.png';
+import outingIcon from '../assets/outing.png'; 
+import RequestList from '../assets/request-list.png'; 
 import { getTokenData } from "../Pages/authUtils";
+
 function SideBar() {
   const location = useLocation();
   const sidebarRef = useRef(null);
-  const tokenData=getTokenData();
+  const tokenData = getTokenData();
   let user = tokenData.role;
   
   const [showAttendanceLinks, setShowAttendanceLinks] = useState(false);
   const [showHallBookingLinks, setShowHallBookingLinks] = useState(false);
+  const [showOutingLinks, setShowOutingLinks] = useState(false); // New state for Outing Form
 
   const isActive = (path, exact = false) => {
     if (exact) {
@@ -36,6 +40,7 @@ function SideBar() {
       if (sidebarRef.current && !sidebarRef.current.contains(event.target)) {
         setShowAttendanceLinks(false);
         setShowHallBookingLinks(false);
+        setShowOutingLinks(false); // Close outing form links when clicked outside
       }
     };
 
@@ -48,6 +53,7 @@ function SideBar() {
   useEffect(() => {
     setShowAttendanceLinks(false);
     setShowHallBookingLinks(false);
+    setShowOutingLinks(false); // Reset outing links when location changes
   }, [location]);
 
   const handleMouseEnterAttendanceLinks = () => {
@@ -66,6 +72,14 @@ function SideBar() {
     setShowHallBookingLinks(false);
   };
 
+  const handleMouseEnterOutingLinks = () => {
+    setShowOutingLinks(true);
+  };
+
+  const handleMouseLeaveOutingLinks = () => {
+    setShowOutingLinks(false);
+  };
+
   return (
     <div className="sidebar" ref={sidebarRef}>
       <ul>
@@ -77,7 +91,7 @@ function SideBar() {
         </li>
         {user !== "IQAC" && (
           <>
-            <li>
+            <li className='drop-down'>
               <p onMouseEnter={handleMouseEnterAttendanceLinks} onMouseLeave={handleMouseLeaveAttendanceLinks}>
                 <img src={att} width="40px" height="40px" alt="Attendance" />
                 Attendance
@@ -111,7 +125,7 @@ function SideBar() {
                 </div>
               )}
             </li>
-            <li onMouseEnter={handleMouseEnterHallBookingLinks} onMouseLeave={handleMouseLeaveHallBookingLinks}>
+            <li className='drop-down' onMouseEnter={handleMouseEnterHallBookingLinks} onMouseLeave={handleMouseLeaveHallBookingLinks}>
               <p>
                 <img src={reserve} width="40px" height="40px" alt="Hall Booking" />
                 Hall Booking
@@ -140,6 +154,34 @@ function SideBar() {
                     <Link to="/dashboard/Available-Halls">
                       <img src={Available} width="30px" height="30px" alt="Available Halls" />
                       Halls
+                    </Link>
+                  </li>
+                </div>
+              )}
+            </li>
+            <li className='drop-down' onMouseEnter={handleMouseEnterOutingLinks} onMouseLeave={handleMouseLeaveOutingLinks}>
+              <p>
+                <img src={outingIcon} width="40px" height="40px" alt="Outing Form" />
+                Outing Form
+              </p>
+              {showOutingLinks && (
+                <div className="extra-links-container-outing" onMouseEnter={handleMouseEnterOutingLinks} onMouseLeave={handleMouseLeaveOutingLinks}>
+                  <li className={isActive('/dashboard/Request-Outing')}>
+                    <Link to="/dashboard/outing-request">
+                      <img src={reserve} width="30px" height="30px" alt="Request Outing" />
+                      Request Outing
+                    </Link>
+                  </li>
+                  <li className={isActive('/dashboard/Outing-Status')}>
+                    <Link to="/dashboard/Outing-approval">
+                      <img src={Status} width="30px" height="30px" alt="Outing Status" />
+                      Outing Status
+                    </Link>
+                  </li>
+                  <li className={isActive('/dashboard/Outing-Status')}>
+                    <Link to="/dashboard/request-list">
+                      <img src={RequestList} width="30px" height="30px" alt="Outing Status" />
+                      Request List
                     </Link>
                   </li>
                 </div>

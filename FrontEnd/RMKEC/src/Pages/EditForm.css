@@ -352,3 +352,59 @@
   display: flex;
   justify-content: space-around;
 }
+
+.btn-submit {
+  background-color: #164863; 
+  margin-left: 40%;
+  color: white;
+  font-size: 16px; 
+  font-weight: bold; 
+  padding: 10px 20px; 
+  border: none; 
+  border-radius: 30px;
+  cursor: pointer; 
+  text-transform: uppercase; 
+  transition: background-color 0.3s ease, transform 0.2s ease; 
+}
+
+.btn-submit:hover {
+  background-color: green; 
+  transform: scale(1.05); 
+}
+
+.btn-submit:active {
+  background-color: #004085;
+  transform: scale(1); 
+}
+
+.btn-submit:focus {
+  outline: none; 
+  box-shadow: 0 0 10px rgba(0, 123, 255, 0.5); 
+}
+.text-box {
+  width: 100%; 
+  padding: 10px 15px; 
+  font-size: 16px; 
+  user-select: none;
+  resize: none;
+  color: #333; 
+  background-color: white; 
+  border: 1px solid #ccc; 
+  box-sizing: border-box; 
+  transition: background-color 0.3s ease, border-color 0.3s ease, box-shadow 0.3s ease; 
+}
+
+.text-box:focus {
+  background-color: white; 
+  border-color: #164863; 
+  box-shadow: 0 0 10px rgba(0, 123, 255, 0.2); 
+  outline: none; 
+}
+
+.text-box:hover {
+  border-color: #164863;
+}
+
+.text-box::placeholder {
+  color: #aaa; 
+}
