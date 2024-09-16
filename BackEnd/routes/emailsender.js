@@ -42,24 +42,6 @@ router.post('/send', async (req, res) => {
     res.status(500).send('Error creating form or sending email: ' + error);
   }
 });
-router.post('/send', async (req, res) => {
-  const { subject, to, desc } = req.body;
-  console.log(req.body);
-  const mailOptions = {
-    from: { name: 'RMKEC UPDATES', address: 'rohitvijayandrive@gmail.com' },
-    to: to,
-    subject: `${subject}`,
-    text: `${desc}`
-  };
-
-  try {
-    await transporter.sendMail(mailOptions);
-    res.status(200).send('Form created and email sent');
-  } catch (error) {
-    console.error('Error sending email:', error);
-    res.status(500).send('Error creating form or sending email: ' + error);
-  }
-});
 
 
 router.post('/notifyHOD', async (req, res) => {

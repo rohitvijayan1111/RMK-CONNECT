@@ -3,6 +3,9 @@ const bcrypt = require('bcryptjs');
 const db = require('../config/db');
 const jwt = require('jsonwebtoken');
 const router = express.Router();
+const { OAuth2Client } = require('google-auth-library');
+
+const client = new OAuth2Client('6780170653-md9te2utbr8o1fecvp0g02bj974q1gdp.apps.googleusercontent.com');
 
 const jwtSecret = 'your_jwt_secret_key';
 router.post('/register', async (req, res) => {
@@ -35,6 +38,48 @@ router.post('/register', async (req, res) => {
     });
   });
 });
+router.post('/googleLogin', async (req, res) => {
+  const { token } = req.body; 
+  console.log("getting request");
+  try {
+    const ticket = await client.verifyIdToken({
+      idToken: token,  
+      audience:'6780170653-md9te2utbr8o1fecvp0g02bj974q1gdp.apps.googleusercontent.com',
+    });
+
+    const payload = ticket.getPayload();
+    const email = payload['email'];
+    const googleId = payload['sub'];
+
+    
+    const sql = 'SELECT * FROM google_authenticated_users WHERE email = ?';
+    db.query(sql, [email], (err, results) => {
+      if (err) {
+        return res.status(500).send('Server error');
+      }
+
+      if (results.length === 0) {
+        return res.status(403).json({ error: 'User does not have access to any forms' });
+      }
+
+      const user = results[0];
+      console.log("USER DATAAA BELLLLLOOWWWWW");
+      console.log(user);
+      
+      const token = jwt.sign(
+        { userId: user.id, email: user.email, department: user.department, role: user.role },
+        jwtSecret,
+        { expiresIn: '1h' }
+      );
+
+      return res.status(200).json({ token });
+    });
+  } catch (error) {
+    console.error('Error during Google login:', error);
+    return res.status(500).json({ error: 'Google authentication failed' });
+  }
+});
+
 
 
 router.post('/login', (req, res) => {
@@ -84,6 +129,7 @@ function verifyToken(req, res, next) {
     return res.status(401).send('Invalid or expired token');
   }
 }
+
 
 router.get('/protected', verifyToken, (req, res) => {
   res.status(200).send(`Welcome, ${req.user.username}. You are authenticated as ${req.user.role}.`);

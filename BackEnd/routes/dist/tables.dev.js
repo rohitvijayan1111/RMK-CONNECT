@@ -41,6 +41,8 @@ var query = util.promisify(db.query).bind(db);
 var fsPromises = require('fs').promises; // For async operations
 
 
+var axios = require('axios');
+
 var getFriendlyErrorMessage = function getFriendlyErrorMessage(errCode) {
   switch (errCode) {
     case 'ER_NO_SUCH_TABLE':
@@ -568,7 +570,7 @@ router.post('/locktable', function _callee6(req, res) {
   }, null, null, [[3, 9]]);
 });
 router.post('/deadline', function _callee7(req, res) {
-  var _req$body6, id, deadline, _ref, _ref2, response;
+  var _req$body6, id, deadline, _ref, _ref2, formLock, assignedUsers, _iteratorNormalCompletion, _didIteratorError, _iteratorError, _iterator, _step, user, email, emailPayload;
 
   return regeneratorRuntime.async(function _callee7$(_context8) {
     while (1) {
@@ -593,9 +595,9 @@ router.post('/deadline', function _callee7(req, res) {
         case 6:
           _ref = _context8.sent;
           _ref2 = _slicedToArray(_ref, 1);
-          response = _ref2[0];
+          formLock = _ref2[0];
 
-          if (response) {
+          if (formLock) {
             _context8.next = 11;
             break;
           }
@@ -606,72 +608,292 @@ router.post('/deadline', function _callee7(req, res) {
 
         case 11:
           _context8.next = 13;
-          return regeneratorRuntime.awrap(query('UPDATE form_locks SET deadline = ?, not_submitted_emails = ? WHERE id = ?', [deadline, response.usergroup, id]));
+          return regeneratorRuntime.awrap(query('UPDATE form_locks SET deadline = ? WHERE id = ?', [deadline, id]));
 
         case 13:
-          res.json({
-            message: 'Deadline updated successfully'
-          });
-          _context8.next = 20;
+          // Fetch the email addresses from the 'assigned_to_usergroup' JSON field
+          assignedUsers = JSON.parse(formLock.assigned_to_usergroup || '[]'); // Send an individual email to each assigned user
+
+          _iteratorNormalCompletion = true;
+          _didIteratorError = false;
+          _iteratorError = undefined;
+          _context8.prev = 17;
+          _iterator = assignedUsers[Symbol.iterator]();
+
+        case 19:
+          if (_iteratorNormalCompletion = (_step = _iterator.next()).done) {
+            _context8.next = 28;
+            break;
+          }
+
+          user = _step.value;
+          email = user[0]; // Extract email from each assigned user
+
+          emailPayload = {
+            subject: "".concat(formLock.form_title, " Form Deadline Update"),
+            to: email,
+            // Send email to individual user
+            desc: "Dear ".concat(email, ",\n\nPlease be informed that the deadline for the ").concat(formLock.form_title, " form has been updated. The new deadline is ").concat(deadline, ".\n Ensure timely submission to avoid any delays.\n Best regards,\nIQAC")
+          }; // Send email for each user
+
+          _context8.next = 25;
+          return regeneratorRuntime.awrap(axios.post('http://localhost:3000/mail/send', emailPayload));
+
+        case 25:
+          _iteratorNormalCompletion = true;
+          _context8.next = 19;
           break;
 
-        case 16:
-          _context8.prev = 16;
-          _context8.t0 = _context8["catch"](3);
-          console.error('Error updating deadline:', _context8.t0.stack);
+        case 28:
+          _context8.next = 34;
+          break;
+
+        case 30:
+          _context8.prev = 30;
+          _context8.t0 = _context8["catch"](17);
+          _didIteratorError = true;
+          _iteratorError = _context8.t0;
+
+        case 34:
+          _context8.prev = 34;
+          _context8.prev = 35;
+
+          if (!_iteratorNormalCompletion && _iterator["return"] != null) {
+            _iterator["return"]();
+          }
+
+        case 37:
+          _context8.prev = 37;
+
+          if (!_didIteratorError) {
+            _context8.next = 40;
+            break;
+          }
+
+          throw _iteratorError;
+
+        case 40:
+          return _context8.finish(37);
+
+        case 41:
+          return _context8.finish(34);
+
+        case 42:
+          res.status(200).json({
+            success: true,
+            message: 'Deadline updated and notifications sent successfully'
+          });
+          _context8.next = 49;
+          break;
+
+        case 45:
+          _context8.prev = 45;
+          _context8.t1 = _context8["catch"](3);
+          console.error('Error updating deadline:', _context8.t1.stack);
           res.status(500).json({
             error: 'An error occurred while updating the deadline'
           });
 
-        case 20:
+        case 49:
         case "end":
           return _context8.stop();
       }
     }
-  }, null, null, [[3, 16]]);
+  }, null, null, [[3, 45], [17, 30, 34, 42], [35,, 37, 41]]);
 });
-router.post('/delete', function _callee8(req, res) {
-  var _req$body7, formId, tableName, deleteFormLockQuery, deleteFormLockResponse, dropTableQuery;
+router.post('/create-shadow-user', function _callee8(req, res) {
+  var _req$body7, emailId, form_id, department, role, assigned_by, form_title, deadline, checkUserQuery, userResult, insertUserQuery, fetchAssignedQuery, formResult, assignedUsers, userAlreadyAssigned, updateFormQuery, emailPayload;
 
   return regeneratorRuntime.async(function _callee8$(_context9) {
     while (1) {
       switch (_context9.prev = _context9.next) {
         case 0:
-          _req$body7 = req.body, formId = _req$body7.formId, tableName = _req$body7.tableName; // Validate request body
+          _req$body7 = req.body, emailId = _req$body7.emailId, form_id = _req$body7.form_id, department = _req$body7.department, role = _req$body7.role, assigned_by = _req$body7.assigned_by, form_title = _req$body7.form_title, deadline = _req$body7.deadline;
+          _context9.prev = 1;
+          // Check if the user already exists
+          checkUserQuery = 'SELECT email FROM google_authenticated_users WHERE email = ?';
+          _context9.next = 5;
+          return regeneratorRuntime.awrap(query(checkUserQuery, [emailId]));
 
-          if (!(!formId || !tableName)) {
-            _context9.next = 3;
+        case 5:
+          userResult = _context9.sent;
+
+          if (!(userResult.length === 0)) {
+            _context9.next = 10;
+            break;
+          }
+
+          // Insert user if not exists
+          insertUserQuery = "\n        INSERT INTO google_authenticated_users (email, department, assigned_by, assigned_at, role)\n        VALUES (?, ?, ?, NOW(), ?)\n      ";
+          _context9.next = 10;
+          return regeneratorRuntime.awrap(query(insertUserQuery, [emailId, department, assigned_by, role]));
+
+        case 10:
+          // Fetch the current assigned_to_usergroup
+          fetchAssignedQuery = 'SELECT assigned_to_usergroup FROM form_locks WHERE id = ?';
+          _context9.next = 13;
+          return regeneratorRuntime.awrap(query(fetchAssignedQuery, [form_id]));
+
+        case 13:
+          formResult = _context9.sent;
+          assignedUsers = []; // Parse assigned_to_usergroup if it exists
+
+          if (formResult.length > 0 && formResult[0].assigned_to_usergroup) {
+            assignedUsers = JSON.parse(formResult[0].assigned_to_usergroup);
+          } // Check if the user is already assigned
+
+
+          userAlreadyAssigned = assignedUsers.some(function (user) {
+            return user[0] === emailId;
+          });
+
+          if (!userAlreadyAssigned) {
+            _context9.next = 19;
             break;
           }
 
           return _context9.abrupt("return", res.status(400).json({
+            error: 'User already assigned'
+          }));
+
+        case 19:
+          // Add the new user with department to the nested array
+          assignedUsers.push([emailId, department]); // Update form_locks with the new nested array
+
+          updateFormQuery = "\n      UPDATE form_locks\n      SET assigned_to_usergroup = ?\n      WHERE id = ?;\n    ";
+          _context9.next = 23;
+          return regeneratorRuntime.awrap(query(updateFormQuery, [JSON.stringify(assignedUsers), form_id]));
+
+        case 23:
+          // Prepare and send email payload
+          emailPayload = {
+            subject: "".concat(form_title, " Form was assigned to you"),
+            to: emailId,
+            desc: "Dear ".concat(emailId, ",\n\nYou have been assigned the form titled \"").concat(form_title, "\" by the Head of Department (HOD) of ").concat(department, ". Please be informed that you have been given the responsibility to complete and submit this form before the specified deadline.\n\nGoing forward, you will receive notifications regarding any updates or reminders about the deadline, which is set for ").concat(deadline, ". Kindly ensure timely submission to avoid any delays.\n\nThank you for your cooperation.\n\nBest regards,\n").concat(assigned_by)
+          };
+          _context9.next = 26;
+          return regeneratorRuntime.awrap(axios.post('http://localhost:3000/mail/send', emailPayload));
+
+        case 26:
+          res.status(200).json({
+            success: true
+          });
+          _context9.next = 32;
+          break;
+
+        case 29:
+          _context9.prev = 29;
+          _context9.t0 = _context9["catch"](1);
+          res.status(500).json({
+            error: _context9.t0.message
+          });
+
+        case 32:
+        case "end":
+          return _context9.stop();
+      }
+    }
+  }, null, null, [[1, 29]]);
+});
+router.post('/deleteFormUser', function (req, res) {
+  var _req$body8 = req.body,
+      formId = _req$body8.formId,
+      email = _req$body8.email,
+      department = _req$body8.department; // First, retrieve the current assigned_to_usergroup JSON array
+
+  var selectQuery = 'SELECT assigned_to_usergroup FROM form_locks WHERE id = ?';
+  db.query(selectQuery, [formId], function (err, results) {
+    if (err) {
+      console.error('Error fetching form data:', err);
+      return res.status(500).json({
+        success: false,
+        error: 'Failed to fetch form data'
+      });
+    }
+
+    if (results.length === 0 || !results[0].assigned_to_usergroup) {
+      return res.status(404).json({
+        success: false,
+        error: 'Form not found or no assigned users'
+      });
+    }
+
+    var assignedUsers;
+
+    try {
+      assignedUsers = JSON.parse(results[0].assigned_to_usergroup);
+    } catch (jsonError) {
+      console.error('Error parsing assigned_to_usergroup JSON:', jsonError);
+      return res.status(500).json({
+        success: false,
+        error: 'Failed to parse user data'
+      });
+    } // Filter out the user based on email and department
+
+
+    var updatedUsers = assignedUsers.filter(function (user) {
+      return !(user[0] === email && user[1] === department);
+    }); // Update the database with the modified JSON array
+
+    var updateQuery = 'UPDATE form_locks SET assigned_to_usergroup = ? WHERE id = ?';
+    db.query(updateQuery, [JSON.stringify(updatedUsers), formId], function (updateErr, updateResults) {
+      if (updateErr) {
+        console.error('Error updating form data:', updateErr);
+        return res.status(500).json({
+          success: false,
+          error: 'Failed to update form data'
+        });
+      }
+
+      return res.json({
+        success: true,
+        message: 'User deleted successfully'
+      });
+    });
+  });
+});
+router.post('/delete', function _callee9(req, res) {
+  var _req$body9, formId, tableName, deleteFormLockQuery, deleteFormLockResponse, dropTableQuery;
+
+  return regeneratorRuntime.async(function _callee9$(_context10) {
+    while (1) {
+      switch (_context10.prev = _context10.next) {
+        case 0:
+          _req$body9 = req.body, formId = _req$body9.formId, tableName = _req$body9.tableName;
+
+          if (!(!formId || !tableName)) {
+            _context10.next = 3;
+            break;
+          }
+
+          return _context10.abrupt("return", res.status(400).json({
             error: 'Form ID and table name are required'
           }));
 
         case 3:
-          _context9.prev = 3;
-          _context9.next = 6;
+          _context10.prev = 3;
+          _context10.next = 6;
           return regeneratorRuntime.awrap(query('START TRANSACTION'));
 
         case 6:
           // Delete the form lock entry from form_locks table
           deleteFormLockQuery = 'DELETE FROM form_locks WHERE id = ?';
-          _context9.next = 9;
+          _context10.next = 9;
           return regeneratorRuntime.awrap(query(deleteFormLockQuery, [formId]));
 
         case 9:
-          deleteFormLockResponse = _context9.sent;
+          deleteFormLockResponse = _context10.sent;
 
           if (!(deleteFormLockResponse.affectedRows === 0)) {
-            _context9.next = 14;
+            _context10.next = 14;
             break;
           }
 
-          _context9.next = 13;
+          _context10.next = 13;
           return regeneratorRuntime.awrap(query('ROLLBACK'));
 
         case 13:
-          return _context9.abrupt("return", res.status(404).json({
+          return _context10.abrupt("return", res.status(404).json({
             error: 'Form lock not found'
           }));
 
@@ -679,25 +901,25 @@ router.post('/delete', function _callee8(req, res) {
           // Drop the table from the database
           dropTableQuery = "DROP TABLE IF EXISTS ??"; // Using placeholders to avoid SQL injection
 
-          _context9.next = 17;
+          _context10.next = 17;
           return regeneratorRuntime.awrap(query(dropTableQuery, [tableName]));
 
         case 17:
-          _context9.next = 19;
+          _context10.next = 19;
           return regeneratorRuntime.awrap(query('COMMIT'));
 
         case 19:
           res.json({
             message: "Form lock and table ".concat(tableName, " deleted successfully")
           });
-          _context9.next = 28;
+          _context10.next = 28;
           break;
 
         case 22:
-          _context9.prev = 22;
-          _context9.t0 = _context9["catch"](3);
-          console.error('Error deleting form lock and table:', _context9.t0.stack);
-          _context9.next = 27;
+          _context10.prev = 22;
+          _context10.t0 = _context10["catch"](3);
+          console.error('Error deleting form lock and table:', _context10.t0.stack);
+          _context10.next = 27;
           return regeneratorRuntime.awrap(query('ROLLBACK'));
 
         case 27:
@@ -708,82 +930,19 @@ router.post('/delete', function _callee8(req, res) {
 
         case 28:
         case "end":
-          return _context9.stop();
+          return _context10.stop();
       }
     }
   }, null, null, [[3, 22]]);
 });
-router.post('/updateusergroup', function _callee9(req, res) {
-  var _req$body8, id, usergroup, _ref3, _ref4, response;
-
-  return regeneratorRuntime.async(function _callee9$(_context10) {
-    while (1) {
-      switch (_context10.prev = _context10.next) {
-        case 0:
-          _req$body8 = req.body, id = _req$body8.id, usergroup = _req$body8.usergroup;
-
-          if (!(!id || !usergroup)) {
-            _context10.next = 3;
-            break;
-          }
-
-          return _context10.abrupt("return", res.status(400).json({
-            error: 'Form ID and user group are required'
-          }));
-
-        case 3:
-          _context10.prev = 3;
-          _context10.next = 6;
-          return regeneratorRuntime.awrap(query('SELECT * FROM form_locks WHERE id = ?', [id]));
-
-        case 6:
-          _ref3 = _context10.sent;
-          _ref4 = _slicedToArray(_ref3, 1);
-          response = _ref4[0];
-
-          if (response) {
-            _context10.next = 11;
-            break;
-          }
-
-          return _context10.abrupt("return", res.status(404).json({
-            error: 'Form lock not found'
-          }));
-
-        case 11:
-          _context10.next = 13;
-          return regeneratorRuntime.awrap(query('UPDATE form_locks SET usergroup= ? WHERE id = ?', [usergroup, id]));
-
-        case 13:
-          res.json({
-            message: 'usergroup updated successfully'
-          });
-          _context10.next = 20;
-          break;
-
-        case 16:
-          _context10.prev = 16;
-          _context10.t0 = _context10["catch"](3);
-          console.error('Error updating usergroup:', _context10.t0.stack);
-          res.status(500).json({
-            error: 'An error occurred while updating the usergroup'
-          });
-
-        case 20:
-        case "end":
-          return _context10.stop();
-      }
-    }
-  }, null, null, [[3, 16]]);
-});
 router.post('/getlocktablestatus', function _callee10(req, res) {
-  var _req$body9, id, table, results;
+  var _req$body10, id, table, results;
 
   return regeneratorRuntime.async(function _callee10$(_context11) {
     while (1) {
       switch (_context11.prev = _context11.next) {
         case 0:
-          _req$body9 = req.body, id = _req$body9.id, table = _req$body9.table;
+          _req$body10 = req.body, id = _req$body10.id, table = _req$body10.table;
 
           if (!(!table || !id)) {
             _context11.next = 3;

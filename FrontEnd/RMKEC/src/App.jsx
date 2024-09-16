@@ -40,6 +40,9 @@ import OtherForms from "./Components/OtherForms";
 import OtherFormsRecords from "./Components/OtherFormsRecords";
 import ProtectedRoute from "./Pages/ProtectedRoute";
 import SetDeadlinePage from "./Components/SetDeadlinePage";
+import AssignTask from "./Components/AssignTask";
+import Shadow_OtherForms from "./Components/Shadow_OtherForms";
+import ManageAssignedUsers from "./Components/ManageAssignedUsers";
 function ScrollToTop() {
   const { pathname } = useLocation();
 
@@ -51,7 +54,7 @@ function ScrollToTop() {
 }
 
 function App() {
-  return (
+  return ( 
     <LocalizationProvider dateAdapter={AdapterDateFns}>
       <div className='app'>
        <Router>
@@ -88,8 +91,11 @@ function App() {
               <Route path="Available-Halls" element={<Available_Halls />} />
               <Route path="DashBoard-Hall" element={<DashBoard_Hall />} />
               <Route path="forms" element={<OtherForms/>} />
+              <Route path="assigned-forms" element={<Shadow_OtherForms/>} />
               <Route path="forms/deadline" element={<SetDeadlinePage/>} />
+              <Route path="forms/assign-task" element={<AssignTask/>} />
               <Route path="forms/form-records" element={<OtherFormsRecords/>} />
+              <Route path="forms/Manage-Assigned-Users" element={<ManageAssignedUsers/>} />
               <Route path="forms/form-records/edit-form" element={<EditForm/>} />
               <Route path="forms/form-records/add-form" element={<AddForm />} />
               <Route path="forms/create-form" element={<CreateNewForm/>} />

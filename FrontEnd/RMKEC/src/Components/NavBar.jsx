@@ -26,7 +26,7 @@ function NavBar() {
         <img src={logo} width="50px" height="70px" alt="Logo" />
         <a href='/dashboard' className='logo' style={{ textDecoration: 'none' }}>
         <div>R.M.K. Engineering College</div>
-        <div className='cls'>(AN AUTONOMOUS INSTITUTE)</div>
+        <div className='cls'>(AN AUTONOMOUS INSTITUTION)</div>
         </a>
 
       </nav>

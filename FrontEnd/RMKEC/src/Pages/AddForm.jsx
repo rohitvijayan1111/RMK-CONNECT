@@ -116,9 +116,9 @@ const AddForm = () => {
         formData.append(key, value);
       });
 
-      // Add company details as JSON string
-      formData.append('company_details', JSON.stringify(companyDetails));
-
+      if(attributenames.companyDetails){
+        formData.append('company_details', JSON.stringify(companyDetails));
+      }
       if (file) {
         console.log("File exists");
         formData.append('file', file);
@@ -129,7 +129,7 @@ const AddForm = () => {
         }
       });
       console.log(response.data);
-      removeEmailFromNotSubmitted(formId, tokendata.email);
+      //removeEmailFromNotSubmitted(formId, tokendata.email);
       notifysuccess();
       setTimeout(() => {
         navigate(-1);
@@ -234,7 +234,7 @@ const AddForm = () => {
                       }}
                       key={fileInputKey}
                       style={{ display: 'none' }}
-                      required
+                      
                     />
                   </div>
                 ) : attributeTypes[attribute] === 'Placement_Percentage' ?( 
