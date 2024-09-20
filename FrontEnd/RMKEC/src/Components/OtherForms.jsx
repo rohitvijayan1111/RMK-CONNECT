@@ -145,10 +145,10 @@ const OtherForms = () => {
             <Table striped bordered hover>
                 <thead>
                     <tr>
-                        <th>S.No</th>
-                        <th>Form Title</th>
-                        <th>Deadline</th>
-                        <th>Action</th>
+                        <th style={{ width: '10%' }}>S.No</th>
+                        <th style={{ width: '30%' }}>Form Title</th>
+                        <th style={{ width: '20%' }}>Deadline</th>
+                        <th style={{ width: '40%' }}>Action</th>
                     </tr>
                 </thead>
                 <tbody>
