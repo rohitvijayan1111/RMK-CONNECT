@@ -1,6 +1,7 @@
-import React,{useState} from 'react';
+import React, { useState } from 'react';
 import { FaUser, FaCalendarAlt, FaClock, FaCheckCircle, FaCommentDots, FaMars, FaVenus, FaIdCard, FaSchool, FaPhoneAlt, FaMapMarkerAlt } from 'react-icons/fa';
-import './ApprovalProcess.css'
+import styled from 'styled-components';
+
 const ApprovalProcess = () => {
   const [counselorComments, setCounselorComments] = useState("");
   const [outingType, setOutingType] = useState("General Outing");
@@ -21,16 +22,16 @@ const ApprovalProcess = () => {
     contactNumber1: "9876543210",
     contactNumber2: "9876543222",
     nativePlace: "New York",
-    gender:"Male",
+    gender: "Male",
     counselorName: "Mr. Smith",
     counselorComments: "",
-    yearCoordinatorName: "Mrs. Johnson", 
+    yearCoordinatorName: "Mrs. Johnson",
     dateOfLeaving: "2024-09-20",
     timeOfLeaving: "10:00 AM",
     requestDate: "2024-09-15",
     status: {
       counsellor: "Approved",
-      yearCoordinator: "Approved", 
+      yearCoordinator: "Approved",
       hod: "Approved",
       principal: "Pending"
     }
@@ -49,234 +50,324 @@ const ApprovalProcess = () => {
   };
 
   return (
-    <div className="approval-card">
+    <ApprovalCard>
       <h2>Leave Request Approval</h2>
 
-      <div className="details">
-       
-        <div className="detail-item">
+      <Details>
+        <DetailItem>
           <FaUser className="icon" />
           <div>
             <strong>Name:</strong> <p>{dummyData.studentName}</p>
           </div>
-        </div>
+        </DetailItem>
 
-     
-        <div className="detail-item">
+        <DetailItem>
           <FaIdCard className="icon" />
           <div>
             <strong>Registration No:</strong> <p>{dummyData.registrationNumber}</p>
           </div>
-        </div>
+        </DetailItem>
 
-
-        <div className="detail-item">
-        {dummyData.gender === 'Male' ? <FaMars className="icon" /> : <FaVenus className="icon" />}
+        <DetailItem>
+          {dummyData.gender === 'Male' ? <FaMars className="icon" /> : <FaVenus className="icon" />}
           <div>
             <strong>Gender:</strong> <p>{dummyData.gender}</p>
           </div>
-        </div>
+        </DetailItem>
 
-        <div className="detail-item">
+        <DetailItem>
           <FaSchool className="icon" />
           <div>
             <strong>Branch:</strong> <p>{dummyData.department}</p>
           </div>
-        </div>
+        </DetailItem>
 
-     
-        <div className="detail-item">
+        <DetailItem>
           <FaSchool className="icon" />
           <div>
             <strong>Year:</strong> <p>{dummyData.year}</p>
           </div>
-        </div>
+        </DetailItem>
 
-      
-        <div className="detail-item">
+        <DetailItem>
           <FaSchool className="icon" />
           <div>
             <strong>Section:</strong> <p>{dummyData.section}</p>
           </div>
-        </div>
+        </DetailItem>
 
-       
-        <div className="detail-item">
+        <DetailItem>
           <FaUser className="icon" />
           <div>
             <strong>Room Number:</strong> <p>{dummyData.roomNumber}</p>
           </div>
-        </div>
+        </DetailItem>
 
-       
-        <div className="detail-item">
+        <DetailItem>
           <FaClock className="icon" />
           <div>
             <strong>No of Days:</strong> <p>{dummyData.noOfDays}</p>
           </div>
-        </div>
+        </DetailItem>
 
-        
-        <div className="detail-item">
+        <DetailItem>
           <FaCalendarAlt className="icon" />
           <div>
             <strong>Date of Application:</strong> <p>{dummyData.requestDate}</p>
           </div>
-        </div>
+        </DetailItem>
 
-       
-        <div className="detail-item">
+        <DetailItem>
           <FaCalendarAlt className="icon" />
           <div>
             <strong>From Date:</strong> <p>{dummyData.fromDate}</p>
           </div>
-        </div>
+        </DetailItem>
 
-        
-        <div className="detail-item">
+        <DetailItem>
           <FaCalendarAlt className="icon" />
           <div>
             <strong>To Date:</strong> <p>{dummyData.toDate}</p>
           </div>
-        </div>
+        </DetailItem>
 
-        
-        <div className="detail-item">
+        <DetailItem>
           <FaCommentDots className="icon" />
           <div>
             <strong>Reason for Leave:</strong> <p>{dummyData.reasonForLeave}</p>
           </div>
-        </div>
+        </DetailItem>
 
-        
-        <div className="detail-item">
+        <DetailItem>
           <FaUser className="icon" />
           <div>
             <strong>Father's Name:</strong> <p>{dummyData.fatherName}</p>
           </div>
-        </div>
+        </DetailItem>
 
-        
-        <div className="detail-item">
+        <DetailItem>
           <FaUser className="icon" />
           <div>
             <strong>Mother's Name:</strong> <p>{dummyData.motherName}</p>
           </div>
-        </div>
+        </DetailItem>
 
-        
-        <div className="detail-item">
+        <DetailItem>
           <FaPhoneAlt className="icon" />
           <div>
             <strong>Contact Number 1:</strong> <p>{dummyData.contactNumber1}</p>
           </div>
-        </div>
+        </DetailItem>
 
-       
-        <div className="detail-item">
+        <DetailItem>
           <FaPhoneAlt className="icon" />
           <div>
             <strong>Contact Number 2:</strong> <p>{dummyData.contactNumber2}</p>
           </div>
-        </div>
+        </DetailItem>
 
-        
-        <div className="detail-item">
+        <DetailItem>
           <FaMapMarkerAlt className="icon" />
           <div>
             <strong>Native Place:</strong> <p>{dummyData.nativePlace}</p>
           </div>
-        </div>
+        </DetailItem>
 
-        <div className="detail-item">
+        <DetailItem>
           <FaUser className="icon" />
           <div>
             <strong>Year Coordinator:</strong> <p>{dummyData.yearCoordinatorName}</p>
           </div>
-        </div>
+        </DetailItem>
 
-        <div className="detail-item">
+        <DetailItem>
           <FaCalendarAlt className="icon" />
           <div>
             <strong>Date of Leaving:</strong> <p>{dummyData.dateOfLeaving}</p>
           </div>
-        </div>
+        </DetailItem>
 
-        
-        <div className="detail-item">
+        <DetailItem>
           <FaClock className="icon" />
           <div>
             <strong>Time of Leaving:</strong> <p>{dummyData.timeOfLeaving}</p>
           </div>
-        </div>
+        </DetailItem>
 
-        
-        <div className="detail-item">
+        <DetailItem>
           <FaUser className="icon" />
           <div>
             <strong>Counselor:</strong> <p>{dummyData.counselorName}</p>
           </div>
-        </div>
+        </DetailItem>
 
-        <div className="detail-item">
-          <FaCommentDots className="icon" />
-          <div>
-            <strong>Counselor's Comments:</strong> 
-            {userRole === 'counselor' ? (
-              <textarea
-                value={counselorComments}
-                onChange={handleCounselorCommentsChange}
-                placeholder="Enter counselor's comments"
+        {userRole === 'counselor' ? (
+  <DetailItem>
+    <FaCommentDots className="icon" />
+    <div>
+      <strong>Counselor's Comments:</strong>
+      <textarea
+        value={counselorComments}
+        onChange={handleCounselorCommentsChange}
+        placeholder="Enter counselor's comments"
+        className="counselor-comments-textarea"
+        style={{width: "100%",
+          padding: "10px",
+          fontSize: "15px",
+          border: "1px solid #ddd",
+          borderRadius: "4px",
+          backgroundColor: "#fff",
+          marginTop: "5px",
+          resize: "none"}}
+      />
+    </div>
+    </DetailItem>
+) : (
+  <div className="detail-item">
+    <FaCommentDots className="icon" />
+    <div>
+      <strong>Counselor's Comments:</strong>
+      <p>{dummyData.counselorComments || "No comments provided"}</p>
+    </div>
+  </div>
+)}
 
-              />
-            ) : (
-              <p>{dummyData.counselorComments || "No comments provided"}</p>
-            )}
-          </div>
-        </div>
+      <DetailItem>
+        <FaCalendarAlt className="icon" />
+        <strong>Outing Type:</strong>
+        <Select value={outingType} onChange={handleOutingTypeChange}>
+          <Option value="General Outing">General Outing</Option>
+          <Option value="Working Day Outing">Working Day Outing</Option>
+        </Select>
+      </DetailItem>
 
-        <div className="detail-item">
-          <FaCalendarAlt className="icon" />
-          <div style={{display:'flex'}}>
-            <strong>Outing Type:</strong>
-            <select value={outingType} onChange={handleOutingTypeChange}>
-              <option value="General Outing">General Outing</option>
-              <option value="Working Day Outing">Working Day Outing</option>
-            </select>
-          </div>
-        </div>
 
-      </div>
+      </Details>
 
-      <div className="approval-status">
-        <div className="status-item">
+      <ApprovalStatus>
+        <StatusItem>
           <span>Counsellor</span>
           <FaCheckCircle className={dummyData.status.counsellor === "Approved" ? "approved" : "pending"} />
-        </div>
-        <div className="status-item">
-          <span>Year Coordinator</span> 
+        </StatusItem>
+        <StatusItem>
+          <span>Year Coordinator</span>
           <FaCheckCircle className={dummyData.status.yearCoordinator === "Approved" ? "approved" : "pending"} />
-        </div>
-        <div className="status-item">
+        </StatusItem>
+        <StatusItem>
           <span>HoD</span>
           <FaCheckCircle className={dummyData.status.hod === "Approved" ? "approved" : "pending"} />
-        </div>
-        <div className="status-item">
+        </StatusItem>
+        <StatusItem>
           <span>Principal</span>
           <FaCheckCircle className={dummyData.status.principal === "Approved" ? "approved" : "pending"} />
-        </div>
-      </div>
-      {userRole === 'counselor' && (
-        <div className="counselor-actions">
-          <button className="approve-btn" onClick={handleCounselorApproval}>
-            Submit Comments & Approve
-          </button>
-        </div>
-      )}
-        
+        </StatusItem>
+      </ApprovalStatus>
 
-    </div>
+      {userRole === 'counselor' && (
+        <CounselorActions>
+          <ApproveButton onClick={handleCounselorApproval}>
+            Submit Comments & Approve
+          </ApproveButton>
+        </CounselorActions>
+      )}
+    </ApprovalCard>
   );
 };
+
+// Styled-components
+const ApprovalCard = styled.div`
+  background: #fff;
+  padding: 20px;
+  border-radius: 10px;
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+  max-width: 800px;
+  margin: 0 auto;
+`;
+
+const Details = styled.div`
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 15px;
+  margin-bottom: 20px;
+`;
+
+const DetailItem = styled.div`
+  display: flex;
+  align-items: center;
+  .icon {
+    margin-right: 10px;
+    color: #B0E0E6;
+    font-size:22px;
+  }
+  strong {
+    margin-right: 5px;
+    color: #164863;
+    font-size:17px;
+  }
+  p {
+    margin: 0;
+  }
+`;
+
+const Select = styled.select`
+  width: 100%;
+  padding: 10px;
+  font-size: 15px;
+  border: 1px solid #ddd;
+  border-radius: 4px;
+  background-color: #fff;
+  cursor: pointer;
+  transition: all 0.3s;
+  margin-top: 5px;
+
+  &:focus {
+    border-color: #3b82f6;
+    outline: none;
+    box-shadow: 0 0 8px rgba(59, 130, 246, 0.2);
+  }
+`;
+
+const Option = styled.option`
+  padding: 10px;
+  background-color: #fff;
+  cursor: pointer;
+`;
+
+const ApprovalStatus = styled.div`
+  display: flex;
+  justify-content: space-between;
+  margin-top: 20px;
+`;
+
+const StatusItem = styled.div`
+  display: flex;
+  align-items: center;
+  span {
+    margin-right: 10px;
+  }
+  .approved {
+    color: green;
+  }
+  .pending {
+    color: orange;
+  }
+`;
+
+const CounselorActions = styled.div`
+  margin-top: 20px;
+  text-align: center;
+`;
+
+const ApproveButton = styled.button`
+  background-color: #4CAF50;
+  color: white;
+  padding: 10px 20px;
+  border: none;
+  border-radius: 5px;
+  cursor: pointer;
+  &:hover {
+    background-color: #45a049;
+  }
+`;
 
 export default ApprovalProcess;
