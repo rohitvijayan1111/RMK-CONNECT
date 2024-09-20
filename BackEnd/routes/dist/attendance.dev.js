@@ -569,11 +569,9 @@ router.post('/getindividual', function _callee3(req, res) {
           departmentCheckParams = [];
 
           if (department !== 'All') {
-            // Check if the roll number belongs to the specified department and fetch student details
             departmentCheckQuery = "SELECT id, name, studentType, year FROM ".concat(userTable, " WHERE id = ? AND department = ?");
             departmentCheckParams = [rollnumber, department];
           } else {
-            // Check if the roll number exists in the table and fetch student details
             departmentCheckQuery = "SELECT id, name, studentType, year FROM ".concat(userTable, " WHERE id = ?");
             departmentCheckParams = [rollnumber];
           }
@@ -1310,8 +1308,7 @@ router.post('/admin-attendance-count-summary', function _callee10(req, res) {
     while (1) {
       switch (_context11.prev = _context11.next) {
         case 0:
-          type = req.body.type; // Assuming 'type' is sent in the request body
-
+          type = req.body.type;
           _context11.prev = 1;
           console.log("INNN");
           _context11.next = 5;
