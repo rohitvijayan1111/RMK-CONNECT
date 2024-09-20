@@ -1,7 +1,10 @@
-import React from 'react';
+import React,{useState} from 'react';
 import { FaUser, FaCalendarAlt, FaClock, FaCheckCircle, FaCommentDots, FaMars, FaVenus, FaIdCard, FaSchool, FaPhoneAlt, FaMapMarkerAlt } from 'react-icons/fa';
 import './ApprovalProcess.css'
 const ApprovalProcess = () => {
+  const [counselorComments, setCounselorComments] = useState("");
+  const [outingType, setOutingType] = useState("General Outing");
+  let userRole = 'counselor';
   const dummyData = {
     studentName: "John Doe",
     registrationNumber: "123456",
@@ -20,7 +23,7 @@ const ApprovalProcess = () => {
     nativePlace: "New York",
     gender:"Male",
     counselorName: "Mr. Smith",
-    counselorComments: "Verified with parents",
+    counselorComments: "",
     yearCoordinatorName: "Mrs. Johnson", 
     dateOfLeaving: "2024-09-20",
     timeOfLeaving: "10:00 AM",
@@ -31,6 +34,18 @@ const ApprovalProcess = () => {
       hod: "Approved",
       principal: "Pending"
     }
+  };
+
+  const handleCounselorCommentsChange = (e) => {
+    setCounselorComments(e.target.value);
+  };
+
+  const handleCounselorApproval = () => {
+    alert("Counselor comments submitted: " + counselorComments);
+  };
+
+  const handleOutingTypeChange = (e) => {
+    setOutingType(e.target.value);
   };
 
   return (
@@ -180,23 +195,6 @@ const ApprovalProcess = () => {
           </div>
         </div>
 
-        
-        <div className="detail-item">
-          <FaUser className="icon" />
-          <div>
-            <strong>Counselor:</strong> <p>{dummyData.counselorName}</p>
-          </div>
-        </div>
-
-      
-        <div className="detail-item">
-          <FaCommentDots className="icon" />
-          <div>
-            <strong>Counselor's Comments:</strong> <p>{dummyData.counselorComments}</p>
-          </div>
-        </div>
-
-        
         <div className="detail-item">
           <FaCalendarAlt className="icon" />
           <div>
@@ -211,6 +209,43 @@ const ApprovalProcess = () => {
             <strong>Time of Leaving:</strong> <p>{dummyData.timeOfLeaving}</p>
           </div>
         </div>
+
+        
+        <div className="detail-item">
+          <FaUser className="icon" />
+          <div>
+            <strong>Counselor:</strong> <p>{dummyData.counselorName}</p>
+          </div>
+        </div>
+
+        <div className="detail-item">
+          <FaCommentDots className="icon" />
+          <div>
+            <strong>Counselor's Comments:</strong> 
+            {userRole === 'counselor' ? (
+              <textarea
+                value={counselorComments}
+                onChange={handleCounselorCommentsChange}
+                placeholder="Enter counselor's comments"
+
+              />
+            ) : (
+              <p>{dummyData.counselorComments || "No comments provided"}</p>
+            )}
+          </div>
+        </div>
+
+        <div className="detail-item">
+          <FaCalendarAlt className="icon" />
+          <div style={{display:'flex'}}>
+            <strong>Outing Type:</strong>
+            <select value={outingType} onChange={handleOutingTypeChange}>
+              <option value="General Outing">General Outing</option>
+              <option value="Working Day Outing">Working Day Outing</option>
+            </select>
+          </div>
+        </div>
+
       </div>
 
       <div className="approval-status">
@@ -231,6 +266,15 @@ const ApprovalProcess = () => {
           <FaCheckCircle className={dummyData.status.principal === "Approved" ? "approved" : "pending"} />
         </div>
       </div>
+      {userRole === 'counselor' && (
+        <div className="counselor-actions">
+          <button className="approve-btn" onClick={handleCounselorApproval}>
+            Submit Comments & Approve
+          </button>
+        </div>
+      )}
+        
+
     </div>
   );
 };
