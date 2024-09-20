@@ -269,11 +269,9 @@ router.post('/getindividual', async (req, res) => {
         let departmentCheckParams = [];
 
         if (department !== 'All') {
-            // Check if the roll number belongs to the specified department and fetch student details
             departmentCheckQuery = `SELECT id, name, studentType, year FROM ${userTable} WHERE id = ? AND department = ?`;
             departmentCheckParams = [rollnumber, department];
         } else {
-            // Check if the roll number exists in the table and fetch student details
             departmentCheckQuery = `SELECT id, name, studentType, year FROM ${userTable} WHERE id = ?`;
             departmentCheckParams = [rollnumber];
         }
@@ -820,8 +818,7 @@ router.post('/admin-attendance-summary', async (req, res) => {
     }
 });
 router.post('/admin-attendance-count-summary', async (req, res) => {
-    const { type } = req.body; // Assuming 'type' is sent in the request body
-
+    const { type } = req.body; 
     try {
         console.log("INNN");
         const results = await query('SELECT * FROM membercount');
